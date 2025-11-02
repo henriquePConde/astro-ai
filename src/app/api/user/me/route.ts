@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getOrCreateCurrentUser } from '@/backend/features/users';
+import { getOrCreateCurrentUser, userDto } from '@/backend/features/users';
+import { handleError } from '@/backend/core/errors/error-handler';
 
 export async function GET() {
   try {
     const user = await getOrCreateCurrentUser();
-    return NextResponse.json(user);
-  } catch (e: any) {
-    const status = e?.status ?? (e?.message === 'Unauthorized' ? 401 : 500);
-    return NextResponse.json({ message: e?.message ?? 'Error' }, { status });
+    return NextResponse.json(userDto.parse(user));
+  } catch (error) {
+    return handleError(error);
   }
 }
