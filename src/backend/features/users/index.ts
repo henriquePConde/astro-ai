@@ -1,1 +1,1 @@
-// Placeholder barrel for users feature
+export { getOrCreateCurrentUser } from './application/users.use-cases';
