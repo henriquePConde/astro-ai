@@ -5,9 +5,6 @@ import { HeaderAuthView } from './header-auth.view';
 
 export function HeaderAuthContainer() {
   const { isLoading, isAuthenticated, email, signOut } = useAuthContext();
-  console.log('isLoading', isLoading);
-  console.log('isAuthenticated', isAuthenticated);
-  console.log('email', email);
 
   return (
     <HeaderAuthView

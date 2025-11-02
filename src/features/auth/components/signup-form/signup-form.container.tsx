@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { useAuthContext } from '@/features/auth/AuthContext';
 import { useSignUp } from '@/features/auth/hooks/use-sign-up.mutation';
+import { useAuthRedirect } from '@/features/auth/hooks/use-auth-redirect.state';
+import { useAuthFormState } from '@/features/auth/hooks/use-auth-form-state.state';
 import { SignupFormView } from './signup-form.view';
 import type { SignupFormValues } from './signup-form.schema';
 
@@ -11,18 +12,12 @@ export function SignupFormContainer() {
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
   const signUpMutation = useSignUp();
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { error, successMessage, setError, setSuccessMessage, clearMessages } = useAuthFormState();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.replace('/');
-    }
-  }, [isAuthenticated, router]);
+  useAuthRedirect(isAuthenticated);
 
   const handleSubmit = async (values: SignupFormValues) => {
-    setError(null);
-    setSuccessMessage(null);
+    clearMessages();
     try {
       await signUpMutation.mutateAsync({ email: values.email, password: values.password });
       setSuccessMessage('Account created. Redirecting…');
