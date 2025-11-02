@@ -6,6 +6,7 @@ export const styles = {
     width: '100%',
     height: '100vh',
     overflow: 'hidden',
+    color: 'white',
   }),
   header: () => (theme: Theme) => ({
     position: 'absolute',
@@ -22,5 +23,16 @@ export const styles = {
     bottom: 0,
     width: '100%',
     height: '100%',
+  }),
+  intro: () => (theme: Theme) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 50,
+    pointerEvents: 'auto',
   }),
 };

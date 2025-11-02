@@ -1,0 +1,60 @@
+import { Theme } from '@mui/material';
+
+export const styles = {
+  root: (isActive: boolean) => (theme: Theme) => ({
+    transition: 'all 700ms',
+    height: '100%',
+    opacity: isActive ? 1 : 0,
+    transform: isActive ? 'translateY(0)' : 'translateY(32px)',
+    pointerEvents: isActive ? ('auto' as const) : ('none' as const),
+    position: isActive ? ('relative' as const) : ('absolute' as const),
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  }),
+  content: () => (theme: Theme) => ({
+    display: 'flex',
+    gap: theme.spacing(2),
+    alignItems: 'stretch',
+    height: '100%',
+  }),
+  imageContainer: () => (theme: Theme) => ({
+    width: '40%',
+    display: 'flex',
+    alignItems: 'center',
+  }),
+  imageWrapper: () => (theme: Theme) => ({
+    width: '100%',
+    height: '400px',
+    minHeight: '300px',
+    position: 'relative',
+    borderRadius: '8px',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  }),
+  textContainer: () => (theme: Theme) => ({
+    width: '60%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    gap: theme.spacing(1),
+  }),
+  title: () => (theme: Theme) => ({
+    fontSize: { xs: '1.5rem', md: '1.875rem' },
+    fontWeight: 700,
+    lineHeight: 1.2,
+    background: 'linear-gradient(to right, white, #e3f2fd, white)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    filter: 'drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5))',
+  }),
+  contentText: () => (theme: Theme) => ({
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: '1rem',
+    lineHeight: 1.6,
+    letterSpacing: '0.025em',
+    filter: 'drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5))',
+  }),
+};
