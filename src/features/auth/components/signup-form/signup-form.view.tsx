@@ -27,76 +27,93 @@ export function SignupFormView({
   });
 
   return (
-    <Box sx={styles.root()}>
-      <Typography variant="h1" component="h1">
-        Sign up
-      </Typography>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2} sx={styles.form()}>
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Email"
-                type="email"
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                required
-                fullWidth
-              />
+    <Box sx={styles.container()}>
+      <Box sx={styles.root()}>
+        <Box sx={styles.header()}>
+          <Typography variant="h1" component="h1" sx={styles.title()}>
+            Join the Cosmos
+          </Typography>
+          <Typography sx={styles.subtitle()}>Begin your astrological journey</Typography>
+        </Box>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={2} sx={styles.form()}>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Email"
+                  type="email"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  required
+                  fullWidth
+                  sx={styles.textField()}
+                />
+              )}
+            />
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Password"
+                  type="password"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  required
+                  fullWidth
+                  sx={styles.textField()}
+                />
+              )}
+            />
+            <Controller
+              name="confirmPassword"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Confirm password"
+                  type="password"
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword?.message}
+                  required
+                  fullWidth
+                  sx={styles.textField()}
+                />
+              )}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isLoading}
+              fullWidth
+              sx={styles.button()}
+            >
+              {isLoading ? 'Creating account...' : 'Create account'}
+            </Button>
+            {error && (
+              <Alert severity="error" sx={styles.error()}>
+                {error}
+              </Alert>
             )}
-          />
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Password"
-                type="password"
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                required
-                fullWidth
-              />
+            {successMessage && (
+              <Alert severity="success" sx={styles.success()}>
+                {successMessage}
+              </Alert>
             )}
-          />
-          <Controller
-            name="confirmPassword"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Confirm password"
-                type="password"
-                error={!!errors.confirmPassword}
-                helperText={errors.confirmPassword?.message}
-                required
-                fullWidth
-              />
-            )}
-          />
-          <Button type="submit" variant="contained" disabled={isLoading} fullWidth>
-            {isLoading ? 'Creating account...' : 'Create account'}
-          </Button>
-          {error && (
-            <Alert severity="error" sx={styles.error()}>
-              {error}
-            </Alert>
-          )}
-          {successMessage && (
-            <Alert severity="success" sx={styles.success()}>
-              {successMessage}
-            </Alert>
-          )}
-        </Stack>
-      </form>
-      <Box sx={styles.linkContainer()}>
-        <Typography variant="body2">
-          Already have an account? <Link href="/login">Log in</Link>
-        </Typography>
+          </Stack>
+        </form>
+        <Box sx={styles.linkContainer()}>
+          <Typography variant="body2">
+            Already have an account?{' '}
+            <Link href="/login" sx={styles.link()}>
+              Log in
+            </Link>
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );
