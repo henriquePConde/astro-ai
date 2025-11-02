@@ -1,5 +1,5 @@
-import { HomePageContent } from './page-content';
+import { HomePageContainer } from '@/features/home';
 
 export default function HomePage() {
-  return <HomePageContent />;
+  return <HomePageContainer />;
 }

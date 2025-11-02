@@ -1,0 +1,1 @@
+export { PlanetWithTrail } from './PlanetWithTrail';

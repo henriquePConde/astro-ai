@@ -9,7 +9,7 @@ interface AppHeaderViewProps {
 
 export function AppHeaderView({ headerContent }: AppHeaderViewProps) {
   return (
-    <AppBar position="static" elevation={0} sx={styles.root()}>
+    <AppBar position="absolute" elevation={0} sx={styles.root()}>
       <Toolbar disableGutters sx={{ width: '100%', justifyContent: 'space-between' }}>
         <Typography variant="h6" component="div" fontWeight={600}>
           Astro AI

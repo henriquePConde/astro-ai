@@ -1,0 +1,1 @@
+export { AnimatedCamera } from './AnimatedCamera';
