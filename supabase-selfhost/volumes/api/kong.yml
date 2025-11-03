@@ -38,6 +38,15 @@ services:
         paths: [ /pg, /pg/ ]
         strip_path: true
 
+  # Serve the Supabase dashboard (Studio) at http://localhost:8000/
+  - name: studio
+    url: http://studio:3000
+    routes:
+      - name: studio-root
+        paths: [ / ]
+        strip_path: false
+        # (no hosts: constraint → works for localhost and 127.0.0.1)
+
 plugins:
   - name: cors
     config:

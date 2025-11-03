@@ -4,22 +4,56 @@ import { createServerClient } from '@supabase/ssr';
 
 /**
  * Auth-enforcing middleware for protected routes.
- * - Adds "x-middleware-ran: yes" so you can verify it ran in DevTools.
- * - If Supabase envs are missing, falls back to checking sb- cookies directly.
- * - Redirects to /login?next=... when no session.
+ * - For API routes: returns 401 if no session
+ * - For app routes: redirects to /login?next=... if no session
+ * - Public routes: /api/health, /api/auth/sync, /api/auth/signout, /api/reports/[id], /api/pdf/validate-token
  */
 export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+
+  // Skip public endpoints
+  const publicPaths = [
+    '/api/health',
+    '/api/auth/sync',
+    '/api/auth/signout',
+    '/api/pdf/validate-token',
+  ];
+
+  // Check if this is a public reports endpoint (/api/reports/[id])
+  if (
+    pathname.startsWith('/api/reports/') &&
+    pathname !== '/api/reports' &&
+    pathname !== '/api/reports/daily-usage'
+  ) {
+    return NextResponse.next();
+  }
+
+  if (publicPaths.includes(pathname)) {
+    return NextResponse.next();
+  }
+
   const res = NextResponse.next();
-  res.headers.set('x-middleware-ran', 'yes'); // <-- verify in Network tab
+  res.headers.set('x-middleware-ran', 'yes');
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // If envs are missing, do a cookie-based fallback so protection still works
+  // Check for Bearer token in Authorization header (for API testing with Postman)
+  const authHeader = req.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    // If Bearer token is present, let the route handler validate it
+    // This allows Postman to use Bearer tokens instead of cookies
+    return res;
+  }
+
+  // If envs are missing, do a cookie-based fallback
   if (!url || !anon) {
     const hasAccess = !!req.cookies.get('sb-access-token')?.value;
     const hasRefresh = !!req.cookies.get('sb-refresh-token')?.value;
     if (!hasAccess && !hasRefresh) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = '/login';
       loginUrl.searchParams.set('next', req.nextUrl.pathname + req.nextUrl.search);
@@ -46,18 +80,24 @@ export async function middleware(req: NextRequest) {
     const {
       data: { session },
     } = await supabase.auth.getSession();
-
+    console.log('session', session);
     if (!session?.user) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = '/login';
       loginUrl.searchParams.set('next', req.nextUrl.pathname + req.nextUrl.search);
       return NextResponse.redirect(loginUrl);
     }
   } catch {
-    // If Supabase throws (e.g. bad env), fall back to cookie check.
+    // If Supabase throws, fall back to cookie check
     const hasAccess = !!req.cookies.get('sb-access-token')?.value;
     const hasRefresh = !!req.cookies.get('sb-refresh-token')?.value;
     if (!hasAccess && !hasRefresh) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = '/login';
       loginUrl.searchParams.set('next', req.nextUrl.pathname + req.nextUrl.search);
@@ -75,11 +115,9 @@ export async function middleware(req: NextRequest) {
  */
 export const config = {
   matcher: [
-    // enforce both the exact route and any subpaths
-    '/protected',
+    // Protect API routes except public endpoints
+    '/api/:path*',
+    // Protect app routes
     '/protected/:path*',
-
-    // (Optional) You can broaden this later. Avoid static and auth endpoints.
-    // '/((?!_next/static|_next/image|favicon.ico|.well-known|api/auth/sync|api/auth/signout).*)',
   ],
 };

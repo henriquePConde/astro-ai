@@ -62,16 +62,18 @@ services:
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth,request-termination,ip-restriction
+      # Response buffers (you already had):
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
-      # The dashboard creds can stay as envs if you later add basicauth to kong.yml,
-      # but they are NOT used by this minimal config:
+      # Request header/cookie buffers (prevents random 400s when cookies get big):
+      KONG_NGINX_PROXY_CLIENT_HEADER_BUFFER_SIZE: 64k
+      KONG_NGINX_PROXY_LARGE_CLIENT_HEADER_BUFFERS: 8 64k
+      # Optional dashboard creds if you later protect routes:
       DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
     volumes:
       - ./volumes/api/kong.yml:/home/kong/kong.yml:ro,z
-    # IMPORTANT: removed templating entrypoint which was breaking config
-    # entrypoint: (removed)
+    # entrypoint intentionally removed
 
   auth:
     container_name: supabase-auth
