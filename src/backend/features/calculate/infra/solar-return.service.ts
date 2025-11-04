@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const swisseph = require('swisseph-v2');
 
 const TROPICAL_FLAGS = swisseph.SEFLG_SPEED | swisseph.SEFLG_SWIEPH;

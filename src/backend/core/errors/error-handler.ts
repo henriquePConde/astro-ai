@@ -1,29 +1,30 @@
+// src/backend/core/errors/error-handler.ts
 import { NextResponse } from 'next/server';
-import { HttpError } from './http-errors';
+import { HttpError } from '@/backend/core/errors/http-errors';
 
-/**
- * Maps errors to NextResponse for consistent error handling across route handlers.
- */
-export function handleError(error: unknown): NextResponse {
-  // If it's already an HttpError, use it
-  if (error instanceof HttpError) {
-    return NextResponse.json({ message: error.message }, { status: error.status });
-  }
+export function handleError(err: unknown) {
+  const e = err as (HttpError & { stack?: string; code?: string; meta?: any }) | undefined;
+  const status = (e as any)?.status ?? 500;
 
-  // If it's a Zod error (validation), return 400
-  if (error && typeof error === 'object' && 'issues' in error) {
-    return NextResponse.json({ message: 'Validation error', details: error }, { status: 400 });
-  }
-
-  // Handle specific error messages
-  if (error instanceof Error) {
-    const message = error.message;
-    if (message === 'Unauthorized') {
-      return NextResponse.json({ message }, { status: 401 });
+  if (process.env.NODE_ENV !== 'production') {
+    const msg = e?.message ?? 'Unknown error';
+    const code = (e as any)?.code;
+    console.error(`[handleError] status=${status} code=${code ?? 'n/a'} msg=${msg}`);
+    if (e?.stack) {
+      const firstLine = e.stack.split('\n')[1]?.trim() ?? '';
+      console.error(`[handleError] at ${firstLine}`);
     }
-    return NextResponse.json({ message }, { status: 500 });
   }
 
-  // Fallback for unknown errors
-  return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  const body =
+    process.env.NODE_ENV === 'production'
+      ? { message: e?.message ?? 'Internal Server Error' }
+      : {
+          message: e?.message ?? 'Internal Server Error',
+          code: (e as any)?.code,
+          meta: (e as any)?.meta,
+          stack: e?.stack?.split('\n').slice(0, 6).join('\n'),
+        };
+
+  return NextResponse.json(body, { status });
 }

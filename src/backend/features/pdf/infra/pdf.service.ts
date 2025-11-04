@@ -1,8 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = require('puppeteer');
 import { PassThrough } from 'stream';
 import { getReportById } from '@/backend/features/reports';
 import { generatePdfToken } from './pdf-token.util';
+import { getSessionUser } from '@/backend/core/auth/get-session';
 
 const FRONTEND_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
@@ -18,7 +18,7 @@ export async function generatePdfFromReportId(
   }
 
   // Generate a temporary JWT token (expires in 3 min)
-  const pdfToken = generatePdfToken(reportId, 180);
+  const pdfToken = generatePdfToken({ reportId, purpose: 'puppeteer-pdf' });
 
   // Build secure URL with id and pdfToken
   const puppeteerUrl = `${FRONTEND_BASE_URL}/pdf-preview/public?id=${reportId}&pdfToken=${pdfToken}`;
@@ -133,4 +133,15 @@ export async function generatePdfFromReportId(
     await browser.close();
     throw error;
   }
+}
+
+/**
+ * No top-level signing — everything runs lazily inside functions.
+ */
+export async function issuePdfTokenForCurrentUser() {
+  const user = await getSessionUser();
+  if (!user) return null;
+
+  const payload = { sub: user.id, email: user.email };
+  return generatePdfToken(payload);
 }

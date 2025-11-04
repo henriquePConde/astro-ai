@@ -23,7 +23,7 @@ async function PdfPreviewContent({ reportId, pdfToken }: { reportId: string; pdf
   );
 }
 
-export default function PdfPreviewPage({
+export default async function PdfPreviewPage({
   searchParams,
 }: {
   searchParams: Promise<{ id?: string; pdfToken?: string }>;
