@@ -1,3 +1,4 @@
+// astro-ai-fullstack/src/backend/core/auth/get-session.ts
 import { supabaseServer } from '@/backend/core/db/supabase-server';
 import { headers } from 'next/headers';
 
@@ -20,7 +21,6 @@ export async function getSessionUser() {
     return data.user ?? null;
   }
 
-  // Fall back to cookie-based session
   const db = await supabaseServer();
   const { data } = await db.auth.getUser();
   return data.user ?? null;

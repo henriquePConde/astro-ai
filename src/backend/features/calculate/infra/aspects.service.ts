@@ -1,3 +1,4 @@
+// astro-ai-fullstack/src/backend/features/calculate/infra/aspects.service.ts
 import type { Aspect, PlanetData, AspectType } from '../domain/calculate.entities';
 
 const DEFAULT_ASPECTS = [
@@ -8,11 +9,17 @@ const DEFAULT_ASPECTS = [
   { name: 'Sextile', degree: 60, orb: 6 },
 ] as const;
 
+function isFiniteNum(n: unknown): n is number {
+  return typeof n === 'number' && Number.isFinite(n);
+}
+
 function getAspectFromTwoPoints(
   point1Pos: number,
   point2Pos: number,
   aspectSettings: typeof DEFAULT_ASPECTS,
 ): Partial<Aspect> | null {
+  if (!isFiniteNum(point1Pos) || !isFiniteNum(point2Pos)) return null;
+
   let diff = Math.abs(point1Pos - point2Pos);
   if (diff > 180) diff = 360 - diff;
 
@@ -32,7 +39,9 @@ function getAspectFromTwoPoints(
 
 export function calculateAspects(planets: Record<string, PlanetData>): Aspect[] {
   const aspects: Aspect[] = [];
-  const planetEntries = Object.entries(planets);
+  const planetEntries = Object.entries(planets).filter(
+    ([, p]) => isFiniteNum(p?.longitude),
+  );
 
   for (let i = 0; i < planetEntries.length; i++) {
     for (let j = i + 1; j < planetEntries.length; j++) {

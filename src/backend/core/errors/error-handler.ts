@@ -1,4 +1,4 @@
-// src/backend/core/errors/error-handler.ts
+// astro-ai-fullstack/src/backend/core/errors/error-handler.ts
 import { NextResponse } from 'next/server';
 import { HttpError } from '@/backend/core/errors/http-errors';
 
@@ -20,11 +20,11 @@ export function handleError(err: unknown) {
     process.env.NODE_ENV === 'production'
       ? { message: e?.message ?? 'Internal Server Error' }
       : {
-          message: e?.message ?? 'Internal Server Error',
-          code: (e as any)?.code,
-          meta: (e as any)?.meta,
-          stack: e?.stack?.split('\n').slice(0, 6).join('\n'),
-        };
+        message: e?.message ?? 'Internal Server Error',
+        code: (e as any)?.code,
+        meta: (e as any)?.meta,
+        stack: e?.stack?.split('\n').slice(0, 6).join('\n'),
+      };
 
   return NextResponse.json(body, { status });
 }

@@ -1,11 +1,7 @@
+// astro-ai-fullstack/src/backend/features/calculate/application/calculate.use-cases.ts
 import { normalizeTime } from '../infra/time.service';
 import { calculateAspects } from '../infra/aspects.service';
-import {
-  calculateHouses,
-  calculatePlanets,
-  julianDay,
-  calculateSunPosition,
-} from '../infra/ephemeris.service';
+import { calculateHouses, calculatePlanets, julianDay } from '../infra/ephemeris.service';
 import { findSolarReturnMoment } from '../infra/solar-return.service';
 import type { BirthData, ChartData } from '../domain/calculate.entities';
 import { isValidBirthData } from '../domain/calculate.entities';
@@ -28,6 +24,10 @@ export async function calculateChart(birthData: BirthData): Promise<ChartData> {
     date.getUTCDate(),
     decimalHours,
   );
+
+  if (!Number.isFinite(jd)) {
+    throw badRequest('Failed to compute Julian Day');
+  }
 
   const houses = calculateHouses(jd, coordinates.lat, coordinates.lng);
   const planets = calculatePlanets(jd, houses);
@@ -56,14 +56,12 @@ export async function calculateSolarReturn(
   locationCity?: string,
   locationNation?: string,
 ): Promise<ChartData> {
-  // Calculate natal chart first to get Sun position
   const natalChart = await calculateChart(birthData);
   const sunPlanet = natalChart.planets.sun;
   if (!sunPlanet) {
     throw badRequest('Could not calculate natal Sun position');
   }
 
-  // Find solar return moment
   const solarReturnDate = findSolarReturnMoment(
     sunPlanet.longitude,
     targetYear,
@@ -71,7 +69,6 @@ export async function calculateSolarReturn(
     birthData.day,
   );
 
-  // Calculate solar return chart
   const solarReturnBirthData: BirthData = {
     ...birthData,
     year: solarReturnDate.getUTCFullYear(),

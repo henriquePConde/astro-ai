@@ -23,6 +23,7 @@ export const styles = {
     bottom: 0,
     width: '100%',
     height: '100%',
+    zIndex: 1,
   }),
   intro: () => (theme: Theme) => ({
     position: 'absolute',
@@ -33,6 +34,17 @@ export const styles = {
     width: '100%',
     height: '100%',
     zIndex: 50,
+    pointerEvents: 'auto',
+  }),
+  chartExperience: () => (theme: Theme) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 40,
     pointerEvents: 'auto',
   }),
 };

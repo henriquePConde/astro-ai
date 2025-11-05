@@ -1,3 +1,5 @@
+// astro-ai-fullstack/src/backend/features/calculate/infra/ephemeris.service.ts
+// swisseph-v2 is CommonJS; require() is appropriate for Node runtime.
 const swisseph = require('swisseph-v2');
 
 const TROPICAL_FLAGS = swisseph.SEFLG_SPEED | swisseph.SEFLG_SWIEPH;
@@ -17,12 +19,18 @@ const PLANETS = {
   TRUE_NODE: 11,
 } as const;
 
+function isFiniteNum(n: unknown): n is number {
+  return typeof n === 'number' && Number.isFinite(n);
+}
+
 export function determineHouse(longitude: number, cusps: number[]): number {
   longitude = ((longitude % 360) + 360) % 360;
 
   for (let i = 0; i < 12; i++) {
     const currentCusp = cusps[i];
     const nextCusp = cusps[(i + 1) % 12];
+
+    if (!isFiniteNum(currentCusp) || !isFiniteNum(nextCusp)) continue;
 
     if (currentCusp > nextCusp) {
       if (longitude >= currentCusp || longitude < nextCusp) {
@@ -53,10 +61,18 @@ export function calculateHouses(
     throw new Error(`Error calculating houses: ${houses.error}`);
   }
 
+  const safeHouse = [...Array(12)].map((_, i) => {
+    const v = houses.house?.[i];
+    return isFiniteNum(v) ? ((v % 360) + 360) % 360 : 0;
+  });
+
+  const asc = isFiniteNum(houses.ascendant) ? ((houses.ascendant % 360) + 360) % 360 : 0;
+  const mc = isFiniteNum(houses.mc) ? ((houses.mc % 360) + 360) % 360 : 0;
+
   return {
-    house: houses.house,
-    ascendant: houses.ascendant,
-    mc: houses.mc,
+    house: safeHouse,
+    ascendant: asc,
+    mc,
   };
 }
 
@@ -85,17 +101,24 @@ export function calculatePlanets(
       continue;
     }
 
-    if ('longitude' in result) {
-      const longitude = result.longitude;
+    if (
+      isFiniteNum(result.longitude) &&
+      isFiniteNum(result.latitude) &&
+      isFiniteNum(result.distance) &&
+      isFiniteNum(result.longitudeSpeed)
+    ) {
+      const longitude = ((result.longitude % 360) + 360) % 360;
       planets[name.toLowerCase()] = {
         longitude,
         latitude: result.latitude,
         distance: result.distance,
         longitudeSpeed: result.longitudeSpeed,
         sign: Math.floor(longitude / 30),
-        house: determineHouse(longitude, houses.house),
+        house: determineHouse(longitude, houses.house || []),
         retrograde: result.longitudeSpeed < 0,
       };
+    } else {
+      console.warn(`Dropping planet ${name} due to non-finite ephemeris values`);
     }
   }
 
@@ -108,11 +131,7 @@ export function julianDay(year: number, month: number, day: number, decimalHours
 
 export function calculateSunPosition(julianDay: number): { longitude: number } {
   const result = swisseph.swe_calc_ut(julianDay, PLANETS.SUN, TROPICAL_FLAGS);
-  if ('error' in result) {
-    throw new Error(`Error calculating Sun: ${result.error}`);
-  }
-  if (!('longitude' in result)) {
-    throw new Error('Invalid Sun calculation result');
-  }
-  return { longitude: result.longitude };
+  if ('error' in result) throw new Error(`Error calculating Sun: ${result.error}`);
+  if (!isFiniteNum(result.longitude)) throw new Error('Invalid Sun calculation result');
+  return { longitude: ((result.longitude % 360) + 360) % 360 };
 }

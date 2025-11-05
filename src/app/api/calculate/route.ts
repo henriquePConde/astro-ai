@@ -1,14 +1,30 @@
+// astro-ai-fullstack/src/app/api/calculate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import {
   birthDataSchema,
   calculateChartDto,
+  aspectDto,
+  planetDto,
+  houseDto,
 } from '@/backend/features/calculate/http/calculate.schemas';
 import { calculateChart } from '@/backend/features/calculate';
 import { handleError } from '@/backend/core/errors/error-handler';
 import { getSessionUser } from '@/backend/core/auth/get-session';
 import { unauthorized } from '@/backend/core/errors/http-errors';
 
-// Transform helper for HTTP response (HTTP boundary concern)
+// Force Node.js runtime (swisseph requires Node)
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+function isFiniteNumber(n: unknown): n is number {
+  return typeof n === 'number' && Number.isFinite(n);
+}
+function normDeg(n: number) {
+  const v = ((n % 360) + 360) % 360;
+  return Number.isFinite(v) ? v : 0;
+}
+
+// Transform + sanitize helper for HTTP response
 function transformChartData(rawData: any) {
   const PLANET_SYMBOLS: Record<string, string> = {
     sun: '☉',
@@ -35,32 +51,74 @@ function transformChartData(rawData: any) {
     pluto: '#8B4513',
   };
 
-  const planets = Object.entries(rawData.planets)
-    .filter(([name]) => name in PLANET_SYMBOLS)
-    .map(([name, data]: [string, any]) => ({
-      name: name.charAt(0).toUpperCase() + name.slice(1),
-      symbol: PLANET_SYMBOLS[name],
-      degree: data.longitude,
-      sign: Math.floor(data.longitude / 30),
-      color: PLANET_COLORS[name],
-    }));
+  // planets: keep only known ones with finite longitude
+  const planets = Object.entries(rawData.planets || {})
+    .filter(([name, data]: [string, any]) => {
+      return name in PLANET_SYMBOLS && data && isFiniteNumber(data.longitude);
+    })
+    .map(([name, data]: [string, any]) => {
+      const deg = normDeg(data.longitude);
+      return {
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        symbol: PLANET_SYMBOLS[name],
+        degree: deg,
+        sign: Math.floor(deg / 30),
+        color: PLANET_COLORS[name],
+      };
+    })
+    // validate via Zod to ensure no NaNs/Infinities sneak through
+    .filter((p) => {
+      const res = planetDto.safeParse(p);
+      if (!res.success) {
+        console.warn('[transformChartData] Dropping planet due to validation:', res.error?.issues);
+      }
+      return res.success;
+    });
+
+  // houses: guard & normalize to 12 finite cusps
+  const cusps: number[] = Array.isArray(rawData?.houses?.cusps)
+    ? rawData.houses.cusps.slice(0, 12)
+    : [];
+  const safeCusps = [...Array(12)].map((_, i) => {
+    const v = cusps[i];
+    return isFiniteNumber(v) ? normDeg(v) : 0;
+  });
 
   const houses = {
-    firstHouse: rawData.houses.cusps[0],
-    secondHouse: rawData.houses.cusps[1],
-    thirdHouse: rawData.houses.cusps[2],
-    fourthHouse: rawData.houses.cusps[3],
-    fifthHouse: rawData.houses.cusps[4],
-    sixthHouse: rawData.houses.cusps[5],
-    seventhHouse: rawData.houses.cusps[6],
-    eighthHouse: rawData.houses.cusps[7],
-    ninthHouse: rawData.houses.cusps[8],
-    tenthHouse: rawData.houses.cusps[9],
-    eleventhHouse: rawData.houses.cusps[10],
-    twelfthHouse: rawData.houses.cusps[11],
+    firstHouse: safeCusps[0],
+    secondHouse: safeCusps[1],
+    thirdHouse: safeCusps[2],
+    fourthHouse: safeCusps[3],
+    fifthHouse: safeCusps[4],
+    sixthHouse: safeCusps[5],
+    seventhHouse: safeCusps[6],
+    eighthHouse: safeCusps[7],
+    ninthHouse: safeCusps[8],
+    tenthHouse: safeCusps[9],
+    eleventhHouse: safeCusps[10],
+    twelfthHouse: safeCusps[11],
   };
+  if (!houseDto.safeParse(houses).success) {
+    console.warn('[transformChartData] House validation failed; zeroing to safe defaults.');
+    // already safe defaults applied above
+  }
 
-  return { planets, houses, aspects: rawData.aspects };
+  // aspects: drop any with non-finite numbers
+  const aspects =
+    (rawData.aspects || []).filter((a: any) => {
+      return (
+        typeof a?.p1_name === 'string' &&
+        typeof a?.p2_name === 'string' &&
+        isFiniteNumber(a?.p1_abs_pos) &&
+        isFiniteNumber(a?.p2_abs_pos) &&
+        isFiniteNumber(a?.exactAngle) &&
+        isFiniteNumber(a?.actualAngle)
+      );
+    }) ?? [];
+
+  const safeAspects = aspects.filter((a: any) => aspectDto.safeParse(a).success);
+
+  return { planets, houses, aspects: safeAspects };
 }
 
 export async function POST(req: NextRequest) {

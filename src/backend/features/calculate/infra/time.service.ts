@@ -1,7 +1,7 @@
+// astro-ai-fullstack/src/backend/features/calculate/infra/time.service.ts
 import { fromZonedTime } from 'date-fns-tz';
 import type { BirthData } from '../domain/calculate.entities';
 import { searchCities } from '@/backend/features/location';
-import { env } from '@/backend/core/config/env';
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -22,11 +22,11 @@ export async function normalizeTime(birthData: BirthData): Promise<{
 
   const coordinates = await getCoordinatesFromCity(birthData.city, birthData.nation);
   const timezone = await getTimezoneFromCoordinates(coordinates.lat, coordinates.lng);
-  const utcDate = fromZonedTime(localDate, timezone);
+  const utcDate = fromZonedTime(localDate, timezone || 'UTC');
 
   return {
     utcDate,
-    timezone,
+    timezone: timezone || 'UTC',
     coordinates,
   };
 }
@@ -39,7 +39,7 @@ async function getCoordinatesFromCity(
     return { lat: 0, lng: 0 };
   }
 
-  await delay(1000); // Rate limiting
+  await delay(200);
 
   try {
     const results = await searchCities(city, nation, 1);
@@ -50,15 +50,17 @@ async function getCoordinatesFromCity(
     console.error('Error fetching coordinates:', error);
   }
 
-  throw new Error('Geocoding API error: No results found');
+  // Be resilient: avoid throwing => no NaNs later
+  return { lat: 0, lng: 0 };
 }
 
 async function getTimezoneFromCoordinates(lat: number, lng: number): Promise<string> {
-  // For now, use a simple timezone lookup
-  // In production, you might want to use TimezoneDB API or another service
-  // For now, we'll use a fallback approach with Nominatim reverse geocoding
+  if (lat === 0 && lng === 0) {
+    return 'UTC';
+  }
+
   try {
-    await delay(1000);
+    await delay(200);
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
       {
@@ -69,18 +71,12 @@ async function getTimezoneFromCoordinates(lat: number, lng: number): Promise<str
       },
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch timezone');
-    }
+    if (!response.ok) throw new Error('Failed to fetch timezone');
 
     const data = await response.json();
-    // Nominatim doesn't provide timezone directly, but we can use the address to infer
-    // For a more accurate solution, you'd use TimezoneDB API with an API key
-    // For now, return UTC as fallback and note this needs improvement
     return data.timezone || 'UTC';
   } catch (error) {
     console.error('Error fetching timezone:', error);
-    // Fallback to UTC
     return 'UTC';
   }
 }

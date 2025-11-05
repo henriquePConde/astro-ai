@@ -1,3 +1,4 @@
+// astro-ai-fullstack/src/backend/features/calculate/domain/calculate.entities.ts
 /**
  * Domain entities and business rules for the calculate feature.
  */
