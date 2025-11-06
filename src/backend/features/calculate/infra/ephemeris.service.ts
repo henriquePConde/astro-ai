@@ -61,13 +61,15 @@ export function calculateHouses(
     throw new Error(`Error calculating houses: ${houses.error}`);
   }
 
+  // Return houses directly without normalization (matching old backend behavior)
+  // Normalization happens in route.ts transformChartData for safety
   const safeHouse = [...Array(12)].map((_, i) => {
     const v = houses.house?.[i];
-    return isFiniteNum(v) ? ((v % 360) + 360) % 360 : 0;
+    return isFiniteNum(v) ? v : 0;
   });
 
-  const asc = isFiniteNum(houses.ascendant) ? ((houses.ascendant % 360) + 360) % 360 : 0;
-  const mc = isFiniteNum(houses.mc) ? ((houses.mc % 360) + 360) % 360 : 0;
+  const asc = isFiniteNum(houses.ascendant) ? houses.ascendant : 0;
+  const mc = isFiniteNum(houses.mc) ? houses.mc : 0;
 
   return {
     house: safeHouse,
@@ -107,7 +109,9 @@ export function calculatePlanets(
       isFiniteNum(result.distance) &&
       isFiniteNum(result.longitudeSpeed)
     ) {
-      const longitude = ((result.longitude % 360) + 360) % 360;
+      // Use longitude directly without normalization (matching old backend behavior)
+      // Normalization happens in determineHouse and route.ts transformChartData
+      const longitude = result.longitude;
       planets[name.toLowerCase()] = {
         longitude,
         latitude: result.latitude,
@@ -133,5 +137,6 @@ export function calculateSunPosition(julianDay: number): { longitude: number } {
   const result = swisseph.swe_calc_ut(julianDay, PLANETS.SUN, TROPICAL_FLAGS);
   if ('error' in result) throw new Error(`Error calculating Sun: ${result.error}`);
   if (!isFiniteNum(result.longitude)) throw new Error('Invalid Sun calculation result');
-  return { longitude: ((result.longitude % 360) + 360) % 360 };
+  // Return longitude directly without normalization (matching old backend behavior)
+  return { longitude: result.longitude };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Typography, CircularProgress, Alert, List, ListItem, ListItemText } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert } from '@mui/material';
 import type { User } from '../../services/user.service';
 
 export function ProfilePageView({
@@ -10,7 +10,7 @@ export function ProfilePageView({
   error,
 }: {
   me: User | null;
-  usage: { date: string; count: number }[];
+  usage: { used: number; limit: number } | null;
   loading?: boolean;
   error?: { message?: string } | null;
 }) {
@@ -32,18 +32,16 @@ export function ProfilePageView({
           <Typography>Email: {me.email ?? '-'}</Typography>
         </Box>
       )}
-      <Typography variant="h6" gutterBottom>
-        Daily Usage
-      </Typography>
-      <List>
-        {usage.map((u) => (
-          <ListItem key={u.date}>
-            <ListItemText primary={`${u.date}: ${u.count}`} />
-          </ListItem>
-        ))}
-      </List>
+      {usage && (
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Daily Usage
+          </Typography>
+          <Typography>
+            You have generated {usage.used} of {usage.limit} charts today.
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }
-
-

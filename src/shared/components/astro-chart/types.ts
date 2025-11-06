@@ -28,11 +28,24 @@ export interface Planet {
   position: number;
   absolutePosition: number;
   sign: number;
-  symbol?: string;
   color?: string;
 }
 
-export interface ChartData { planets: Planet[]; houses: HouseCusps; aspects: any[] }
+export interface ChartData {
+  planets: Planet[];
+  houses: HouseCusps;
+  aspects: any[];
+}
+
+export type ChartDataMinimal = Pick<ChartData, 'houses'>;
+
+export interface SignInfo {
+  name: string;
+  rulingHouses: number[];
+  cuspDegrees: number[];
+  signIndex: number;
+  isIntercepted: boolean;
+}
 
 export interface PlanetInfo {
   name: string;
@@ -41,7 +54,7 @@ export interface PlanetInfo {
   signDegree: string;
   house: number;
   houseCusp: { degree: string; sign: string; absoluteDegree: string };
-  signInfo: { name: string; rulingHouses: number[]; cuspDegrees: number[]; signIndex: number };
+  signInfo: SignInfo;
   symbol?: string;
 }
 
@@ -57,5 +70,3 @@ export const planetColors: Record<string, string> = {
   Neptune: '#ffe6cc',
   Pluto: '#ffccf2',
 };
-
-

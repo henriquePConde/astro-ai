@@ -11,9 +11,5 @@ export const styles = {
     gap: 2,
     alignItems: 'flex-start',
     position: 'relative',
-    onMouseMove: isExpanded ? undefined : undefined,
-    onMouseUp: isExpanded ? undefined : undefined,
-    onMouseLeave: isExpanded ? undefined : undefined,
   }),
 };
-

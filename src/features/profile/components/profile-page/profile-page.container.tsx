@@ -10,11 +10,9 @@ export function ProfilePageContainer() {
   return (
     <ProfilePageView
       me={me ?? null}
-      usage={usage ?? []}
+      usage={usage ?? null}
       loading={loadingMe || loadingUsage}
       error={(errorMe || errorUsage) as any}
     />
   );
 }
-
-

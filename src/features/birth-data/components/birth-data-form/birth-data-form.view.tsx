@@ -226,7 +226,7 @@ export function BirthDataFormView({
                       }}
                       filterOptions={(x) => x}
                       getOptionLabel={(option) =>
-                        typeof option === 'string' ? option : option.name || ''
+                        typeof option === 'string' ? option : String(option)
                       }
                       renderInput={(params) => (
                         <TextField
@@ -274,7 +274,7 @@ export function BirthDataFormView({
                       }}
                       filterOptions={(x) => x}
                       getOptionLabel={(option) =>
-                        typeof option === 'string' ? option : option.name || ''
+                        typeof option === 'string' ? option : String(option)
                       }
                       renderInput={(params) => (
                         <TextField
