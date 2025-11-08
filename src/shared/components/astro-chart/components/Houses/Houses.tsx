@@ -13,7 +13,9 @@ interface HousesProps {
 export function Houses({ g, data, dimensions }: HousesProps) {
   // Placeholder: draw a simple ring to indicate where houses will be rendered
   const r = dimensions.radius * 0.45;
-  g.selectAll('.house-ring').data([0]).join('circle')
+  g.selectAll('.house-ring')
+    .data([0])
+    .join('circle')
     .attr('class', 'house-ring')
     .attr('cx', 0)
     .attr('cy', 0)
@@ -22,5 +24,3 @@ export function Houses({ g, data, dimensions }: HousesProps) {
     .attr('stroke', CHART_COLORS.secondary)
     .attr('stroke-dasharray', '4,3');
 }
-
-

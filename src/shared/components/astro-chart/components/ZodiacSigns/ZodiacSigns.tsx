@@ -9,7 +9,9 @@ interface ZodiacSignsProps {
 
 export function ZodiacSigns({ g, dimensions }: ZodiacSignsProps) {
   // Placeholder: draw outer ring for signs
-  g.selectAll('.zodiac-ring').data([0]).join('circle')
+  g.selectAll('.zodiac-ring')
+    .data([0])
+    .join('circle')
     .attr('class', 'zodiac-ring')
     .attr('cx', 0)
     .attr('cy', 0)
@@ -17,5 +19,3 @@ export function ZodiacSigns({ g, dimensions }: ZodiacSignsProps) {
     .attr('fill', 'none')
     .attr('stroke', CHART_COLORS.secondary);
 }
-
-

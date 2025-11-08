@@ -7,4 +7,3 @@ export interface DataSectionProps {
   splitPosition: number;
   birthData: BirthChartData;
 }
-

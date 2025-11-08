@@ -32,5 +32,3 @@ export const primitives = {
     color: 'hsl(var(--foreground))',
   }),
 };
-
-

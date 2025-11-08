@@ -17,4 +17,3 @@ export function FormWrapperView({ onFormSubmit }: { onFormSubmit: (data: any) =>
     </Box>
   );
 }
-

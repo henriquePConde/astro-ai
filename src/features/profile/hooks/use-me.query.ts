@@ -8,5 +8,3 @@ export function useMe() {
     staleTime: 60_000,
   });
 }
-
-

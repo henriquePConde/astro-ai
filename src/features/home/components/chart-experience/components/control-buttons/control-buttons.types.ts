@@ -3,4 +3,3 @@ export interface ControlButtonsProps {
   onToggleExpand: () => void;
   onNewChart: () => void;
 }
-

@@ -12,7 +12,6 @@ export function HomePageContainer() {
   const {
     currentSection,
     introFinished,
-    hasSeenIntro,
     setIntroFinished,
     handleSkipIntro,
     scrolling,
@@ -34,18 +33,13 @@ export function HomePageContainer() {
   };
 
   const handleNewChart = () => {
-    if (hasSeenIntro) {
-      setCurrentSection(2);
-    } else {
-      setCurrentSection(0);
-      setIntroFinished(false);
-    }
+    setCurrentSection(0);
+    setIntroFinished(false);
   };
 
   console.log('[HomePageContainer] Render:', {
     currentSection,
     introFinished,
-    hasSeenIntro,
   });
 
   return (
@@ -53,22 +47,20 @@ export function HomePageContainer() {
       headerContent={<AppHeaderContainer />}
       solarSystemContent={<GeocentricSystem onIntroEnd={handleIntroEnd} />}
       introContent={
-        !hasSeenIntro ? (
-          <IntroSection
-            currentSection={currentSection}
-            introFinished={introFinished}
-            onSkip={handleSkipIntro}
-          />
-        ) : null
+        <IntroSection
+          currentSection={currentSection}
+          introFinished={introFinished}
+          onSkip={handleSkipIntro}
+        />
       }
       chartExperienceContent={
         <ChartExperienceContainer
           currentSection={currentSection}
           introFinished={introFinished}
-          hasSeenIntro={hasSeenIntro}
           onNewChart={handleNewChart}
         />
       }
+      currentSection={currentSection}
     />
   );
 }

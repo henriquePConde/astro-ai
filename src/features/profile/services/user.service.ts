@@ -13,5 +13,3 @@ export async function getMe() {
   const res = await client.get('/api/user/me');
   return UserDto.parse(res.data);
 }
-
-

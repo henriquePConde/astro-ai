@@ -14,7 +14,15 @@ export function AppShellView({
   content: React.ReactNode;
 }) {
   return (
-    <Box component="main" sx={{ position: 'relative', color: 'hsl(var(--foreground))', height: '100vh', overflow: 'hidden' }}>
+    <Box
+      component="main"
+      sx={{
+        position: 'relative',
+        color: 'hsl(var(--foreground))',
+        height: '100vh',
+        overflow: 'hidden',
+      }}
+    >
       <Box sx={{ position: 'fixed', inset: 0, zIndex: -1 }}>{background}</Box>
       {header}
       {intro}
@@ -22,5 +30,3 @@ export function AppShellView({
     </Box>
   );
 }
-
-

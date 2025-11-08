@@ -25,4 +25,3 @@ export const styles = {
     transition: 'all 200ms',
   }),
 };
-

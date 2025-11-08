@@ -28,4 +28,3 @@ export function LoadingOrErrorView({ loading, error }: LoadingOrErrorProps) {
 
   return null;
 }
-

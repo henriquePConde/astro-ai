@@ -5,4 +5,3 @@ export interface ChartLayoutWrapperProps {
   chartData: any;
   children: React.ReactNode;
 }
-

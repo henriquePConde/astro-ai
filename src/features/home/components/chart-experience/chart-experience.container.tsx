@@ -8,14 +8,12 @@ import type { ChartExperienceProps } from './chart-experience.types';
 export interface ChartExperienceContainerProps {
   currentSection: number;
   introFinished: boolean;
-  hasSeenIntro: boolean;
   onNewChart?: () => void;
 }
 
 export function ChartExperienceContainer({
   currentSection,
   introFinished,
-  hasSeenIntro,
   onNewChart,
 }: ChartExperienceContainerProps) {
   const chart = useChartData();
@@ -47,10 +45,8 @@ export function ChartExperienceContainer({
       currentSection,
       introFinished,
     },
-    hasSeenIntro,
     onNewChart: handleNewChart,
   };
 
   return <ChartExperienceView {...props} />;
 }
-

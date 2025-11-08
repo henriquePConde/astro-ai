@@ -3,4 +3,3 @@ export interface DraggableResizerProps {
   isDragging: boolean;
   onDragStart: () => void;
 }
-

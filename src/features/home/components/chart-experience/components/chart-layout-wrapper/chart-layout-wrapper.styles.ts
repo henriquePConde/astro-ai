@@ -16,18 +16,23 @@ export const styles = {
     opacity: sectionVisible ? 1 : 0,
     pointerEvents: sectionVisible ? 'auto' : 'none',
   }),
+
   container: (isDragging: boolean, hasChartData: boolean) => (theme: Theme) => ({
     width: '100%',
-    height: '100%',
     transition: isDragging ? 'none' : 'all 300ms',
     ...(hasChartData
       ? {
           position: 'fixed',
-          inset: 0,
+          // Header is ~89px high
+          top: '89px',
+          left: 0,
+          right: 0,
+          height: 'calc(100vh - 89px)',
           zIndex: 50,
           bgcolor: 'rgba(13, 12, 34, 0.98)',
         }
       : {
+          height: '100%',
           maxWidth: '90%',
           mx: 'auto',
           px: { xs: 2, md: 4 },
@@ -37,4 +42,3 @@ export const styles = {
         }),
   }),
 };
-

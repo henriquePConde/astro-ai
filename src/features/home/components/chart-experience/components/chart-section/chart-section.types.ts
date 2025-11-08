@@ -6,4 +6,3 @@ export interface ChartSectionProps {
   isDragging: boolean;
   splitPosition?: number;
 }
-

@@ -3,11 +3,14 @@ import { Theme } from '@mui/material';
 export const styles = {
   container: () => (theme: Theme) => ({
     position: 'fixed',
-    top: 16,
+    // Header is 152px high; place controls just below it with a small margin
+    top: 168, // 152 + 16
     right: 64,
     display: 'flex',
     gap: 12,
-    zIndex: 50,
+    alignItems: 'center',
+    // Make sure it's above the chart overlay and typical headers
+    zIndex: 2000,
   }),
   button: () => (theme: Theme) => ({
     px: 2,
@@ -28,4 +31,3 @@ export const styles = {
     textTransform: 'none',
   }),
 };
-

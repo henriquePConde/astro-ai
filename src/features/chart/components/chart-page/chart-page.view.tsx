@@ -1,25 +1,12 @@
 'use client';
 
 import { Box, Typography, Alert, CircularProgress, Stack } from '@mui/material';
-import type { ChartData } from '../../services/chart.service';
-import AstroWheel from '@/shared/components/astro-chart/AstroWheel';
-import { toWheelData } from '../../services/chart.mappers';
+import { styles } from './chart-page.styles';
+import type { ChartPageViewProps } from './chart-page.types';
 
-export function ChartPageView({
-  form,
-  chartData,
-  chartApp,
-  loading,
-  error,
-}: {
-  form: React.ReactNode;
-  chartData: ChartData | null;
-  chartApp: React.ReactNode;
-  loading?: boolean;
-  error?: { message?: string } | null;
-}) {
+export function ChartPageView({ form, chartData, chartApp, loading, error }: ChartPageViewProps) {
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={styles.root()}>
       <Typography variant="h5" gutterBottom>
         Birth Chart
       </Typography>
@@ -27,7 +14,7 @@ export function ChartPageView({
         <Box>{form}</Box>
 
         {loading && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={styles.loadingContainer()}>
             <CircularProgress size={20} />
             <Typography>Calculating chart…</Typography>
           </Box>

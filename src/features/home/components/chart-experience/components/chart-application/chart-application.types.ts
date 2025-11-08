@@ -19,4 +19,3 @@ export interface ChartApplicationProps {
   onDrag: (e: React.MouseEvent) => void;
   onDragEnd: () => void;
 }
-

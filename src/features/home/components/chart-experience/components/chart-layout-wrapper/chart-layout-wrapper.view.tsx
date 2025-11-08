@@ -13,10 +13,16 @@ export function ChartLayoutWrapperView({
 }: ChartLayoutWrapperProps) {
   const sectionVisible = currentSection === 2 && introFinished;
 
+  // Debug logging
+  console.log('[ChartLayoutWrapperView] Render:', {
+    currentSection,
+    introFinished,
+    sectionVisible,
+  });
+
   return (
     <Box component="section" sx={styles.wrapper(sectionVisible)}>
       <Box sx={styles.container(isDragging, !!chartData)}>{children}</Box>
     </Box>
   );
 }
-

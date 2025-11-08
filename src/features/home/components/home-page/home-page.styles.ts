@@ -25,7 +25,7 @@ export const styles = {
     height: '100%',
     zIndex: 1,
   }),
-  intro: () => (theme: Theme) => ({
+  intro: (isInteractive: boolean) => (theme: Theme) => ({
     position: 'absolute',
     top: 0,
     left: 0,
@@ -33,8 +33,8 @@ export const styles = {
     bottom: 0,
     width: '100%',
     height: '100%',
-    zIndex: 50,
-    pointerEvents: 'auto',
+    zIndex: isInteractive ? 50 : 30, // Lower z-index when not interactive so form can be on top
+    pointerEvents: isInteractive ? 'auto' : 'none',
   }),
   chartExperience: () => (theme: Theme) => ({
     position: 'absolute',

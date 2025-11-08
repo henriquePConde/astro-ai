@@ -3,26 +3,23 @@ import { useState, useEffect } from 'react';
 export function useIntroSectionState() {
   const [currentSection, setCurrentSection] = useState(0);
   const [introFinished, setIntroFinished] = useState(false);
-  const [hasSeenIntro, setHasSeenIntro] = useState(false);
   const [scrolling, setScrolling] = useState(false);
 
+  // Ensure introFinished is true when in section 2 (form section)
+  // This ensures the form is always visible and interactive when currentSection === 2
   useEffect(() => {
-    // Load hasSeenIntro from localStorage on mount
-    const stored = localStorage.getItem('hasSeenIntro');
-    if (stored === 'true') {
-      setHasSeenIntro(true);
+    if (currentSection === 2 && !introFinished) {
+      setIntroFinished(true);
     }
-  }, []);
+  }, [currentSection, introFinished]);
 
   const handleSetIntroFinished = (value: boolean) => {
     setIntroFinished(value);
   };
 
   const handleSkipIntro = () => {
-    setHasSeenIntro(true);
     setCurrentSection(2);
     setIntroFinished(true);
-    localStorage.setItem('hasSeenIntro', 'true');
   };
 
   const resetSection = () => {
@@ -35,8 +32,6 @@ export function useIntroSectionState() {
     setCurrentSection,
     introFinished,
     setIntroFinished: handleSetIntroFinished,
-    hasSeenIntro,
-    setHasSeenIntro,
     scrolling,
     setScrolling,
     handleSkipIntro,

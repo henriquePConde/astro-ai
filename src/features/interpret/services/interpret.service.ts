@@ -29,5 +29,3 @@ export async function interpret(payload: {
   fullText += new TextDecoder().decode();
   return fullText;
 }
-
-

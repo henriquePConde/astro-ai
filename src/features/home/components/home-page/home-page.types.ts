@@ -3,4 +3,5 @@ export interface HomePageViewProps {
   solarSystemContent: React.ReactNode;
   introContent?: React.ReactNode;
   chartExperienceContent?: React.ReactNode;
+  currentSection: number;
 }

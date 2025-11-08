@@ -10,12 +10,8 @@ export function DraggableResizerView({
   onDragStart,
 }: DraggableResizerProps) {
   return (
-    <Box
-      sx={styles.container(splitPosition, isDragging)}
-      onMouseDown={onDragStart}
-    >
+    <Box sx={styles.container(splitPosition, isDragging)} onMouseDown={onDragStart}>
       <Box sx={styles.handle()} />
     </Box>
   );
 }
-

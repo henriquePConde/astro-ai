@@ -56,10 +56,14 @@ export function useChartData(): UseChartDataReturn {
     chartData,
     transformedChartData,
     birthData,
-    error: calcChart.error instanceof Error ? calcChart.error.message : calcChart.error ? String(calcChart.error) : null,
+    error:
+      calcChart.error instanceof Error
+        ? calcChart.error.message
+        : calcChart.error
+          ? String(calcChart.error)
+          : null,
     loading: calcChart.isPending,
     handleNewChart,
     handleFormSubmit,
   };
 }
-

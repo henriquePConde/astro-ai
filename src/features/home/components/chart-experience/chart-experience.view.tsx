@@ -6,21 +6,8 @@ import { defaultBirthData } from '../../constants/default-birth-data';
 import { styles } from './chart-experience.styles';
 import type { ChartExperienceProps } from './chart-experience.types';
 
-export function ChartExperienceView({
-  chart,
-  layout,
-  section,
-  hasSeenIntro,
-  onNewChart,
-}: ChartExperienceProps) {
-  const {
-    chartData,
-    transformedChartData,
-    birthData,
-    loading,
-    error,
-    handleFormSubmit,
-  } = chart;
+export function ChartExperienceView({ chart, layout, section, onNewChart }: ChartExperienceProps) {
+  const { chartData, transformedChartData, birthData, loading, error, handleFormSubmit } = chart;
 
   return (
     <Box sx={styles.root()}>
@@ -33,7 +20,7 @@ export function ChartExperienceView({
         isDragging={layout.isDragging}
         splitPosition={layout.splitPosition}
         currentSection={section.currentSection}
-        introFinished={hasSeenIntro || section.introFinished}
+        introFinished={section.introFinished}
         birthData={birthData ?? defaultBirthData}
         onFormSubmit={handleFormSubmit}
         onNewChart={onNewChart}
@@ -45,4 +32,3 @@ export function ChartExperienceView({
     </Box>
   );
 }
-

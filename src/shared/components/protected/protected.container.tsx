@@ -18,5 +18,3 @@ export function Protected({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated) return null;
   return <>{children}</>;
 }
-
-

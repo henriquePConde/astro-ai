@@ -22,7 +22,5 @@ export interface ChartExperienceProps {
     currentSection: number;
     introFinished: boolean;
   };
-  hasSeenIntro: boolean;
   onNewChart: () => void;
 }
-

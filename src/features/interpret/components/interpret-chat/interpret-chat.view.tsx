@@ -21,16 +21,28 @@ export function InterpretChatView({
         AI Interpreter
       </Typography>
       <Stack spacing={2}>
-        <TextField label="Message" value={message} onChange={(e) => setMessage(e.target.value)} fullWidth />
+        <TextField
+          label="Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          fullWidth
+        />
         <Button onClick={onSend} variant="contained" disabled={loading}>
           {loading ? <CircularProgress size={16} /> : 'Send'}
         </Button>
-        <Box sx={{ whiteSpace: 'pre-wrap', bgcolor: '#111', color: '#f1f1f1', p: 2, borderRadius: 1, minHeight: 160 }}>
+        <Box
+          sx={{
+            whiteSpace: 'pre-wrap',
+            bgcolor: '#111',
+            color: '#f1f1f1',
+            p: 2,
+            borderRadius: 1,
+            minHeight: 160,
+          }}
+        >
           {output || 'The interpretation will appear here.'}
         </Box>
       </Stack>
     </Box>
   );
 }
-
-
