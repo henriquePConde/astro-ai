@@ -11,7 +11,9 @@ export function ChartSectionView({
   isDragging,
   splitPosition,
 }: ChartSectionProps) {
-  // Transform our ChartData format to WheelChartData format expected by AstroWheel
+  if (!chartData) return null;
+
+  // ✅ Transform ChartData -> WheelData expected by AstroWheel (original shape)
   const wheelData = {
     planets: chartData.planets.map((p) => ({
       name: p.name,
@@ -28,6 +30,7 @@ export function ChartSectionView({
     <Box sx={styles.container(isExpanded, isDragging, splitPosition)}>
       <Box sx={styles.chartWrapper()}>
         <Box sx={styles.chartInner()}>
+          {/* ✅ Width/height as before */}
           <AstroWheel data={wheelData} width={800} height={1000} />
         </Box>
       </Box>

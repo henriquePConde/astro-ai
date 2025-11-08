@@ -60,7 +60,11 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
       const housesRadius = radius * 0.35;
       const planetRadius = (innerRadius + middleRadius) / 2;
 
-      // gradient + concentric circles (unchanged)
+      const rotationOffset = 180;
+      const houseNumberFontSize = Math.floor(radius * 0.045);
+      const symbolRadius = (outerRadius + middleRadius) / 2;
+
+      // === Base gradient + concentric circles (ORIGINAL) ===
       const gradient = g
         .append('defs')
         .append('linearGradient')
@@ -86,11 +90,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
           .attr('stroke-opacity', 0.6);
       });
 
-      const rotationOffset = 180;
-      const houseNumberFontSize = Math.floor(radius * 0.045);
-      const symbolRadius = (outerRadius + middleRadius) / 2;
-
-      // === Zodiac signs ===
+      // === Zodiac signs (ORIGINAL visuals, + hover highlight) ===
       const signInfo = getSignInfo(data);
       g.selectAll('.zodiac-sign').remove();
 
@@ -124,10 +124,19 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
               if (interactions) {
                 text
+                  .style('cursor', 'pointer')
                   .on('mouseenter', (event: any) => {
+                    d3.select<SVGTextElement, unknown>(event.currentTarget).attr(
+                      'font-size',
+                      '38px',
+                    );
                     interactions.onSignHover(sign.signIndex, event);
                   })
-                  .on('mouseleave', () => {
+                  .on('mouseleave', (event: any) => {
+                    d3.select<SVGTextElement, unknown>(event.currentTarget).attr(
+                      'font-size',
+                      '28px',
+                    );
                     interactions.onSignLeave();
                   });
               }
@@ -154,10 +163,13 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
             if (interactions) {
               text
+                .style('cursor', 'pointer')
                 .on('mouseenter', (event: any) => {
+                  d3.select<SVGTextElement, unknown>(event.currentTarget).attr('font-size', '38px');
                   interactions.onSignHover(sign.signIndex, event);
                 })
-                .on('mouseleave', () => {
+                .on('mouseleave', (event: any) => {
+                  d3.select<SVGTextElement, unknown>(event.currentTarget).attr('font-size', '28px');
                   interactions.onSignLeave();
                 });
             }
@@ -165,7 +177,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
         }
       });
 
-      // === Houses (lines + numbers) ===
+      // === Houses: cusp lines + numbers (ORIGINAL visuals) ===
       houseCusps.forEach((cusp, index) => {
         const angle = (((cusp - data.houses.firstHouse + rotationOffset) % 360) * Math.PI) / 180;
         const isCardinal = [0, 3, 6, 9].includes(index);
@@ -199,6 +211,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
         if (interactions) {
           line
+            .style('cursor', 'pointer')
             .on('mouseenter', (event: any) => {
               interactions.onHouseHover(
                 {
@@ -213,12 +226,16 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
             });
         }
 
-        // house number label (unchanged, no hover required)
+        // House number label (unchanged)
         const textRadius = (innerRadius + housesRadius) / 2;
         const nextCusp = houseCusps[(index + 1) % 12];
-        let midpointAngle;
-        if (nextCusp < cusp) midpointAngle = (cusp + (nextCusp + 360 - cusp) / 2) % 360;
-        else midpointAngle = cusp + (nextCusp - cusp) / 2;
+        let midpointAngle: number;
+        if (nextCusp < cusp) {
+          midpointAngle = (cusp + (nextCusp + 360 - cusp) / 2) % 360;
+        } else {
+          midpointAngle = cusp + (nextCusp - cusp) / 2;
+        }
+
         const textAngle =
           (((midpointAngle - data.houses.firstHouse + rotationOffset) % 360) * Math.PI) / 180;
 
@@ -247,7 +264,68 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
           .text((index + 1).toString());
       });
 
-      // === Aspects (same visuals, now with optional hover) ===
+      // === House sector highlight overlays (NEW, only visual on hover) ===
+      if (interactions) {
+        for (let i = 0; i < 12; i++) {
+          const startCusp = houseCusps[i];
+          const endCusp = houseCusps[(i + 1) % 12];
+          const houseNumber = i + 1;
+
+          let startAngleDeg = (startCusp - data.houses.firstHouse + rotationOffset) % 360;
+          let endAngleDeg = (endCusp - data.houses.firstHouse + rotationOffset) % 360;
+
+          if (startAngleDeg < 0) startAngleDeg += 360;
+          if (endAngleDeg < 0) endAngleDeg += 360;
+          if (endAngleDeg < startAngleDeg) endAngleDeg += 360;
+
+          const startAngleRad = (startAngleDeg * Math.PI) / 180;
+          const endAngleRad = (endAngleDeg * Math.PI) / 180;
+          const largeArcFlag = endAngleDeg - startAngleDeg > 180 ? 1 : 0;
+
+          const path = `
+            M ${housesRadius * Math.cos(startAngleRad)} ${-housesRadius * Math.sin(startAngleRad)}
+            L ${outerRadius * Math.cos(startAngleRad)} ${-outerRadius * Math.sin(startAngleRad)}
+            A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 0
+              ${outerRadius * Math.cos(endAngleRad)} ${-outerRadius * Math.sin(endAngleRad)}
+            L ${housesRadius * Math.cos(endAngleRad)} ${-housesRadius * Math.sin(endAngleRad)}
+            A ${housesRadius} ${housesRadius} 0 ${largeArcFlag} 1
+              ${housesRadius * Math.cos(startAngleRad)} ${-housesRadius * Math.sin(startAngleRad)}
+            Z
+          `;
+
+          const sector = g
+            .append('path')
+            .attr('d', path)
+            .attr('class', `house-highlight house-highlight-${houseNumber}`)
+            .attr('fill', '#4a90e2')
+            .attr('fill-opacity', 0)
+            .attr('stroke', '#4a90e2')
+            .attr('stroke-opacity', 0)
+            .attr('stroke-width', 1.5)
+            .style('pointer-events', 'all')
+            .style('cursor', 'pointer');
+
+          sector
+            .on('mouseenter', (event: any) => {
+              sector.attr('fill-opacity', 0.15).attr('stroke-opacity', 0.9);
+
+              interactions.onHouseHover(
+                {
+                  number: houseNumber,
+                  degree: startCusp,
+                },
+                event,
+              );
+            })
+            .on('mouseleave', () => {
+              sector.attr('fill-opacity', 0).attr('stroke-opacity', 0);
+
+              interactions.onHouseLeave();
+            });
+        }
+      }
+
+      // === Aspects (ORIGINAL visuals + highlight via invisible hit line) ===
       const aspectGroup = g.append('g').attr('class', 'aspects');
 
       for (let i = 0; i < planetPositions.length; i++) {
@@ -288,11 +366,13 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
               (((parseFloat(p2.position) - data.houses.firstHouse + rotationOffset) % 360) *
                 Math.PI) /
               180;
+
             const x1 = planetRadius * Math.cos(a1);
             const y1 = -planetRadius * Math.sin(a1);
             const x2 = planetRadius * Math.cos(a2);
             const y2 = -planetRadius * Math.sin(a2);
 
+            // Visible line (unchanged base look)
             const line = aspectGroup
               .append('line')
               .attr('x1', x1)
@@ -301,11 +381,25 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
               .attr('y2', y2)
               .attr('stroke', color)
               .attr('stroke-width', 1)
-              .attr('opacity', 0.6);
+              .attr('opacity', 0.6)
+              .style('pointer-events', interactions ? 'none' : 'auto');
 
             if (interactions) {
-              line
+              // Hit area for hover highlight + tooltip
+              const hit = aspectGroup
+                .append('line')
+                .attr('x1', x1)
+                .attr('y1', y1)
+                .attr('x2', x2)
+                .attr('y2', y2)
+                .attr('stroke', 'transparent')
+                .attr('stroke-width', 12)
+                .style('pointer-events', 'stroke')
+                .style('cursor', 'pointer');
+
+              hit
                 .on('mouseenter', (event: any) => {
+                  line.attr('stroke-width', 2.5).attr('opacity', 1);
                   interactions.onAspectHover(
                     {
                       type: aspectType!,
@@ -317,6 +411,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
                   );
                 })
                 .on('mouseleave', () => {
+                  line.attr('stroke-width', 1).attr('opacity', 0.6);
                   interactions.onAspectLeave();
                 });
             }
@@ -324,7 +419,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
         }
       }
 
-      // === Planets (same glyphs, plus hover) ===
+      // === Planets (ORIGINAL visuals + highlight on hover) ===
       const adjustedPositions = getAdjustedPlanetPositions(planetPositions);
       const planetFontSize = Math.floor(radius * 0.085);
 
@@ -340,7 +435,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
         const color = (planetColors as any)[planet.name] || '#ffffff';
 
-        group
+        const text = group
           .append('text')
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'middle')
@@ -350,18 +445,27 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
         if (interactions) {
           group
+            .style('cursor', 'pointer')
             .on('mouseenter', (event: any) => {
+              // visual highlight
+              text.attr('font-size', `${planetFontSize * 1.18}px`).attr('font-weight', 'bold');
+
               interactions.onPlanetHover(
                 {
                   name: planet.name,
                   symbol: planet.symbol || planet.name,
                   degree: adjustedPosition,
+                  signLabel: planet.sign,
+                  house: planet.house,
                   color,
                 },
                 event,
               );
             })
             .on('mouseleave', () => {
+              // reset visual
+              text.attr('font-size', `${planetFontSize}px`).attr('font-weight', 'normal');
+
               interactions.onPlanetLeave();
             });
         }
@@ -397,6 +501,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
       });
 
     svg.call(zoom);
+
     svg.on('dblclick.zoom', () => {
       svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
     });

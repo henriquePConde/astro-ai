@@ -7,9 +7,7 @@ import type { ChartInteractionsContextType } from './chart-interactions.types';
 
 const ChartInteractionsContext = createContext<ChartInteractionsContextType | undefined>(undefined);
 
-const InnerInteractionsProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
+const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { showTooltip, hideTooltip } = useTooltip();
   const [enabled, setEnabled] = useState(true);
 
@@ -36,7 +34,6 @@ const InnerInteractionsProvider: React.FC<{
         showTooltip(state);
       },
       onPlanetLeave: () => {
-        if (!enabled) return;
         hideTooltip();
       },
 
@@ -52,7 +49,6 @@ const InnerInteractionsProvider: React.FC<{
         });
       },
       onHouseLeave: () => {
-        if (!enabled) return;
         hideTooltip();
       },
 
@@ -67,7 +63,6 @@ const InnerInteractionsProvider: React.FC<{
         });
       },
       onSignLeave: () => {
-        if (!enabled) return;
         hideTooltip();
       },
 
@@ -85,7 +80,6 @@ const InnerInteractionsProvider: React.FC<{
         });
       },
       onAspectLeave: () => {
-        if (!enabled) return;
         hideTooltip();
       },
     }),
@@ -97,9 +91,9 @@ const InnerInteractionsProvider: React.FC<{
   );
 };
 
-export const ChartInteractionsProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => (
+export const ChartInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <TooltipProvider>
     <InnerInteractionsProvider>{children}</InnerInteractionsProvider>
   </TooltipProvider>
@@ -113,8 +107,4 @@ export const useChartInteractions = () => {
   return ctx;
 };
 
-/**
- * For components that might render outside provider (e.g. AstroWheel preview).
- * Returns null when interactions are unavailable.
- */
 export const useOptionalChartInteractions = () => useContext(ChartInteractionsContext) ?? null;

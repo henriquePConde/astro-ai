@@ -1,5 +1,3 @@
-import type { TooltipState } from './tooltip.types';
-
 export type ChartInteractionsContextType = {
   enabled: boolean;
   toggleEnabled: () => void;
