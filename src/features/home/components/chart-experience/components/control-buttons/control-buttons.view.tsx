@@ -1,24 +1,31 @@
 'use client';
 
-import { Button, Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
 import { styles } from './control-buttons.styles';
 import type { ControlButtonsProps } from './control-buttons.types';
-import { ChartInteractionsSwitcher } from '../chart-interactions-switcher/chart-interactions-switcher';
 
 export function ControlButtonsView({
-  isExpanded,
-  onToggleExpand,
+  isExpanded, // kept for API compatibility (not used for now)
+  onToggleExpand, // kept for API compatibility (not used for now)
   onNewChart,
 }: ControlButtonsProps) {
   return (
-    <Box sx={styles.container()}>
-      <ChartInteractionsSwitcher />
-      <Button onClick={onToggleExpand} sx={styles.button()}>
-        {isExpanded ? 'Collapse' : 'Expand'}
-      </Button>
-      <Button onClick={onNewChart} sx={styles.button()}>
+    <Box sx={styles.root()}>
+      <Button
+        variant="contained"
+        onClick={onNewChart}
+        startIcon={<RefreshIcon />}
+        sx={styles.newChartButton()}
+      >
         New Chart
       </Button>
+
+      {/*
+        Collapse/expand button intentionally hidden for now.
+        Keeping props so we can re-enable without API changes.
+      */}
     </Box>
   );
 }

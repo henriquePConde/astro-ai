@@ -4,7 +4,8 @@ import { Box } from '@mui/material';
 import { ControlButtonsView } from '../control-buttons/control-buttons.view';
 import { DraggableResizerView } from '../draggable-resizer/draggable-resizer.view';
 import { ChartSectionView } from '../chart-section/chart-section.view';
-import { DataSectionView } from '../data-section/data-section.view';
+import { DataSectionContainer } from '../data-section/data-section.container';
+import { ChartInteractionsSwitcher } from '../chart-interactions-switcher/chart-interactions-switcher';
 import { styles } from './chart-content.styles';
 import type { ChartContentProps } from './chart-content.types';
 
@@ -23,12 +24,18 @@ export function ChartContentView({
   if (!chartData) return null;
 
   return (
-    <>
-      <ControlButtonsView
-        isExpanded={isExpanded}
-        onToggleExpand={onToggleExpand}
-        onNewChart={onNewChart}
-      />
+    <Box sx={styles.wrapper()}>
+      {/* Header row: left = interactions switch, right = control buttons */}
+      <Box sx={styles.header()}>
+        <ChartInteractionsSwitcher />
+        <ControlButtonsView
+          isExpanded={isExpanded}
+          onToggleExpand={onToggleExpand}
+          onNewChart={onNewChart}
+        />
+      </Box>
+
+      {/* Main layout: chart / resizer / data section */}
       <Box
         sx={styles.container(isExpanded, isDragging)}
         onMouseMove={isExpanded ? onDrag : undefined}
@@ -50,7 +57,7 @@ export function ChartContentView({
           />
         )}
 
-        <DataSectionView
+        <DataSectionContainer
           chartData={chartData}
           isExpanded={isExpanded}
           isDragging={isDragging}
@@ -58,6 +65,6 @@ export function ChartContentView({
           birthData={birthData}
         />
       </Box>
-    </>
+    </Box>
   );
 }

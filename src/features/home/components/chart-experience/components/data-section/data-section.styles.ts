@@ -1,30 +1,34 @@
-import { Theme } from '@mui/material';
+import type { Theme } from '@mui/material';
 
 export const styles = {
   container:
     (isExpanded: boolean, isDragging: boolean, splitPosition: number) => (theme: Theme) => ({
-      height: '100%',
-      bgcolor: 'rgba(13, 12, 34, 0.8)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: 4,
-      p: 3,
-      border: '1px solid rgba(255, 255, 255, 0.05)',
-      boxShadow: '0 0 30px -12px rgba(138, 43, 226, 0.15)',
+      flex: 1,
       display: 'flex',
       flexDirection: 'column',
-      width: isExpanded ? `${100 - splitPosition}%` : { xs: '100%', lg: '50%' },
-      transition: isDragging ? 'none' : 'all 300ms',
+      height: '100%',
+      pl: 2,
+      pr: 2,
+      transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      width: { lg: `${100 - splitPosition}%` },
+      overflow: 'hidden',
     }),
+
   content: () => (theme: Theme) => ({
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  }),
-  placeholder: () => (theme: Theme) => ({
-    color: 'rgba(255, 255, 255, 0.6)',
-    textAlign: 'center',
-    pt: 4,
-    fontFamily: 'mystical, serif',
+    mt: 1,
+    overflowY: 'auto',
+    pr: 1,
+    pb: 2,
+    '&::-webkit-scrollbar': {
+      width: 6,
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: 'rgba(255,255,255,0.18)',
+      borderRadius: 999,
+    },
   }),
 };
