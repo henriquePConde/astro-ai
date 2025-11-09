@@ -17,26 +17,14 @@ export const styles = {
     }),
   content: () => (theme: Theme) => ({
     flex: 1,
-    overflowY: 'auto',
-    pr: 1,
-    '&::-webkit-scrollbar': {
-      width: 8,
-    },
-    '&::-webkit-scrollbar-track': {
-      background: 'rgba(255, 255, 255, 0.05)',
-      borderRadius: 4,
-    },
-    '&::-webkit-scrollbar-thumb': {
-      background: 'rgba(138, 43, 226, 0.3)',
-      borderRadius: 4,
-      '&:hover': {
-        background: 'rgba(138, 43, 226, 0.5)',
-      },
-    },
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
   }),
   placeholder: () => (theme: Theme) => ({
     color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
     pt: 4,
+    fontFamily: 'mystical, serif',
   }),
 };
