@@ -18,6 +18,7 @@ export const generatePdfBody = z.object({
       scale: z.number().optional(),
       width: z.string().optional(),
       height: z.string().optional(),
+      landscape: z.boolean().optional(),
     })
     .optional(),
 });

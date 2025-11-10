@@ -120,6 +120,7 @@ export async function generatePdfFromReportId(
       omitBackground: false,
       ...(options?.width && { width: options.width }),
       ...(options?.height && { height: options.height }),
+      ...(options?.landscape !== undefined && { landscape: options.landscape }),
     };
 
     const buffer = await page.pdf(pdfOptions);

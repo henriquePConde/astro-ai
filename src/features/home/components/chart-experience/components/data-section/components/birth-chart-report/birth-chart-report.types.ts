@@ -5,5 +5,7 @@ export interface BirthChartReportViewProps {
   isGenerating: boolean;
   error: string | null;
   sections: Record<string, string>;
+  hasSections: boolean;
   onGenerate: () => void;
+  onDownloadPdf: () => void;
 }

@@ -2,9 +2,10 @@
 
 import { Box } from '@mui/material';
 import { styles } from './data-section.styles';
-import type { DataSectionViewProps } from './data-section.types';
+import { AstroInterpreter } from '../astro-interpreter';
+import { BirthChartReportView } from './components/birth-chart-report/birth-chart-report.view';
 import { TabsSectionView } from './components/tabs-section/tabs-section.view';
-import { SectionContentView } from './components/section-content/section-content.view';
+import type { DataSectionViewProps } from './data-section.types';
 
 export function DataSectionView({
   chartData,
@@ -17,7 +18,9 @@ export function DataSectionView({
   isGenerating,
   error,
   sections,
+  hasSections,
   onGenerateReport,
+  onDownloadPdf,
 }: DataSectionViewProps) {
   if (!chartData) return null;
 
@@ -26,15 +29,19 @@ export function DataSectionView({
       <TabsSectionView activeTab={activeTab} onTabChange={onTabChange} />
 
       <Box sx={styles.content()}>
-        <SectionContentView
-          activeTab={activeTab}
-          chartData={chartData}
-          birthData={birthData}
-          isGenerating={isGenerating}
-          error={error}
-          sections={sections}
-          onGenerateReport={onGenerateReport}
-        />
+        {activeTab === 'ai' && <AstroInterpreter chartData={chartData} />}
+
+        {activeTab === 'report' && (
+          <BirthChartReportView
+            birthData={birthData}
+            isGenerating={isGenerating}
+            error={error}
+            sections={sections}
+            hasSections={hasSections}
+            onGenerate={onGenerateReport}
+            onDownloadPdf={onDownloadPdf}
+          />
+        )}
       </Box>
     </Box>
   );

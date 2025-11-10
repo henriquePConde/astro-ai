@@ -9,13 +9,18 @@ export function BirthChartReportView({
   isGenerating,
   error,
   sections,
+  hasSections,
   onGenerate,
+  onDownloadPdf,
 }: BirthChartReportViewProps) {
-  const hasSections = sections && Object.keys(sections).length > 0;
-
-  const handleClick = () => {
+  const handleGenerateClick = () => {
     if (!birthData || isGenerating) return;
     onGenerate();
+  };
+
+  const handleDownloadClick = () => {
+    if (!hasSections || isGenerating) return;
+    onDownloadPdf();
   };
 
   return (
@@ -35,9 +40,24 @@ export function BirthChartReportView({
             Generate an AI-written, structured report based on your birth data.
           </Typography>
         </Box>
-        <Button variant="contained" onClick={handleClick} disabled={!birthData || isGenerating}>
-          {isGenerating ? 'Generating…' : hasSections ? 'Regenerate' : 'Generate'}
-        </Button>
+
+        <Stack direction="row" spacing={1.5}>
+          <Button
+            variant="contained"
+            onClick={handleGenerateClick}
+            disabled={!birthData || isGenerating}
+          >
+            {isGenerating ? 'Generating…' : hasSections ? 'Regenerate report' : 'Generate report'}
+          </Button>
+
+          <Button
+            variant="outlined"
+            onClick={handleDownloadClick}
+            disabled={!hasSections || isGenerating}
+          >
+            Download PDF
+          </Button>
+        </Stack>
       </Stack>
 
       {error && <Alert severity="error">{error}</Alert>}

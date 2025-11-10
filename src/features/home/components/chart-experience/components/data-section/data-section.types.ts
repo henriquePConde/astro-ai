@@ -1,20 +1,30 @@
 import type { BirthChartData } from '@/features/home/types/chart.types';
+import type { BirthChartReportSections } from '@/features/home/services/birth-chart-report.service';
 
 export type DataSectionTab = 'ai' | 'report';
 
 export interface DataSectionContainerProps {
-  chartData: any; // Replace with concrete ChartData type if available
+  chartData: any; // use concrete ChartData when available
   isExpanded: boolean;
   isDragging: boolean;
   splitPosition: number;
   birthData: BirthChartData | null;
 }
 
-export interface DataSectionViewProps extends DataSectionContainerProps {
+export interface DataSectionViewProps {
+  chartData: any;
+  birthData: BirthChartData | null;
+  isExpanded: boolean;
+  isDragging: boolean;
+  splitPosition: number;
+
   activeTab: DataSectionTab;
   onTabChange: (tab: DataSectionTab) => void;
+
   isGenerating: boolean;
   error: string | null;
-  sections: Record<string, string>;
+  sections: BirthChartReportSections;
+  hasSections: boolean;
   onGenerateReport: () => void;
+  onDownloadPdf: () => void;
 }

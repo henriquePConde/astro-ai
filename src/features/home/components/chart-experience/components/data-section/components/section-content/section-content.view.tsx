@@ -12,6 +12,8 @@ export function SectionContentView({
   error,
   sections,
   onGenerateReport,
+  onDownloadPdf,
+  canDownloadPdf,
 }: SectionContentViewProps) {
   if (!chartData) return null;
 
@@ -27,6 +29,8 @@ export function SectionContentView({
           error={error}
           sections={sections}
           onGenerate={onGenerateReport}
+          onDownloadPdf={onDownloadPdf}
+          canDownload={canDownloadPdf}
         />
       );
 

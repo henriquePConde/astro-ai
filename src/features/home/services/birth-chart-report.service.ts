@@ -12,54 +12,53 @@ export interface GenerateBirthChartReportPayload {
 }
 
 /**
- * Map front-end birthData to the body expected by /api/reports.
- *
  * Backend /api/reports POST:
- *  - parses with generateReportBody
- *  - does:
- *      const input = generateReportBody.parse(body);
- *      const { name, ...birthData } = input;
- *      const report = await generateReport(user.id, { ...birthData, name }, name);
- *
- * So we must send:
- *  {
- *    name: string;
- *    ...birthDataFields
- *  }
+ *  - parses with generateReportBody (BirthData)
+ *  - generateReport(user.id, birthData, name)
+ *  - returns reportDto:
+ *      {
+ *        id, userId, personName,
+ *        birthData,
+ *        content: { ...sections },
+ *        createdAt, updatedAt
+ *      }
  */
+
+const BirthChartReportResponseSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  personName: z.string(),
+  birthData: z.any(),
+  content: BirthChartReportSectionsSchema,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export type BirthChartReportResponse = z.infer<typeof BirthChartReportResponseSchema>;
+
 function toBackendBody({ birthData }: GenerateBirthChartReportPayload) {
   if (!birthData || !birthData.name) {
     throw new Error('Birth data with a name is required to generate a report.');
   }
 
-  const { name, ...rest } = birthData;
-
+  // generateReportBody expects the BirthData shape
   return {
-    name,
-    ...rest,
-    // chartData can be added here when the backend schema supports it:
-    // chartData,
+    ...birthData,
   };
 }
 
 export async function generateBirthChartReport(
   payload: GenerateBirthChartReportPayload,
-): Promise<BirthChartReportSections> {
+): Promise<BirthChartReportResponse> {
   const body = toBackendBody(payload);
 
-  // ✅ Hit the API route, not the page route
   const response = await client.post('/api/reports', body);
 
   const data = response.data;
 
-  // Guard: make sure we didn't accidentally get HTML again
   if (typeof data !== 'object' || data === null) {
     throw new Error('Unexpected response from /api/reports');
   }
 
-  // Backend likely returns a report object:
-  // { id, name, content: { sectionKey: text, ... }, ... }
-  const sections = (data as any).content ?? data;
-
-  return BirthChartReportSectionsSchema.parse(sections);
+  return BirthChartReportResponseSchema.parse(data);
 }
