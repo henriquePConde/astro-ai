@@ -3,8 +3,9 @@
 import { Box, useTheme } from '@mui/material';
 import { styles } from './data-section.styles';
 import { AstroInterpreter } from '../astro-interpreter';
-import { BirthChartReportView } from './components/birth-chart-report/birth-chart-report.view';
-import { TabsSectionView } from './components/tabs-section/tabs-section.view';
+import { BirthChartReportContainer } from './components/birth-chart-report/birth-chart-report.container';
+import { TabsSectionContainer } from './components/tabs-section/tabs-section.container';
+import { DATA_SECTION_TABS } from './data-section.constants';
 import type { DataSectionViewProps } from './data-section.types';
 
 export function DataSectionView({
@@ -27,13 +28,13 @@ export function DataSectionView({
 
   return (
     <Box sx={styles.container(isExpanded, isDragging, splitPosition)(theme)}>
-      <TabsSectionView activeTab={activeTab} onTabChange={onTabChange} />
+      <TabsSectionContainer activeTab={activeTab} onTabChange={onTabChange} />
 
       <Box sx={styles.content()(theme)}>
-        {activeTab === 'ai' && <AstroInterpreter chartData={chartData} />}
+        {activeTab === DATA_SECTION_TABS.AI && <AstroInterpreter chartData={chartData} />}
 
-        {activeTab === 'report' && (
-          <BirthChartReportView
+        {activeTab === DATA_SECTION_TABS.REPORT && (
+          <BirthChartReportContainer
             birthData={birthData}
             isGenerating={isGenerating}
             error={error}

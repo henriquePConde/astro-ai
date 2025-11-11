@@ -1,8 +1,9 @@
 'use client';
 
-import { Box, Button, Typography, Alert, Stack } from '@mui/material';
+import { Box, Button, Typography, Alert, Stack, useTheme } from '@mui/material';
+import { styles } from './birth-chart-report.styles';
 import type { BirthChartReportViewProps } from './birth-chart-report.types';
-import { ReportAccordion } from '../report-accordion/report-accordion.view';
+import { ReportAccordionContainer } from '../report-accordion/report-accordion.container';
 
 export function BirthChartReportView({
   birthData,
@@ -10,59 +11,45 @@ export function BirthChartReportView({
   error,
   sections,
   hasSections,
-  onGenerate,
-  onDownloadPdf,
+  handleGenerateClick,
+  handleDownloadClick,
+  generateButtonText,
+  config,
 }: BirthChartReportViewProps) {
-  const handleGenerateClick = () => {
-    if (!birthData || isGenerating) return;
-    onGenerate();
-  };
-
-  const handleDownloadClick = () => {
-    if (!hasSections || isGenerating) return;
-    onDownloadPdf();
-  };
+  const theme = useTheme();
 
   return (
-    <Box
-      sx={(theme) => ({
-        maxWidth: 800,
-        margin: '0 auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: theme.spacing(2),
-      })}
-    >
+    <Box sx={styles.container(config.ui.container.maxWidth)(theme)}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
         <Box>
-          <Typography variant="h6">Personalized Birth Chart Report</Typography>
+          <Typography variant="h6">{config.copy.title}</Typography>
           <Typography variant="body2" color="text.secondary">
-            Generate an AI-written, structured report based on your birth data.
+            {config.copy.description}
           </Typography>
         </Box>
 
         <Stack direction="row" spacing={1.5}>
           <Button
-            variant="contained"
+            variant={config.ui.button.generate.variant}
             onClick={handleGenerateClick}
             disabled={!birthData || isGenerating}
           >
-            {isGenerating ? 'Generating…' : hasSections ? 'Regenerate report' : 'Generate report'}
+            {generateButtonText}
           </Button>
 
           <Button
-            variant="outlined"
+            variant={config.ui.button.download.variant}
             onClick={handleDownloadClick}
             disabled={!hasSections || isGenerating}
           >
-            Download PDF
+            {config.copy.button.downloadPdf}
           </Button>
         </Stack>
       </Stack>
 
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && <Alert severity={config.ui.alert.severity}>{error}</Alert>}
 
-      <ReportAccordion
+      <ReportAccordionContainer
         sections={sections}
         isGenerating={isGenerating}
         hasBirthData={!!birthData}

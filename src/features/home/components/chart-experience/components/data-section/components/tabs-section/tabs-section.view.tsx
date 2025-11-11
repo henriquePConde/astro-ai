@@ -1,21 +1,35 @@
 'use client';
 
-import { Tabs, Tab, Box } from '@mui/material';
-import type { SyntheticEvent } from 'react';
+import { Tabs, Tab, Box, useTheme } from '@mui/material';
 import { styles } from './tabs-section.styles';
 import type { TabsSectionViewProps } from './tabs-section.types';
-import type { DataSectionTab } from '../../data-section.types';
 
-export function TabsSectionView({ activeTab, onTabChange }: TabsSectionViewProps) {
-  const handleChange = (_: SyntheticEvent, value: DataSectionTab) => {
-    onTabChange(value);
-  };
+export function TabsSectionView({
+  activeTab,
+  onTabChange,
+  handleChange,
+  config,
+}: TabsSectionViewProps) {
+  const theme = useTheme();
 
   return (
-    <Box sx={styles.root()}>
-      <Tabs value={activeTab} onChange={handleChange} variant="fullWidth" sx={styles.tabs()}>
-        <Tab value="ai" label="AI Interpreter" sx={styles.tab(activeTab === 'ai')} />
-        <Tab value="report" label="Report" sx={styles.tab(activeTab === 'report')} />
+    <Box sx={styles.root()(theme)}>
+      <Tabs
+        value={activeTab}
+        onChange={handleChange}
+        variant={config.ui.tabs.variant}
+        sx={styles.tabs()(theme)}
+      >
+        <Tab
+          value={config.values.ai}
+          label={config.copy.tabs.ai}
+          sx={styles.tab(activeTab === config.values.ai)(theme)}
+        />
+        <Tab
+          value={config.values.report}
+          label={config.copy.tabs.report}
+          sx={styles.tab(activeTab === config.values.report)(theme)}
+        />
       </Tabs>
     </Box>
   );

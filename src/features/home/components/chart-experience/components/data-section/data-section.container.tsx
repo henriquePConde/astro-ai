@@ -3,10 +3,10 @@
 import { DataSectionView } from './data-section.view';
 import type { DataSectionContainerProps } from './data-section.types';
 import { DEFAULT_DATA_SECTION_TAB } from './data-section.constants';
-import { useDataSectionTabs } from '@/features/home/hooks/use-data-section-tabs.state';
-import { useBirthChartReportSections } from '@/features/home/hooks/use-birth-chart-report-sections.state';
-import { useBirthChartReportActions } from '@/features/home/hooks/use-birth-chart-report-actions.state';
-import { useErrorMessage } from '@/features/home/hooks/use-error-message.state';
+import { useDataSectionTabs } from './hooks/use-data-section-tabs.state';
+import { useBirthChartReportSections } from './hooks/use-birth-chart-report-sections.state';
+import { useBirthChartReportActions } from './hooks/use-birth-chart-report-actions.state';
+import { useErrorMessage } from './hooks/use-error-message.state';
 
 export function DataSectionContainer({
   chartData,

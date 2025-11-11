@@ -3,18 +3,18 @@ import { Theme } from '@mui/material';
 export const styles = {
   tooltip: (x: number, y: number) => (theme: Theme) => ({
     position: 'fixed',
-    left: x + 12,
-    top: y + 12,
-    padding: '8px 10px',
+    left: x + theme.spacing(1.5),
+    top: y + theme.spacing(1.5),
+    padding: theme.spacing(1, 1.25),
     backgroundColor: 'rgba(6,6,20,0.98)',
-    borderRadius: 8,
-    border: '1px solid rgba(255,255,255,0.16)',
+    borderRadius: theme.spacing(1),
+    border: `1px solid ${theme.cosmic.colors.glassBorder}`,
     boxShadow: '0 8px 22px rgba(0,0,0,0.5)',
     fontSize: 12,
-    color: '#fff',
+    color: theme.cosmic.colors.whiteText,
     pointerEvents: 'none',
     zIndex: 2000,
-    maxWidth: 260,
+    maxWidth: theme.spacing(32.5),
   }),
 
   contentText: () => (theme: Theme) => ({

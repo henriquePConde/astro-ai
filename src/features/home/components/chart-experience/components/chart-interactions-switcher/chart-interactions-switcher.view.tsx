@@ -7,22 +7,23 @@ import type { ChartInteractionsSwitcherViewProps } from './chart-interactions-sw
 export function ChartInteractionsSwitcherView({
   enabled,
   onToggle,
+  config,
 }: ChartInteractionsSwitcherViewProps) {
   const theme = useTheme();
 
   return (
     <Box sx={styles.container()(theme)}>
-      <Tooltip title="Toggle interactive tooltips for planets, houses, signs, and aspects">
+      <Tooltip title={config.copy.tooltip}>
         <FormControlLabel
           control={
             <Switch
-              size="small"
+              size={config.ui.switch.size}
               checked={enabled}
               onChange={(e) => onToggle(e.target.checked)}
               sx={styles.switch()(theme)}
             />
           }
-          label="Interactions"
+          label={config.copy.label}
           sx={styles.label()(theme)}
         />
       </Tooltip>

@@ -1,0 +1,11 @@
+export const CHART_INTERACTIONS_SWITCHER_CONFIG = {
+  copy: {
+    tooltip: 'Toggle interactive tooltips for planets, houses, signs, and aspects',
+    label: 'Interactions',
+  },
+  ui: {
+    switch: {
+      size: 'small' as const,
+    },
+  },
+} as const;

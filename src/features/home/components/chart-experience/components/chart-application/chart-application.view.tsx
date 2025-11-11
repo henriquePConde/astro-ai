@@ -6,7 +6,7 @@ import { LoadingOrErrorView } from '../loading-or-error/loading-or-error.view';
 import { ChartContentView } from '../chart-content/chart-content.view';
 import type { ChartApplicationViewProps } from './chart-application.types';
 import { ChartInteractionsProvider } from '../../context/chart-interactions.context';
-import { ChartTooltipOverlay } from '../chart-tooltip/chart-tooltip.overlay';
+import { ChartTooltipOverlayContainer as ChartTooltipOverlay } from '../chart-tooltip/chart-tooltip.container';
 
 export function ChartApplicationView({
   chartData,

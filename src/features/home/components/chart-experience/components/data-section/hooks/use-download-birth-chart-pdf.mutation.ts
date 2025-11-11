@@ -5,7 +5,7 @@ import {
   generateAndDownloadPdfFromUrl,
   type GeneratePdfOptions,
 } from '@/shared/services/pdf/pdf.service';
-import type { BirthChartReportResponse } from '../services/birth-chart-report.service';
+import type { BirthChartReportResponse } from '../../../../../services/birth-chart-report.service';
 
 export interface DownloadBirthChartPdfPayload {
   reportData: BirthChartReportResponse;

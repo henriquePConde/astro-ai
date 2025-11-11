@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { BirthChartReportSections } from '../services/birth-chart-report.service';
-import type { BirthChartReportResponse } from '../services/birth-chart-report.service';
+import type { BirthChartReportSections } from '../../../../../services/birth-chart-report.service';
+import type { BirthChartReportResponse } from '../../../../../services/birth-chart-report.service';
 
 export interface UseBirthChartReportSectionsReturn {
   sections: BirthChartReportSections;

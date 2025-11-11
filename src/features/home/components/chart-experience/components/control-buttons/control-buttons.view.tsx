@@ -6,22 +6,18 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { styles } from './control-buttons.styles';
 import type { ControlButtonsProps } from './control-buttons.types';
 
-export function ControlButtonsView({
-  isExpanded, // kept for API compatibility (not used for now)
-  onToggleExpand, // kept for API compatibility (not used for now)
-  onNewChart,
-}: ControlButtonsProps) {
+export function ControlButtonsView({ onNewChart, config }: ControlButtonsProps) {
   const theme = useTheme();
 
   return (
     <Box sx={styles.root()(theme)}>
       <Button
-        variant="contained"
+        variant={config.ui.button.variant}
         onClick={onNewChart}
         startIcon={<RefreshIcon />}
         sx={styles.newChartButton()(theme)}
       >
-        New Chart
+        {config.copy.newChart}
       </Button>
 
       {/*

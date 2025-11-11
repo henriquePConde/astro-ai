@@ -1,31 +1,29 @@
-// src/features/home/components/chart-experience/section-content.view.tsx
 'use client';
 
 import { Box } from '@mui/material';
 import { sectionContentStyles as styles } from './section-content.styles';
 import type { SectionContentViewProps } from './section-content.types';
-import { BirthChartReportView } from '../birth-chart-report/birth-chart-report.view';
+import { BirthChartReportContainer } from '../birth-chart-report/birth-chart-report.container';
 import { AstroInterpreter } from '../../../astro-interpreter';
 
 export function SectionContentView({
   activeSection,
   chartData,
   birthData,
-  reportData,
+  sections,
+  hasSections,
   isGenerating,
   error,
   onGenerateReport,
   onDownloadPdf,
+  config,
 }: SectionContentViewProps) {
-  const sections = reportData ?? {};
-  const hasSections = Object.keys(sections).length > 0;
-
   return (
     <Box sx={styles.root()}>
-      {activeSection === 'interpretation' ? (
+      {activeSection === config.sections.interpretation ? (
         chartData && <AstroInterpreter chartData={chartData} />
       ) : (
-        <BirthChartReportView
+        <BirthChartReportContainer
           birthData={birthData}
           isGenerating={isGenerating}
           error={error}

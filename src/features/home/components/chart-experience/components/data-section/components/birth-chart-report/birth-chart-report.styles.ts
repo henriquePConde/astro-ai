@@ -1,6 +1,13 @@
 import type { Theme } from '@mui/material';
 
 export const styles = {
+  container: (maxWidth: number) => (theme: Theme) => ({
+    maxWidth,
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+  }),
   root: () => (theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',

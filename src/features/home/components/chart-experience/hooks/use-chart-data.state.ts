@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useCalcChart } from '@/features/chart/hooks/use-calc-chart.mutation';
 import type { ChartData as ApiChartData } from '@/features/chart/services/chart.service';
-import { transformApiChartDataToChartData } from '../services/chart-data.mapper';
-import type { ChartData, BirthChartData } from '../types/chart.types';
+import { transformApiChartDataToChartData } from '../../../services/chart-data.mapper';
+import type { ChartData, BirthChartData } from '../../../types/chart.types';
 
 export interface UseChartDataReturn {
   chartData: ApiChartData | null;

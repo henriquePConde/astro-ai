@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import type { BirthChartData } from '../types/chart.types';
-import type { BirthChartReportResponse } from '../services/birth-chart-report.service';
+import type { BirthChartData } from '../../../../../types/chart.types';
+import type { BirthChartReportResponse } from '../../../../../services/birth-chart-report.service';
 import { useGenerateBirthChartReport } from './use-generate-birth-chart-report.mutation';
 import { useDownloadBirthChartPdf } from './use-download-birth-chart-pdf.mutation';
 

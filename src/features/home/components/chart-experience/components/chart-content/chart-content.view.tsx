@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, useTheme } from '@mui/material';
-import { ControlButtonsView } from '../control-buttons/control-buttons.view';
+import { ControlButtonsContainer } from '../control-buttons/control-buttons.container';
 import { DraggableResizerView } from '../draggable-resizer/draggable-resizer.view';
 import { ChartSectionContainer } from '../chart-section/chart-section.container';
 import { DataSectionContainer } from '../data-section/data-section.container';
@@ -29,7 +29,7 @@ export function ChartContentView({
       {/* Header row: left = interactions switch, right = control buttons */}
       <Box sx={styles.header()(theme)}>
         <ChartInteractionsSwitcher />
-        <ControlButtonsView
+        <ControlButtonsContainer
           isExpanded={isExpanded}
           onToggleExpand={onToggleExpand}
           onNewChart={onNewChart}

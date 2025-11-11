@@ -5,7 +5,7 @@ import {
   generateBirthChartReport,
   type GenerateBirthChartReportPayload,
   type BirthChartReportResponse,
-} from '../services/birth-chart-report.service';
+} from '../../../../../services/birth-chart-report.service';
 
 export function useGenerateBirthChartReport() {
   return useMutation<BirthChartReportResponse, unknown, GenerateBirthChartReportPayload>({

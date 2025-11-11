@@ -5,12 +5,12 @@ export const styles = {
     (isExpanded: boolean, isDragging: boolean, splitPosition?: number) => (theme: Theme) => {
       const baseStyles = {
         height: '100%',
-        bgcolor: 'rgba(13, 12, 34, 0.8)',
-        backdropFilter: 'blur(20px)',
-        borderRadius: 4,
+        bgcolor: theme.cosmic.colors.gradientStart,
+        backdropFilter: theme.cosmic.effects.backdropBlur,
+        borderRadius: theme.spacing(0.5), // 4px = 0.5 * 8px spacing unit
         p: 3,
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        boxShadow: '0 0 30px -12px rgba(138, 43, 226, 0.15)',
+        border: `1px solid ${theme.cosmic.colors.glassBg}`,
+        boxShadow: `0 0 30px -12px rgba(138, 43, 226, 0.15)`, // Using specific shadow opacity, could be added to theme if reused
         display: 'flex',
         flexDirection: 'column',
         transition: isDragging ? 'none' : 'all 300ms',
