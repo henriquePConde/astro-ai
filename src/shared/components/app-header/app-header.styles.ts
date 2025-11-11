@@ -11,4 +11,9 @@ export const styles = {
     backdropFilter: 'blur(8px)',
     color: theme.palette.common.white,
   }),
+  toolbar: () => (_theme: Theme) => ({
+    width: '100%',
+    justifyContent: 'space-between',
+  }),
+  headerContent: () => (_theme: Theme) => ({}),
 };

@@ -1,29 +1,13 @@
 'use client';
 
 import { Box } from '@mui/material';
+import { styles } from './app-shell.styles';
+import type { AppShellViewProps } from './app-shell.types';
 
-export function AppShellView({
-  header,
-  background,
-  intro,
-  content,
-}: {
-  header: React.ReactNode;
-  background: React.ReactNode;
-  intro: React.ReactNode;
-  content: React.ReactNode;
-}) {
+export function AppShellView({ header, background, intro, content, config }: AppShellViewProps) {
   return (
-    <Box
-      component="main"
-      sx={{
-        position: 'relative',
-        color: 'hsl(var(--foreground))',
-        height: '100vh',
-        overflow: 'hidden',
-      }}
-    >
-      <Box sx={{ position: 'fixed', inset: 0, zIndex: -1 }}>{background}</Box>
+    <Box component={config.main.component} sx={styles.root()}>
+      <Box sx={styles.background()}>{background}</Box>
       {header}
       {intro}
       {content}

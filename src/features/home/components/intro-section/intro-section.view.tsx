@@ -17,14 +17,6 @@ export function IntroSectionView({
   const heroVisible = currentSection === 0 && introFinished;
   const carouselVisible = currentSection === 1 && introFinished;
 
-  // Debug logging
-  console.log('[IntroSectionView] Render:', {
-    currentSection,
-    introFinished,
-    heroVisible,
-    carouselVisible,
-  });
-
   return (
     <>
       <IntroHeroPrompt visible={heroVisible} />

@@ -9,12 +9,13 @@ import type { ChartData as WheelChartData } from '@/shared/components/astro-char
 import { calculatePlanetPositions } from '@/shared/components/astro-chart/utils/planetUtils';
 import { calculateChartAspects } from '../utils/aspectUtils';
 import { buildInterpretationContext } from '../utils/contextBuilder';
-import { interpretChart } from '@/features/home/services/interpret.service';
+import { useInterpretChartMutation } from '@/features/home/services/interpret.mutations';
 import { useAIInput } from './use-ai-input.state';
 
 export function useInterpreter(chartData: WheelChartData | null) {
   const { messages, isLoading, addMessage, setMessages, setIsLoading } = useAstroChat();
   const { aiInput: input, setAIInput } = useAIInput();
+  const interpretMutation = useInterpretChartMutation();
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -41,10 +42,15 @@ export function useInterpreter(chartData: WheelChartData | null) {
         let accumulated = '';
         const baseHistory = [...messages, userMessage];
 
-        await interpretChart(trimmed, context, baseHistory, (chunk) => {
-          accumulated += chunk;
-          const aiMessage = { role: 'assistant' as const, content: accumulated };
-          setMessages([...baseHistory, aiMessage]);
+        await interpretMutation.mutateAsync({
+          message: trimmed,
+          context,
+          chatHistory: baseHistory,
+          onChunk: (chunk) => {
+            accumulated += chunk;
+            const aiMessage = { role: 'assistant' as const, content: accumulated };
+            setMessages([...baseHistory, aiMessage]);
+          },
         });
 
         // If for some reason no chunks came through, keep at least one reply
@@ -52,11 +58,11 @@ export function useInterpreter(chartData: WheelChartData | null) {
           const fallback = {
             role: 'assistant' as const,
             content:
-              'I’ve processed your chart data. Ask me anything specific you’d like to explore about your placements, aspects, or life themes.',
+              "I've processed your chart data. Ask me anything specific you'd like to explore about your placements, aspects, or life themes.",
           };
           setMessages([...baseHistory, fallback]);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Interpreter error', err);
         const errorMessage =
           err instanceof Error
@@ -64,20 +70,29 @@ export function useInterpreter(chartData: WheelChartData | null) {
             : 'Something went wrong while interpreting your chart.';
         const aiMessage = {
           role: 'assistant' as const,
-          content: `I’m sorry, I couldn’t complete that request.\n\n${errorMessage}`,
+          content: `I'm sorry, I couldn't complete that request.\n\n${errorMessage}`,
         };
         setMessages([...messages, userMessage, aiMessage]);
       } finally {
         setIsLoading(false);
       }
     },
-    [chartData, input, messages, addMessage, setMessages, setIsLoading, setAIInput],
+    [
+      chartData,
+      input,
+      messages,
+      addMessage,
+      setMessages,
+      setIsLoading,
+      setAIInput,
+      interpretMutation,
+    ],
   );
 
   return {
     input,
     setInput: setAIInput,
-    isLoading,
+    isLoading: isLoading || interpretMutation.isPending,
     messages,
     handleSubmit,
   };
