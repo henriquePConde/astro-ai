@@ -28,6 +28,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Check if this is the PDF preview public route
+  if (pathname.startsWith('/pdf-preview/public')) {
+    return NextResponse.next();
+  }
+
   if (publicPaths.includes(pathname)) {
     return NextResponse.next();
   }
@@ -119,5 +124,7 @@ export const config = {
     '/api/:path*',
     // Protect app routes
     '/protected/:path*',
+    // PDF preview route (will be checked for public access above)
+    '/pdf-preview/:path*',
   ],
 };

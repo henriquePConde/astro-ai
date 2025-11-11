@@ -6,6 +6,18 @@ export async function generatePdf(reportId: string, options?: any) {
 }
 
 export function validatePdfToken(token: string, reportId: string): boolean {
-  const data = verifyPdfToken(token);
-  return data !== null && data.reportId === reportId;
+  try {
+    const data = verifyPdfToken<{ reportId: string; purpose?: string }>(token);
+    // Check if token is valid and matches reportId and purpose
+    return (
+      data !== null &&
+      typeof data === 'object' &&
+      'reportId' in data &&
+      data.reportId === reportId &&
+      data.purpose === 'puppeteer-pdf'
+    );
+  } catch (error) {
+    // Token is invalid or expired
+    return false;
+  }
 }

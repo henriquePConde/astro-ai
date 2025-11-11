@@ -1,44 +1,46 @@
-import { Suspense } from 'react';
-import { validatePdfToken } from '@/backend/features/pdf';
-import { getReportWithChart } from '@/backend/features/reports';
-import { notFound, redirect } from 'next/navigation';
+'use client';
 
-async function PdfPreviewContent({ reportId, pdfToken }: { reportId: string; pdfToken: string }) {
-  // Verify token
-  const isValid = validatePdfToken(pdfToken, reportId);
-  if (!isValid) {
-    notFound();
+import { usePdfPreviewPage } from './hooks/usePdfPreviewPage';
+import { PDFPreview } from '@/shared/components/pdf-preview';
+
+export default function PublicPDFPreviewPage() {
+  const { reportSections, chartData, error, isLoading } = usePdfPreviewPage();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 py-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg text-gray-600">Loading PDF preview...</div>
+        </div>
+      </div>
+    );
   }
 
-  // Get report data
-  const report = await getReportWithChart(reportId);
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 py-8 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Error</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!reportSections) {
+    return (
+      <div className="min-h-screen bg-gray-100 py-8 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">No Report Data Available</h2>
+          <p className="text-gray-600">Please generate a report first.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>{report.content.introduction}</h1>
-      {/* Render report sections and chart data */}
-      {/* This is a simplified version - full implementation would render all sections */}
-      <div dangerouslySetInnerHTML={{ __html: report.content.introduction }} />
+    <div data-pdf-page-ready="true">
+      <PDFPreview isPublic={true} reportData={reportSections} chartData={chartData} />
     </div>
-  );
-}
-
-export default async function PdfPreviewPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ id?: string; pdfToken?: string }>;
-}) {
-  const params = await searchParams;
-  const reportId = params.id;
-  const pdfToken = params.pdfToken;
-
-  if (!reportId || !pdfToken) {
-    notFound();
-  }
-
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <PdfPreviewContent reportId={reportId} pdfToken={pdfToken} />
-    </Suspense>
   );
 }
