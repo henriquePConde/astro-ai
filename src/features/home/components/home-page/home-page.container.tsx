@@ -6,6 +6,7 @@ import { IntroSection } from '../intro-section';
 import { ChartExperienceContainer } from '../chart-experience/chart-experience.container';
 import { useIntroSectionState } from '../intro-section/hooks/use-intro-section-state';
 import { useSectionControls } from '../intro-section/hooks/use-section-controls';
+import { useHomePageHandlers } from './hooks/use-home-page-handlers.state';
 import { HomePageView } from './home-page.view';
 
 export function HomePageContainer() {
@@ -27,19 +28,9 @@ export function HomePageContainer() {
     setCurrentSection,
   });
 
-  const handleIntroEnd = () => {
-    console.log('[HomePageContainer] Animation completed, setting introFinished to true');
-    setIntroFinished(true);
-  };
-
-  const handleNewChart = () => {
-    setCurrentSection(0);
-    setIntroFinished(false);
-  };
-
-  console.log('[HomePageContainer] Render:', {
-    currentSection,
-    introFinished,
+  const { handleIntroEnd, handleNewChart } = useHomePageHandlers({
+    setIntroFinished,
+    setCurrentSection,
   });
 
   return (

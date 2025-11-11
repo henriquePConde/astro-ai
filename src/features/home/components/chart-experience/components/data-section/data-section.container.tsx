@@ -1,10 +1,12 @@
 'use client';
 
 import { DataSectionView } from './data-section.view';
-import type { DataSectionContainerProps, DataSectionTab } from './data-section.types';
+import type { DataSectionContainerProps } from './data-section.types';
+import { DEFAULT_DATA_SECTION_TAB } from './data-section.constants';
 import { useDataSectionTabs } from '@/features/home/hooks/use-data-section-tabs.state';
-import { useGenerateBirthChartReport } from '@/features/home/hooks/use-generate-birth-chart-report.mutation';
-import { generateAndDownloadPdfFromUrl } from '@/shared/services/pdf/pdf.service';
+import { useBirthChartReportSections } from '@/features/home/hooks/use-birth-chart-report-sections.state';
+import { useBirthChartReportActions } from '@/features/home/hooks/use-birth-chart-report-actions.state';
+import { useErrorMessage } from '@/features/home/hooks/use-error-message.state';
 
 export function DataSectionContainer({
   chartData,
@@ -13,48 +15,14 @@ export function DataSectionContainer({
   splitPosition,
   birthData,
 }: DataSectionContainerProps) {
-  const { activeTab, setActiveTab } = useDataSectionTabs('ai');
+  const { activeTab, setActiveTab } = useDataSectionTabs(DEFAULT_DATA_SECTION_TAB);
 
-  const {
-    mutate,
-    data: reportData,
-    isPending: isGenerating,
-    error,
-  } = useGenerateBirthChartReport();
+  const { generateReport, downloadPdf, isGenerating, reportData, generateError, downloadError } =
+    useBirthChartReportActions(birthData, chartData);
 
-  const sections = reportData?.content ?? {};
-  const hasSections = Object.keys(sections).length > 0;
+  const { sections, hasSections } = useBirthChartReportSections(reportData);
 
-  const handleTabChange = (tab: DataSectionTab) => {
-    setActiveTab(tab);
-  };
-
-  const handleGenerateReport = () => {
-    if (!birthData) return;
-    mutate({ birthData, chartData });
-  };
-
-  const handleDownloadPdf = async () => {
-    if (!hasSections || !reportData) return;
-
-    const reportId = reportData.id;
-
-    if (!reportId) {
-      console.warn('Missing reportId for PDF generation.');
-      return;
-    }
-
-    try {
-      await generateAndDownloadPdfFromUrl({
-        reportId,
-        filename: 'astrological-birth-chart-report.pdf',
-        preset: 'highQuality',
-      });
-    } catch (error: any) {
-      console.error('Failed to download PDF:', error);
-      alert(`Failed to generate PDF: ${error.message || 'Unknown error'}`);
-    }
-  };
+  const error = useErrorMessage(generateError, downloadError);
 
   return (
     <DataSectionView
@@ -64,13 +32,13 @@ export function DataSectionContainer({
       isDragging={isDragging}
       splitPosition={splitPosition}
       activeTab={activeTab}
-      onTabChange={handleTabChange}
+      onTabChange={setActiveTab}
       isGenerating={isGenerating}
-      error={error ? ((error as any).message ?? 'Failed to generate report.') : null}
+      error={error}
       sections={sections}
       hasSections={hasSections}
-      onGenerateReport={handleGenerateReport}
-      onDownloadPdf={handleDownloadPdf}
+      onGenerateReport={generateReport}
+      onDownloadPdf={downloadPdf}
     />
   );
 }

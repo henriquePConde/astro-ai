@@ -1,3 +1,3 @@
-export interface FormWrapperProps {
+export interface FormWrapperViewProps {
   onFormSubmit: (data: any) => Promise<void>;
 }

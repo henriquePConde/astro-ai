@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Button, Link, Typography, Box, CircularProgress } from '@mui/material';
 import type { HeaderAuthViewProps } from './header-auth.types';
 import { styles } from './header-auth.styles';
@@ -10,23 +9,19 @@ export function HeaderAuthView({
   isAuthenticated,
   email,
   onSignOut,
+  isMounted,
+  config,
+  routes,
 }: HeaderAuthViewProps) {
-  // Use client-side only rendering to prevent hydration mismatch
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   // During SSR or initial mount, show a neutral state to prevent hydration mismatch
   if (!isMounted) {
     return (
       <Box sx={styles.links()}>
-        <Link href="/login" underline="hover">
-          Log in
+        <Link href={routes.LOGIN} underline={config.ui.links.underline}>
+          {config.copy.links.login}
         </Link>
-        <Link href="/signup" underline="hover">
-          Sign up
+        <Link href={routes.SIGNUP} underline={config.ui.links.underline}>
+          {config.copy.links.signup}
         </Link>
       </Box>
     );
@@ -36,7 +31,7 @@ export function HeaderAuthView({
   if (isLoading) {
     return (
       <Box sx={styles.root()}>
-        <CircularProgress size={20} />
+        <CircularProgress size={config.ui.loading.size} />
       </Box>
     );
   }
@@ -44,11 +39,11 @@ export function HeaderAuthView({
   if (isAuthenticated) {
     return (
       <Box sx={styles.root()}>
-        <Typography variant="body2" sx={styles.email()}>
+        <Typography variant={config.ui.email.variant} sx={styles.email()}>
           {email}
         </Typography>
-        <Button variant="outlined" size="small" onClick={onSignOut}>
-          Sign out
+        <Button variant={config.ui.button.variant} size={config.ui.button.size} onClick={onSignOut}>
+          {config.copy.button.signOut}
         </Button>
       </Box>
     );
@@ -56,11 +51,11 @@ export function HeaderAuthView({
 
   return (
     <Box sx={styles.links()}>
-      <Link href="/login" underline="hover">
-        Log in
+      <Link href={routes.LOGIN} underline={config.ui.links.underline}>
+        {config.copy.links.login}
       </Link>
-      <Link href="/signup" underline="hover">
-        Sign up
+      <Link href={routes.SIGNUP} underline={config.ui.links.underline}>
+        {config.copy.links.signup}
       </Link>
     </Box>
   );

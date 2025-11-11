@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthContext } from '@/features/auth/AuthContext';
+import { useAuthContext } from '@/features/auth/context/AuthContext';
 
 export function Protected({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthContext();

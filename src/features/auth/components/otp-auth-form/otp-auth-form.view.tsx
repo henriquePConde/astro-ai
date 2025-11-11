@@ -1,17 +1,9 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller } from 'react-hook-form';
 import { TextField, Button, Stack, Alert, Typography, Box } from '@mui/material';
-import { z } from 'zod';
 import type { OtpAuthFormViewProps } from './otp-auth-form.types';
 import { styles } from './otp-auth-form.styles';
-
-const OtpAuthFormSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-});
-
-type OtpAuthFormValues = z.infer<typeof OtpAuthFormSchema>;
 
 export function OtpAuthFormView({
   onSubmit,
@@ -20,29 +12,30 @@ export function OtpAuthFormView({
   email,
   onSignOut,
   message,
+  control,
+  handleSubmit,
+  errors,
+  config,
+  headerConfig,
 }: OtpAuthFormViewProps) {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<OtpAuthFormValues>({
-    resolver: zodResolver(OtpAuthFormSchema),
-    defaultValues: {
-      email: '',
-    },
-  });
-
   if (isAuthenticated) {
     return (
       <Box sx={styles.root()}>
-        <Typography variant="h1" component="h1" gutterBottom>
-          Signed in
+        <Typography
+          variant={config.ui.signedInTitle.variant}
+          component={config.ui.signedInTitle.component}
+          gutterBottom={config.ui.signedInTitle.gutterBottom}
+        >
+          {config.copy.title.signedIn}
         </Typography>
-        <Typography variant="body1" paragraph>
-          Signed in as {email}
+        <Typography
+          variant={config.ui.signedInMessage.variant}
+          paragraph={config.ui.signedInMessage.paragraph}
+        >
+          {config.copy.messages.signedInPrefix} {email}
         </Typography>
-        <Button variant="outlined" onClick={onSignOut}>
-          Sign out
+        <Button variant={config.ui.button.signOut.variant} onClick={onSignOut}>
+          {headerConfig.copy.button.signOut}
         </Button>
       </Box>
     );
@@ -50,19 +43,19 @@ export function OtpAuthFormView({
 
   return (
     <Box sx={styles.root()}>
-      <Typography variant="h1" component="h1">
-        Sign in
+      <Typography variant={config.ui.title.variant} component={config.ui.title.component}>
+        {config.copy.title.signIn}
       </Typography>
-      <form onSubmit={handleSubmit((values) => onSubmit(values.email))}>
+      <form onSubmit={handleSubmit}>
         <Stack spacing={2} sx={styles.form()}>
           <Controller
-            name="email"
+            name={config.fields.email.name}
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Email"
-                type="email"
+                label={config.copy.fields.email.label}
+                type={config.fields.email.type}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 required
@@ -70,11 +63,16 @@ export function OtpAuthFormView({
               />
             )}
           />
-          <Button type="submit" variant="contained" disabled={isLoading} fullWidth>
-            {isLoading ? 'Sending...' : 'Send magic link'}
+          <Button
+            type={config.ui.button.submit.type}
+            variant={config.ui.button.submit.variant}
+            disabled={isLoading}
+            fullWidth
+          >
+            {isLoading ? config.copy.button.loading : config.copy.button.default}
           </Button>
           {message && (
-            <Alert severity="info" sx={styles.message()}>
+            <Alert severity={config.ui.alert.severity} sx={styles.message()}>
               {message}
             </Alert>
           )}

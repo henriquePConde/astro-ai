@@ -1,24 +1,12 @@
 import type { ChartData, SignInfo } from '../types';
+import { ZODIAC_SIGNS } from './constants';
 
 /**
  * Calculate which signs rule which houses based on house cusps.
  * Determines intercepted signs (signs that don't rule any house cusp).
  */
 export const getSignInfo = (data: ChartData): SignInfo[] => {
-  const signs = [
-    'Aries',
-    'Taurus',
-    'Gemini',
-    'Cancer',
-    'Leo',
-    'Virgo',
-    'Libra',
-    'Scorpio',
-    'Sagittarius',
-    'Capricorn',
-    'Aquarius',
-    'Pisces',
-  ];
+  const signs = ZODIAC_SIGNS;
 
   const houseCusps = [
     data.houses.firstHouse,

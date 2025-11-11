@@ -52,14 +52,56 @@ export async function signInWithPassword(email: string, password: string) {
   return data; // { user, session }
 }
 
+/**
+ * Server session synchronization: syncs client session to server cookies.
+ * Non-fatal: failures are silently handled.
+ */
+export async function syncServerSession(
+  access_token?: string,
+  refresh_token?: string,
+): Promise<void> {
+  if (!access_token || !refresh_token) return;
+
+  try {
+    await fetch('/api/auth/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ access_token, refresh_token }),
+    });
+  } catch {
+    // non-fatal - session sync failure shouldn't break the app
+  }
+}
+
 export async function signUp(email: string, password: string) {
   const supabase = supabaseBrowser();
   const { error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
 }
 
+/**
+ * Client-side sign-out: clears local storage session.
+ */
 export async function signOut() {
   const supabase = supabaseBrowser();
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+}
+
+/**
+ * Server-side sign-out: clears cookies & revokes session on server.
+ * Idempotent: returns success even if no session exists.
+ */
+export async function signOutServer(): Promise<{ ok: boolean }> {
+  const response = await fetch('/api/auth/signout', {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server sign-out failed: ${response.statusText}`);
+  }
+
+  return response.json();
 }

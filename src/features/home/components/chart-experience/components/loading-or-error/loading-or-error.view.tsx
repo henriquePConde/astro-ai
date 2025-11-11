@@ -1,27 +1,25 @@
 'use client';
 
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 import { styles } from './loading-or-error.styles';
+import type { LoadingOrErrorViewProps } from './loading-or-error.types';
 
-export interface LoadingOrErrorProps {
-  loading: boolean;
-  error: string | null;
-}
+export function LoadingOrErrorView({ loading, error }: LoadingOrErrorViewProps) {
+  const theme = useTheme();
 
-export function LoadingOrErrorView({ loading, error }: LoadingOrErrorProps) {
   if (loading) {
     return (
-      <Box sx={styles.container()}>
+      <Box sx={styles.container()(theme)}>
         <CircularProgress size={24} sx={{ mb: 2 }} />
-        <Typography sx={styles.container()}>Loading...</Typography>
+        <Typography sx={styles.container()(theme)}>Loading...</Typography>
       </Box>
     );
   }
 
   if (error) {
     return (
-      <Box sx={styles.error()}>
-        <Typography sx={styles.error()}>Error: {error}</Typography>
+      <Box sx={styles.error()(theme)}>
+        <Typography sx={styles.error()(theme)}>Error: {error}</Typography>
       </Box>
     );
   }

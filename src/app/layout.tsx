@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Cinzel, Cinzel_Decorative } from 'next/font/google';
 import { Providers } from '@/shared/config/providers';
-import { AuthProvider } from '@/features/auth/AuthContext';
+import { AuthProvider } from '@/features/auth/context/AuthContext';
 import { AppHeaderContainer } from '@/shared/components/app-header/app-header.container';
 
 const cinzel = Cinzel({

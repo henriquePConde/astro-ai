@@ -1,9 +1,7 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller } from 'react-hook-form';
 import { TextField, Button, Stack, Alert, Typography, Link, Box } from '@mui/material';
-import { SignupFormSchema, type SignupFormValues } from './signup-form.schema';
 import type { SignupFormViewProps } from './signup-form.types';
 import { styles } from './signup-form.styles';
 
@@ -12,39 +10,37 @@ export function SignupFormView({
   isLoading,
   error,
   successMessage,
+  control,
+  handleSubmit,
+  errors,
+  config,
+  routes,
 }: SignupFormViewProps) {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignupFormValues>({
-    resolver: zodResolver(SignupFormSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
-  });
-
   return (
     <Box sx={styles.container()}>
       <Box sx={styles.root()}>
         <Box sx={styles.header()}>
-          <Typography variant="h1" component="h1" sx={styles.title()}>
-            Join the Cosmos
+          <Typography
+            variant={config.ui.title.variant}
+            component={config.ui.title.component}
+            sx={styles.title()}
+          >
+            {config.copy.title}
           </Typography>
-          <Typography sx={styles.subtitle()}>Begin your astrological journey</Typography>
+          <Typography variant={config.ui.subtitle.variant} sx={styles.subtitle()}>
+            {config.copy.subtitle}
+          </Typography>
         </Box>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit}>
           <Stack spacing={2} sx={styles.form()}>
             <Controller
-              name="email"
+              name={config.fields.email.name}
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Email"
-                  type="email"
+                  label={config.copy.fields.email.label}
+                  type={config.fields.email.type}
                   error={!!errors.email}
                   helperText={errors.email?.message}
                   required
@@ -54,13 +50,13 @@ export function SignupFormView({
               )}
             />
             <Controller
-              name="password"
+              name={config.fields.password.name}
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Password"
-                  type="password"
+                  label={config.copy.fields.password.label}
+                  type={config.fields.password.type}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   required
@@ -70,13 +66,13 @@ export function SignupFormView({
               )}
             />
             <Controller
-              name="confirmPassword"
+              name={config.fields.confirmPassword.name}
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Confirm password"
-                  type="password"
+                  label={config.copy.fields.confirmPassword.label}
+                  type={config.fields.confirmPassword.type}
                   error={!!errors.confirmPassword}
                   helperText={errors.confirmPassword?.message}
                   required
@@ -86,31 +82,31 @@ export function SignupFormView({
               )}
             />
             <Button
-              type="submit"
-              variant="contained"
+              type={config.ui.button.type}
+              variant={config.ui.button.variant}
               disabled={isLoading}
               fullWidth
               sx={styles.button()}
             >
-              {isLoading ? 'Creating account...' : 'Create account'}
+              {isLoading ? config.copy.button.loading : config.copy.button.default}
             </Button>
             {error && (
-              <Alert severity="error" sx={styles.error()}>
+              <Alert severity={config.ui.alert.error.severity} sx={styles.error()}>
                 {error}
               </Alert>
             )}
             {successMessage && (
-              <Alert severity="success" sx={styles.success()}>
+              <Alert severity={config.ui.alert.success.severity} sx={styles.success()}>
                 {successMessage}
               </Alert>
             )}
           </Stack>
         </form>
         <Box sx={styles.linkContainer()}>
-          <Typography variant="body2">
-            Already have an account?{' '}
-            <Link href="/login" sx={styles.link()}>
-              Log in
+          <Typography variant={config.ui.linkText.variant}>
+            {config.copy.link.prompt}{' '}
+            <Link href={routes.LOGIN} sx={styles.link()}>
+              {config.copy.link.text}
             </Link>
           </Typography>
         </Box>

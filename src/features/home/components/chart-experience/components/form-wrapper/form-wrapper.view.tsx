@@ -1,18 +1,15 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { BirthDataFormContainer } from '@/features/birth-data';
+import { styles } from './form-wrapper.styles';
+import type { FormWrapperViewProps } from './form-wrapper.types';
 
-export function FormWrapperView({ onFormSubmit }: { onFormSubmit: (data: any) => Promise<void> }) {
+export function FormWrapperView({ onFormSubmit }: FormWrapperViewProps) {
+  const theme = useTheme();
+
   return (
-    <Box
-      sx={{
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
+    <Box sx={styles.container()(theme)}>
       <BirthDataFormContainer onSubmit={onFormSubmit} />
     </Box>
   );

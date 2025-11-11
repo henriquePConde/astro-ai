@@ -1,36 +1,15 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useAuthContext } from '@/features/auth/AuthContext';
-import { useSignInPassword } from '@/features/auth/hooks/use-sign-in-password.mutation';
-import { useAuthRedirect } from '@/features/auth/hooks/use-auth-redirect.state';
-import { useAuthFormState } from '@/features/auth/hooks/use-auth-form-state.state';
+import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthRedirect } from './hooks/use-auth-redirect.state';
+import { useLoginFormActions } from './hooks/use-login-form-actions.state';
 import { LoginFormView } from './login-form.view';
-import type { LoginFormValues } from './login-form.schema';
 
 export function LoginFormContainer() {
-  const router = useRouter();
   const { isAuthenticated } = useAuthContext();
-  const signInPasswordMutation = useSignInPassword();
-  const { error, setError, clearMessages } = useAuthFormState();
+  const { handleSubmit, isLoading, error } = useLoginFormActions();
 
   useAuthRedirect(isAuthenticated);
 
-  const handleSubmit = async (values: LoginFormValues) => {
-    clearMessages();
-    try {
-      await signInPasswordMutation.mutateAsync({ email: values.email, password: values.password });
-      router.replace('/');
-    } catch (err: any) {
-      setError(err?.message ?? 'Login failed');
-    }
-  };
-
-  return (
-    <LoginFormView
-      onSubmit={handleSubmit}
-      isLoading={signInPasswordMutation.isPending}
-      error={error}
-    />
-  );
+  return <LoginFormView onSubmit={handleSubmit} isLoading={isLoading} error={error} />;
 }

@@ -1,36 +1,46 @@
 'use client';
 
-import { useAuthContext } from '@/features/auth/AuthContext';
-import { useSignIn } from '@/features/auth/hooks/use-sign-in.mutation';
-import { useAuthFormState } from '@/features/auth/hooks/use-auth-form-state.state';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useOtpAuthFormActions } from './hooks/use-otp-auth-form-actions.state';
+import { OtpAuthFormSchema, type OtpAuthFormValues } from './otp-auth-form.schema';
+import { OTP_AUTH_FORM_CONFIG } from './otp-auth-form.config';
+import { HEADER_AUTH_CONFIG } from '../header-auth/header-auth.config';
 import { OtpAuthFormView } from './otp-auth-form.view';
 
 export function OtpAuthFormContainer() {
   const { isAuthenticated, email, signOut } = useAuthContext();
-  const signInMutation = useSignIn();
-  const { successMessage, setSuccessMessage, clearMessages } = useAuthFormState();
+  const { handleSubmit: handleFormSubmit, isLoading, message } = useOtpAuthFormActions();
 
-  const handleSubmit = async (emailInput: string) => {
-    clearMessages();
-    try {
-      await signInMutation.mutateAsync({
-        email: emailInput,
-        redirectTo: window.location.origin,
-      });
-      setSuccessMessage('Check your email for a sign-in link.');
-    } catch (err: any) {
-      setSuccessMessage(err?.message ?? 'Failed to send magic link');
-    }
+  const {
+    control,
+    handleSubmit: formHandleSubmit,
+    formState: { errors },
+  } = useForm<OtpAuthFormValues>({
+    resolver: zodResolver(OtpAuthFormSchema),
+    defaultValues: {
+      [OTP_AUTH_FORM_CONFIG.fields.email.name]: '',
+    },
+  });
+
+  const onSubmit = (values: OtpAuthFormValues) => {
+    handleFormSubmit(values.email);
   };
 
   return (
     <OtpAuthFormView
-      onSubmit={handleSubmit}
-      isLoading={signInMutation.isPending}
+      onSubmit={handleFormSubmit}
+      isLoading={isLoading}
       isAuthenticated={isAuthenticated}
       email={email ?? null}
       onSignOut={signOut}
-      message={successMessage}
+      message={message}
+      control={control}
+      handleSubmit={formHandleSubmit(onSubmit)}
+      errors={errors}
+      config={OTP_AUTH_FORM_CONFIG}
+      headerConfig={HEADER_AUTH_CONFIG}
     />
   );
 }

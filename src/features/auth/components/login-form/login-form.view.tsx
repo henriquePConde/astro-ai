@@ -6,6 +6,8 @@ import { TextField, Button, Stack, Alert, Typography, Link, Box } from '@mui/mat
 import { LoginFormSchema, type LoginFormValues } from './login-form.schema';
 import type { LoginFormViewProps } from './login-form.types';
 import { styles } from './login-form.styles';
+import { LOGIN_FORM_CONFIG } from './login-form.config';
+import { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
 
 export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps) {
   const {
@@ -15,8 +17,8 @@ export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps
   } = useForm<LoginFormValues>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      [LOGIN_FORM_CONFIG.fields.email.name]: '',
+      [LOGIN_FORM_CONFIG.fields.password.name]: '',
     },
   });
 
@@ -24,21 +26,27 @@ export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps
     <Box sx={styles.container()}>
       <Box sx={styles.root()}>
         <Box sx={styles.header()}>
-          <Typography variant="h1" component="h1" sx={styles.title()}>
-            Welcome Back
+          <Typography
+            variant={LOGIN_FORM_CONFIG.ui.title.variant}
+            component={LOGIN_FORM_CONFIG.ui.title.component}
+            sx={styles.title()}
+          >
+            {LOGIN_FORM_CONFIG.copy.title}
           </Typography>
-          <Typography sx={styles.subtitle()}>Enter the cosmic realm</Typography>
+          <Typography variant={LOGIN_FORM_CONFIG.ui.subtitle.variant} sx={styles.subtitle()}>
+            {LOGIN_FORM_CONFIG.copy.subtitle}
+          </Typography>
         </Box>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={2} sx={styles.form()}>
             <Controller
-              name="email"
+              name={LOGIN_FORM_CONFIG.fields.email.name}
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Email"
-                  type="email"
+                  label={LOGIN_FORM_CONFIG.copy.fields.email.label}
+                  type={LOGIN_FORM_CONFIG.fields.email.type}
                   error={!!errors.email}
                   helperText={errors.email?.message}
                   required
@@ -48,13 +56,13 @@ export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps
               )}
             />
             <Controller
-              name="password"
+              name={LOGIN_FORM_CONFIG.fields.password.name}
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Password"
-                  type="password"
+                  label={LOGIN_FORM_CONFIG.copy.fields.password.label}
+                  type={LOGIN_FORM_CONFIG.fields.password.type}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   required
@@ -64,26 +72,28 @@ export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps
               )}
             />
             <Button
-              type="submit"
-              variant="contained"
+              type={LOGIN_FORM_CONFIG.ui.button.type}
+              variant={LOGIN_FORM_CONFIG.ui.button.variant}
               disabled={isLoading}
               fullWidth
               sx={styles.button()}
             >
-              {isLoading ? 'Logging in...' : 'Log in'}
+              {isLoading
+                ? LOGIN_FORM_CONFIG.copy.button.loading
+                : LOGIN_FORM_CONFIG.copy.button.default}
             </Button>
             {error && (
-              <Alert severity="error" sx={styles.error()}>
+              <Alert severity={LOGIN_FORM_CONFIG.ui.alert.severity} sx={styles.error()}>
                 {error}
               </Alert>
             )}
           </Stack>
         </form>
         <Box sx={styles.linkContainer()}>
-          <Typography variant="body2">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" sx={styles.link()}>
-              Sign up
+          <Typography variant={LOGIN_FORM_CONFIG.ui.linkText.variant}>
+            {LOGIN_FORM_CONFIG.copy.link.prompt}{' '}
+            <Link href={AUTH_ROUTES.SIGNUP} sx={styles.link()}>
+              {LOGIN_FORM_CONFIG.copy.link.text}
             </Link>
           </Typography>
         </Box>

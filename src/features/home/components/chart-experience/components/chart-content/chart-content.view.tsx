@@ -1,9 +1,9 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { ControlButtonsView } from '../control-buttons/control-buttons.view';
 import { DraggableResizerView } from '../draggable-resizer/draggable-resizer.view';
-import { ChartSectionView } from '../chart-section/chart-section.view';
+import { ChartSectionContainer } from '../chart-section/chart-section.container';
 import { DataSectionContainer } from '../data-section/data-section.container';
 import { ChartInteractionsSwitcher } from '../chart-interactions-switcher/chart-interactions-switcher';
 import { styles } from './chart-content.styles';
@@ -21,12 +21,13 @@ export function ChartContentView({
   onDragStart,
   onDragEnd,
 }: ChartContentProps) {
+  const theme = useTheme();
   if (!chartData) return null;
 
   return (
-    <Box sx={styles.wrapper()}>
+    <Box sx={styles.wrapper()(theme)}>
       {/* Header row: left = interactions switch, right = control buttons */}
-      <Box sx={styles.header()}>
+      <Box sx={styles.header()(theme)}>
         <ChartInteractionsSwitcher />
         <ControlButtonsView
           isExpanded={isExpanded}
@@ -37,12 +38,12 @@ export function ChartContentView({
 
       {/* Main layout: chart / resizer / data section */}
       <Box
-        sx={styles.container(isExpanded, isDragging)}
+        sx={styles.container(isExpanded, isDragging)(theme)}
         onMouseMove={isExpanded ? onDrag : undefined}
         onMouseUp={isExpanded ? onDragEnd : undefined}
         onMouseLeave={isExpanded ? onDragEnd : undefined}
       >
-        <ChartSectionView
+        <ChartSectionContainer
           chartData={chartData}
           isExpanded={isExpanded}
           isDragging={isDragging}

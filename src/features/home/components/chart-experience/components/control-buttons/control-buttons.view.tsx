@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button } from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { styles } from './control-buttons.styles';
@@ -11,13 +11,15 @@ export function ControlButtonsView({
   onToggleExpand, // kept for API compatibility (not used for now)
   onNewChart,
 }: ControlButtonsProps) {
+  const theme = useTheme();
+
   return (
-    <Box sx={styles.root()}>
+    <Box sx={styles.root()(theme)}>
       <Button
         variant="contained"
         onClick={onNewChart}
         startIcon={<RefreshIcon />}
-        sx={styles.newChartButton()}
+        sx={styles.newChartButton()(theme)}
       >
         New Chart
       </Button>

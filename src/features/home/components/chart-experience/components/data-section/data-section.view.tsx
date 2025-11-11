@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { styles } from './data-section.styles';
 import { AstroInterpreter } from '../astro-interpreter';
 import { BirthChartReportView } from './components/birth-chart-report/birth-chart-report.view';
@@ -22,13 +22,14 @@ export function DataSectionView({
   onGenerateReport,
   onDownloadPdf,
 }: DataSectionViewProps) {
+  const theme = useTheme();
   if (!chartData) return null;
 
   return (
-    <Box sx={styles.container(isExpanded, isDragging, splitPosition)}>
+    <Box sx={styles.container(isExpanded, isDragging, splitPosition)(theme)}>
       <TabsSectionView activeTab={activeTab} onTabChange={onTabChange} />
 
-      <Box sx={styles.content()}>
+      <Box sx={styles.content()(theme)}>
         {activeTab === 'ai' && <AstroInterpreter chartData={chartData} />}
 
         {activeTab === 'report' && (
