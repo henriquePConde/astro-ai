@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, type MutableRefObject } from 'react';
 import * as THREE from 'three';
 
 interface TrailPoint {
@@ -10,7 +10,7 @@ interface TrailPoint {
 export function usePlanetTrail(
   distance: number,
   speed: number,
-  angleRef: React.MutableRefObject<number>,
+  angleRef: MutableRefObject<number>,
 ) {
   const trailMeshRef = useRef<THREE.Mesh>(null!);
   const trailPoints = useRef<TrailPoint[]>([]);

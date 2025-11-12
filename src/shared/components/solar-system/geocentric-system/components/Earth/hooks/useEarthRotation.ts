@@ -1,11 +1,11 @@
-import { MutableRefObject } from 'react';
+import type { RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-export function useEarthRotation(ref: MutableRefObject<THREE.Mesh | null>) {
+export function useEarthRotation(ref: RefObject<THREE.Mesh>, speed: number) {
   useFrame((_state, delta: number) => {
     if (ref.current) {
-      ref.current.rotation.y += delta * 0.1;
+      ref.current.rotation.y += delta * speed;
     }
   });
 }
