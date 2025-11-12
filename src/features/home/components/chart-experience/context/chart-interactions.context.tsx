@@ -20,6 +20,16 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       onPlanetHover: (planet, evt) => {
         if (!enabled) return;
         const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for planet hover:', e);
+          return;
+        }
         const state: TooltipState = {
           kind: 'planet',
           x: e.clientX,
@@ -40,6 +50,16 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       onHouseHover: (house, evt) => {
         if (!enabled) return;
         const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for house hover:', e);
+          return;
+        }
         showTooltip({
           kind: 'house',
           x: e.clientX,
@@ -55,6 +75,16 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       onSignHover: (index, evt) => {
         if (!enabled) return;
         const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for sign hover:', e);
+          return;
+        }
         showTooltip({
           kind: 'sign',
           x: e.clientX,
@@ -69,6 +99,16 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       onAspectHover: (aspect, evt) => {
         if (!enabled) return;
         const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for aspect hover:', e);
+          return;
+        }
         showTooltip({
           kind: 'aspect',
           x: e.clientX,

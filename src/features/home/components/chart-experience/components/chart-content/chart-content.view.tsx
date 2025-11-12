@@ -29,11 +29,7 @@ export function ChartContentView({
       {/* Header row: left = interactions switch, right = control buttons */}
       <Box sx={styles.header()(theme)}>
         <ChartInteractionsSwitcher />
-        <ControlButtonsContainer
-          isExpanded={isExpanded}
-          onToggleExpand={onToggleExpand}
-          onNewChart={onNewChart}
-        />
+        <ControlButtonsContainer onNewChart={onNewChart} />
       </Box>
 
       {/* Main layout: chart / resizer / data section */}

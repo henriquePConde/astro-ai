@@ -38,6 +38,63 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
     ) => {
       if (!data) return;
 
+      // Helper to extract native MouseEvent from D3 event
+      // In D3 v7, .on() handlers receive the native DOM event directly
+      const getNativeEvent = (d3Event: any): MouseEvent => {
+        // In D3 v7, mouse events are native DOM events with clientX/clientY
+        if (d3Event && typeof d3Event.clientX === 'number' && typeof d3Event.clientY === 'number') {
+          return d3Event as MouseEvent;
+        }
+
+        // If it's a wrapped event (shouldn't happen with mouse events, but handle it)
+        if (d3Event?.sourceEvent) {
+          const source = d3Event.sourceEvent;
+          if (typeof source.clientX === 'number' && typeof source.clientY === 'number') {
+            return source as MouseEvent;
+          }
+        }
+
+        // Fallback: get coordinates from the event target
+        if (d3Event && d3Event.target) {
+          const target = d3Event.target as Element;
+          const rect = target.getBoundingClientRect();
+          // Get mouse position relative to viewport
+          // Use pageX/pageY if available, otherwise estimate from target
+          const clientX = (d3Event.pageX ?? rect.left + rect.width / 2) - (window.scrollX || 0);
+          const clientY = (d3Event.pageY ?? rect.top + rect.height / 2) - (window.scrollY || 0);
+
+          return {
+            clientX,
+            clientY,
+          } as MouseEvent;
+        }
+
+        // Last resort: use d3.pointer if available
+        const svgNode = g.node()?.ownerSVGElement || svgRef.current;
+        if (svgNode && d3Event) {
+          try {
+            const svgRect = svgNode.getBoundingClientRect();
+            const [x, y] = d3.pointer(d3Event, svgNode);
+            return {
+              clientX: svgRect.left + x,
+              clientY: svgRect.top + y,
+            } as MouseEvent;
+          } catch (e) {
+            // If all else fails, return center of viewport
+            return {
+              clientX: window.innerWidth / 2,
+              clientY: window.innerHeight / 2,
+            } as MouseEvent;
+          }
+        }
+
+        // Ultimate fallback
+        return {
+          clientX: 0,
+          clientY: 0,
+        } as MouseEvent;
+      };
+
       const houseCusps = [
         data.houses.firstHouse,
         data.houses.secondHouse,
@@ -125,18 +182,15 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
               if (interactions) {
                 text
                   .style('cursor', 'pointer')
-                  .on('mouseenter', (event: any) => {
-                    d3.select<SVGTextElement, unknown>(event.currentTarget).attr(
-                      'font-size',
-                      '38px',
-                    );
-                    interactions.onSignHover(sign.signIndex, event);
+                  .on('mouseenter', function (event: any) {
+                    if (!interactions.enabled) return;
+                    d3.select<SVGTextElement, unknown>(this).attr('font-size', '38px');
+                    const nativeEvent = getNativeEvent(event) as MouseEvent;
+                    interactions.onSignHover(sign.signIndex, nativeEvent);
                   })
-                  .on('mouseleave', (event: any) => {
-                    d3.select<SVGTextElement, unknown>(event.currentTarget).attr(
-                      'font-size',
-                      '28px',
-                    );
+                  .on('mouseleave', function (event: any) {
+                    if (!interactions.enabled) return;
+                    d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                     interactions.onSignLeave();
                   });
               }
@@ -164,12 +218,15 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
             if (interactions) {
               text
                 .style('cursor', 'pointer')
-                .on('mouseenter', (event: any) => {
-                  d3.select<SVGTextElement, unknown>(event.currentTarget).attr('font-size', '38px');
-                  interactions.onSignHover(sign.signIndex, event);
+                .on('mouseenter', function (event: any) {
+                  if (!interactions.enabled) return;
+                  d3.select<SVGTextElement, unknown>(this).attr('font-size', '38px');
+                  const nativeEvent = getNativeEvent(event) as MouseEvent;
+                  interactions.onSignHover(sign.signIndex, nativeEvent);
                 })
-                .on('mouseleave', (event: any) => {
-                  d3.select<SVGTextElement, unknown>(event.currentTarget).attr('font-size', '28px');
+                .on('mouseleave', function (event: any) {
+                  if (!interactions.enabled) return;
+                  d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                   interactions.onSignLeave();
                 });
             }
@@ -212,16 +269,19 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
         if (interactions) {
           line
             .style('cursor', 'pointer')
-            .on('mouseenter', (event: any) => {
+            .on('mouseenter', function (event: any) {
+              if (!interactions.enabled) return;
+              const nativeEvent = getNativeEvent(event) as MouseEvent;
               interactions.onHouseHover(
                 {
                   number: index + 1,
                   degree: cusp,
                 },
-                event,
+                nativeEvent,
               );
             })
-            .on('mouseleave', () => {
+            .on('mouseleave', function () {
+              if (!interactions.enabled) return;
               interactions.onHouseLeave();
             });
         }
@@ -306,20 +366,21 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
             .style('cursor', 'pointer');
 
           sector
-            .on('mouseenter', (event: any) => {
+            .on('mouseenter', function (event: any) {
+              if (!interactions.enabled) return;
               sector.attr('fill-opacity', 0.15).attr('stroke-opacity', 0.9);
-
+              const nativeEvent = getNativeEvent(event) as MouseEvent;
               interactions.onHouseHover(
                 {
                   number: houseNumber,
                   degree: startCusp,
                 },
-                event,
+                nativeEvent,
               );
             })
-            .on('mouseleave', () => {
+            .on('mouseleave', function () {
+              if (!interactions.enabled) return;
               sector.attr('fill-opacity', 0).attr('stroke-opacity', 0);
-
               interactions.onHouseLeave();
             });
         }
@@ -398,8 +459,10 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
                 .style('cursor', 'pointer');
 
               hit
-                .on('mouseenter', (event: any) => {
+                .on('mouseenter', function (event: any) {
+                  if (!interactions.enabled) return;
                   line.attr('stroke-width', 2.5).attr('opacity', 1);
+                  const nativeEvent = getNativeEvent(event) as MouseEvent;
                   interactions.onAspectHover(
                     {
                       type: aspectType!,
@@ -407,10 +470,11 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
                       p2: p2.name,
                       angle: minor,
                     },
-                    event,
+                    nativeEvent,
                   );
                 })
-                .on('mouseleave', () => {
+                .on('mouseleave', function () {
+                  if (!interactions.enabled) return;
                   line.attr('stroke-width', 1).attr('opacity', 0.6);
                   interactions.onAspectLeave();
                 });
@@ -443,26 +507,52 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
           .attr('fill', color)
           .text(planet.symbol || planet.name);
 
+        // Always attach handlers if interactions context exists (even if disabled)
+        // This ensures handlers are available when interactions are toggled on
         if (interactions) {
           group
             .style('cursor', 'pointer')
-            .on('mouseenter', (event: any) => {
+            .on('mouseenter', function (event: any) {
+              // Only proceed if interactions are enabled
+              if (!interactions.enabled) return;
+
               // visual highlight
               text.attr('font-size', `${planetFontSize * 1.18}px`).attr('font-weight', 'bold');
 
-              interactions.onPlanetHover(
-                {
-                  name: planet.name,
-                  symbol: planet.symbol || planet.name,
-                  degree: adjustedPosition,
-                  signLabel: planet.sign,
-                  house: planet.house,
-                  color,
-                },
-                event,
-              );
+              // In D3 v7, .on() handlers receive the native DOM MouseEvent
+              // The event should have clientX/clientY directly
+              let nativeEvent: MouseEvent;
+
+              // Check if event has clientX/clientY (should always be true for mouse events in D3 v7)
+              if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+                nativeEvent = event as MouseEvent;
+              } else {
+                // Fallback: use helper function to extract coordinates
+                nativeEvent = getNativeEvent(event) as MouseEvent;
+              }
+
+              // Call the interaction handler with the event
+              try {
+                interactions.onPlanetHover(
+                  {
+                    name: planet.name,
+                    symbol: planet.symbol || planet.name,
+                    degree: adjustedPosition,
+                    signLabel: planet.sign,
+                    house: planet.house,
+                    color,
+                  },
+                  nativeEvent,
+                );
+              } catch (error) {
+                // Silently handle errors to prevent breaking the chart
+                console.error('Error showing planet tooltip:', error);
+              }
             })
-            .on('mouseleave', () => {
+            .on('mouseleave', function () {
+              // Only proceed if interactions are enabled
+              if (!interactions.enabled) return;
+
               // reset visual
               text.attr('font-size', `${planetFontSize}px`).attr('font-weight', 'normal');
 
