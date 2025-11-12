@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Cinzel, Cinzel_Decorative } from 'next/font/google';
 import { Providers } from '@/shared/config/providers';
 import { AuthProvider } from '@/features/auth/context/AuthContext';
-import { AppHeaderContainer } from '@/shared/components/app-header/app-header.container';
+import { AppHeaderConditional } from '@/shared/components/app-header/app-header.conditional';
 
 const cinzel = Cinzel({
   subsets: ['latin'],
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={`${cinzel.variable} ${cinzelDecorative.variable} ${cinzel.className}`}>
         <Providers>
           <AuthProvider>
-            <AppHeaderContainer />
+            <AppHeaderConditional />
             {children}
           </AuthProvider>
         </Providers>

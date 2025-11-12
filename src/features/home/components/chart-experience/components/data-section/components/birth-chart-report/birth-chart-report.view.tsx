@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Typography, Alert, Stack, useTheme } from '@mui/material';
+import { Box, Button, Typography, Alert, Stack, useTheme, CircularProgress } from '@mui/material';
 import { styles } from './birth-chart-report.styles';
 import type { BirthChartReportViewProps } from './birth-chart-report.types';
 import { ReportAccordionContainer } from '../report-accordion/report-accordion.container';
@@ -8,6 +8,7 @@ import { ReportAccordionContainer } from '../report-accordion/report-accordion.c
 export function BirthChartReportView({
   birthData,
   isGenerating,
+  isDownloading,
   error,
   sections,
   hasSections,
@@ -32,7 +33,7 @@ export function BirthChartReportView({
           <Button
             variant={config.ui.button.generate.variant}
             onClick={handleGenerateClick}
-            disabled={!birthData || isGenerating}
+            disabled={!birthData || isGenerating || isDownloading}
           >
             {generateButtonText}
           </Button>
@@ -40,9 +41,19 @@ export function BirthChartReportView({
           <Button
             variant={config.ui.button.download.variant}
             onClick={handleDownloadClick}
-            disabled={!hasSections || isGenerating}
+            disabled={!hasSections || isGenerating || isDownloading}
+            sx={styles.downloadButton()(theme)}
           >
-            {config.copy.button.downloadPdf}
+            <Box sx={styles.downloadContentWrapper()(theme)}>
+              <Box sx={{ visibility: isDownloading ? 'hidden' : 'visible' }}>
+                {config.copy.button.downloadPdf}
+              </Box>
+            </Box>
+            {isDownloading && (
+              <Box sx={styles.downloadSpinnerOverlay()(theme)}>
+                <CircularProgress size={20} />
+              </Box>
+            )}
           </Button>
         </Stack>
       </Stack>

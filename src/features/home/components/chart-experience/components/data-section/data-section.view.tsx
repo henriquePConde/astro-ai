@@ -17,6 +17,7 @@ export function DataSectionView({
   activeTab,
   onTabChange,
   isGenerating,
+  isDownloading,
   error,
   sections,
   hasSections,
@@ -54,6 +55,7 @@ export function DataSectionView({
           <BirthChartReportContainer
             birthData={birthData}
             isGenerating={isGenerating}
+            isDownloading={isDownloading}
             error={error}
             sections={sections}
             hasSections={hasSections}

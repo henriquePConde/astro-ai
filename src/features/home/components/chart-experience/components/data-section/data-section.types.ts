@@ -22,6 +22,7 @@ export interface DataSectionViewProps {
   onTabChange: (tab: DataSectionTab) => void;
 
   isGenerating: boolean;
+  isDownloading: boolean;
   error: string | null;
   sections: BirthChartReportSections;
   hasSections: boolean;

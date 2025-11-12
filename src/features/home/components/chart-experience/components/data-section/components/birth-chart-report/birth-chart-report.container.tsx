@@ -9,6 +9,7 @@ import type { BirthChartReportContainerProps } from './birth-chart-report.types'
 export function BirthChartReportContainer({
   birthData,
   isGenerating,
+  isDownloading,
   error,
   sections,
   hasSections,
@@ -18,6 +19,7 @@ export function BirthChartReportContainer({
   const { handleGenerateClick, handleDownloadClick } = useBirthChartReportHandlers({
     birthData,
     isGenerating,
+    isDownloading,
     hasSections,
     onGenerate,
     onDownloadPdf,
@@ -33,6 +35,7 @@ export function BirthChartReportContainer({
     <BirthChartReportView
       birthData={birthData}
       isGenerating={isGenerating}
+      isDownloading={isDownloading}
       error={error}
       sections={sections}
       hasSections={hasSections}

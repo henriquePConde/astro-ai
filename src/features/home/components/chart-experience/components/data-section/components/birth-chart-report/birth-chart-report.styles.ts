@@ -35,7 +35,7 @@ export const styles = {
     color: 'rgba(255,255,255,0.6)',
   }),
 
-  actions: () => () => ({
+  actions: () => (theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
     gap: 2,
@@ -66,5 +66,27 @@ export const styles = {
   error: () => (theme: Theme) => ({
     color: theme.palette.error.light,
     fontSize: 12,
+  }),
+
+  downloadButton: () => (theme: Theme) => ({
+    position: 'relative',
+  }),
+
+  downloadContentWrapper: () => (theme: Theme) => ({
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }),
+
+  downloadSpinnerOverlay: () => (theme: Theme) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
   }),
 };

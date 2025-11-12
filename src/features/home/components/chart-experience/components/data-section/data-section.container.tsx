@@ -17,8 +17,15 @@ export function DataSectionContainer({
 }: DataSectionContainerProps) {
   const { activeTab, setActiveTab } = useDataSectionTabs(DEFAULT_DATA_SECTION_TAB);
 
-  const { generateReport, downloadPdf, isGenerating, reportData, generateError, downloadError } =
-    useBirthChartReportActions(birthData, chartData);
+  const {
+    generateReport,
+    downloadPdf,
+    isGenerating,
+    isDownloading,
+    reportData,
+    generateError,
+    downloadError,
+  } = useBirthChartReportActions(birthData, chartData);
 
   const { sections, hasSections } = useBirthChartReportSections(reportData);
 
@@ -34,6 +41,7 @@ export function DataSectionContainer({
       activeTab={activeTab}
       onTabChange={setActiveTab}
       isGenerating={isGenerating}
+      isDownloading={isDownloading}
       error={error}
       sections={sections}
       hasSections={hasSections}

@@ -6,6 +6,7 @@ import type { BirthChartData } from '@/features/home/types/chart.types';
 export interface UseBirthChartReportHandlersParams {
   birthData: BirthChartData | null;
   isGenerating: boolean;
+  isDownloading: boolean;
   hasSections: boolean;
   onGenerate: () => void;
   onDownloadPdf: () => void;
@@ -23,19 +24,20 @@ export interface UseBirthChartReportHandlersReturn {
 export function useBirthChartReportHandlers({
   birthData,
   isGenerating,
+  isDownloading,
   hasSections,
   onGenerate,
   onDownloadPdf,
 }: UseBirthChartReportHandlersParams): UseBirthChartReportHandlersReturn {
   const handleGenerateClick = useCallback(() => {
-    if (!birthData || isGenerating) return;
+    if (!birthData || isGenerating || isDownloading) return;
     onGenerate();
-  }, [birthData, isGenerating, onGenerate]);
+  }, [birthData, isGenerating, isDownloading, onGenerate]);
 
   const handleDownloadClick = useCallback(() => {
-    if (!hasSections || isGenerating) return;
+    if (!hasSections || isGenerating || isDownloading) return;
     onDownloadPdf();
-  }, [hasSections, isGenerating, onDownloadPdf]);
+  }, [hasSections, isGenerating, isDownloading, onDownloadPdf]);
 
   return {
     handleGenerateClick,
