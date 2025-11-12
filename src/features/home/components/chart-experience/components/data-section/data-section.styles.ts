@@ -31,4 +31,9 @@ export const styles = {
       borderRadius: 999,
     },
   }),
+
+  tabPanel: (isActive: boolean) => (theme: Theme) => ({
+    display: isActive ? 'block' : 'none',
+    height: '100%',
+  }),
 };

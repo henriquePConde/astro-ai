@@ -31,9 +31,26 @@ export function DataSectionView({
       <TabsSectionContainer activeTab={activeTab} onTabChange={onTabChange} />
 
       <Box sx={styles.content()(theme)}>
-        {activeTab === DATA_SECTION_TABS.AI && <AstroInterpreter chartData={chartData} />}
+        <Box
+          role="tabpanel"
+          aria-hidden={activeTab !== DATA_SECTION_TABS.AI}
+          sx={styles.tabPanel(activeTab === DATA_SECTION_TABS.AI)(theme)}
+        >
+          <AstroInterpreter
+            chartData={chartData}
+            key={
+              birthData
+                ? `${birthData.year}-${birthData.month}-${birthData.day}-${birthData.hour}-${birthData.minute}-${birthData.city}-${birthData.nation}`
+                : 'no-birth'
+            }
+          />
+        </Box>
 
-        {activeTab === DATA_SECTION_TABS.REPORT && (
+        <Box
+          role="tabpanel"
+          aria-hidden={activeTab !== DATA_SECTION_TABS.REPORT}
+          sx={styles.tabPanel(activeTab === DATA_SECTION_TABS.REPORT)(theme)}
+        >
           <BirthChartReportContainer
             birthData={birthData}
             isGenerating={isGenerating}
@@ -43,7 +60,7 @@ export function DataSectionView({
             onGenerate={onGenerateReport}
             onDownloadPdf={onDownloadPdf}
           />
-        )}
+        </Box>
       </Box>
     </Box>
   );
