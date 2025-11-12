@@ -17,6 +17,7 @@ export type PdfGenerationRequest = {
     scale?: number;
     width?: string;
     height?: string;
+    landscape?: boolean; // added to reflect actual usage in pdf.service.ts
   };
 };
 

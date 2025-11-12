@@ -17,7 +17,7 @@ export async function generatePdfFromReportId(
     throw new Error('Report not found');
   }
 
-  // Generate a temporary JWT token (expires in 3 min)
+  // Generate a temporary JWT token (expires in 15 min)
   const pdfToken = generatePdfToken({ reportId, purpose: 'puppeteer-pdf' });
 
   // Build secure URL with id and pdfToken
@@ -51,25 +51,30 @@ export async function generatePdfFromReportId(
 
     // Wait for the PDF preview content to be loaded (not in loading state)
     try {
-      // Wait for PDF preview container to appear - with a long timeout
-      await page.waitForSelector('.pdf-preview-container', {
-        timeout: 90000,
-        visible: true,
-      });
-      console.log('PDF preview container found');
-
-      // Wait for content to be ready - check for data-pdf-ready attribute or content presence
+      // Wait for either the container or the ready attribute
       await page.waitForFunction(
         () => {
-          // Check for ready attribute first
+          const hasContainer = !!document.querySelector('.pdf-preview-container');
+          const isPageReady = !!document.querySelector('[data-pdf-ready="true"]');
+          return hasContainer || isPageReady;
+        },
+        { timeout: 90000, polling: 1000 },
+      );
+      console.log('PDF preview base container/ready marker found');
+
+      // Wait for content to be ready
+      await page.waitForFunction(
+        () => {
+          // Prefer explicit ready flag
           const readyContainer = document.querySelector('[data-pdf-ready="true"]');
           if (readyContainer) return true;
 
-          // Fallback: check if PDF preview container exists and has substantial content
-          const pdfContainer = document.querySelector('.pdf-preview-container');
+          // Fallback: check container existence and content
+          const pdfContainer = document.querySelector(
+            '.pdf-preview-container',
+          ) as HTMLElement | null;
           if (!pdfContainer) return false;
 
-          // Check if we're in an error state (look for error messages)
           const bodyText = document.body.textContent || '';
           const hasError =
             bodyText.includes('Token is invalid') ||
@@ -77,28 +82,20 @@ export async function generatePdfFromReportId(
             (bodyText.includes('Error') && bodyText.includes('h2'));
           if (hasError) return false;
 
-          // Check if loading state is gone
+          // loading states
           if (bodyText.includes('Loading PDF preview') || bodyText.includes('Carregando PDF')) {
             return false;
           }
 
-          // Check if there's actual content in the container (at least some text)
+          // substantial content
           const containerText = pdfContainer.textContent || '';
-          if (containerText.length > 100) {
-            return true;
-          }
-
-          return false;
+          return containerText.length > 100;
         },
-        {
-          timeout: 90000,
-          polling: 2000, // Poll every 2 seconds
-        },
+        { timeout: 90000, polling: 2000 },
       );
       console.log('PDF preview content loaded and ready');
     } catch (error) {
       console.log('Waiting for content timeout - checking page state', error);
-      // Check what's actually on the page for debugging
       try {
         const bodyText = await page.evaluate(() => document.body.textContent);
         console.log('Page body text (first 1000 chars):', bodyText?.substring(0, 1000));
@@ -118,7 +115,6 @@ export async function generatePdfFromReportId(
       } catch (e) {
         console.log('Could not evaluate page state:', e);
       }
-      // Try to continue anyway - maybe the page is partially loaded
       console.log('Proceeding with PDF generation despite timeout');
     }
 
@@ -130,9 +126,7 @@ export async function generatePdfFromReportId(
         () => {
           const chartSection = document.querySelector('.chart-section');
 
-          // If chart section exists, wait for image to be ready
           if (chartSection) {
-            // Check if "Generating chart image" text is still present
             const sectionText = chartSection.textContent || '';
             if (
               sectionText.includes('Generating chart image') ||
@@ -141,19 +135,14 @@ export async function generatePdfFromReportId(
               return false;
             }
 
-            // Check if chart image exists and is loaded
             const chartImg = chartSection.querySelector(
               'img[alt="Astro Chart"]',
-            ) as HTMLImageElement;
+            ) as HTMLImageElement | null;
             if (chartImg) {
               return chartImg.complete && chartImg.naturalWidth > 0;
             }
-
-            // If no image yet, keep waiting
             return false;
           }
-
-          // If no chart section, that's okay - proceed (maybe no chart data)
           return true;
         },
         { timeout: 30000 },
@@ -172,70 +161,170 @@ export async function generatePdfFromReportId(
         },
         { timeout: 10000 },
       );
-    } catch (error) {
+    } catch {
       console.log('Images timeout - proceeding anyway');
     }
 
     // Additional wait for any remaining async operations
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
+    // Print CSS: pagination fixes (allow text/content to continue on next page)
     await page.addStyleTag({
       content: `
-                * {
-                    border-left: none !important;
-                    border-right: none !important;
-                    box-shadow: none !important;
-                    outline: none !important;
-                }
-                html, body {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    border: none !important;
-                }
-                svg {
-                    max-width: none !important;
-                    max-height: none !important;
-                    min-width: inherit !important;
-                    min-height: inherit !important;
-                    transform: none !important;
-                    zoom: 1 !important;
-                }
-                img {
-                    max-width: none !important;
-                    max-height: none !important;
-                }
-                @media print {
-                    * {
-                        border-left: none !important;
-                        border-right: none !important;
-                        box-shadow: none !important;
-                        outline: none !important;
-                    }
-                    html, body {
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        border: none !important;
-                    }
-                    svg {
-                        max-width: none !important;
-                        max-height: none !important;
-                        min-width: inherit !important;
-                        min-height: inherit !important;
-                        transform: none !important;
-                        zoom: 1 !important;
-                        print-color-adjust: exact !important;
-                        -webkit-print-color-adjust: exact !important;
-                    }
-                    img {
-                        max-width: none !important;
-                        max-height: none !important;
-                        print-color-adjust: exact !important;
-                    }
-                }
-            `,
+        @page { size: A4; margin: 10mm; }
+    
+        * {
+          border-left: none !important;
+          border-right: none !important;
+          box-shadow: none !important;
+          outline: none !important;
+        }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          background: white !important;
+          min-height: auto !important; /* avoid trailing blank page */
+        }
+    
+        @media print {
+          .pdf-preview-container {
+            min-height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+    
+          /* 1) Normalize all breaks by default */
+          .pdf-preview-container,
+          .pdf-preview-container * {
+            break-before: auto !important;
+            break-after: auto !important;
+            break-inside: auto !important;
+            page-break-before: auto !important;
+            page-break-after: auto !important;
+            page-break-inside: auto !important;
+          }
+    
+          /* 2) Avoid phantom breaks at start/end */
+          .pdf-preview-container > :first-child {
+            break-before: avoid-page !important;
+          }
+          .pdf-preview-container > :last-child {
+            break-after: avoid-page !important;
+          }
+          .pdf-preview-container > .page-break:last-child,
+          .pdf-preview-container > .pagebreak:last-child {
+            break-after: auto !important;
+            page-break-after: auto !important;
+            display: none !important;
+          }
+          .pdf-preview-container .page-break:empty,
+          .pdf-preview-container .pagebreak:empty {
+            display: none !important;
+          }
+          .pdf-preview-container *[style*="page-break-after"]:last-child,
+          .pdf-preview-container *[style*="break-after"]:last-child {
+            break-after: auto !important;
+            page-break-after: auto !important;
+          }
+    
+          /* 3) Anti-clipping + anti-layerization */
+          .pdf-preview-container, .pdf-preview-container * {
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+            transform: none !important;
+            filter: none !important;
+            backdrop-filter: none !important;
+            contain: none !important;
+          }
+    
+          /* 4) Neutralize flex/grid */
+          .pdf-preview-container,
+          .pdf-preview-container .MuiGrid-root,
+          .pdf-preview-container [class*="MuiGrid"],
+          .pdf-preview-container [class*="Grid"],
+          .pdf-preview-container .MuiBox-root,
+          .pdf-preview-container [class*="MuiBox"],
+          .pdf-preview-container [class*="flex"],
+          .pdf-preview-container [class*="grid"] {
+            display: block !important;
+          }
+    
+          /* 5) Flow content can split */
+          .pdf-preview-container section,
+          .pdf-preview-container article,
+          .pdf-preview-container main,
+          .pdf-preview-container .section,
+          .pdf-preview-container .report-section,
+          .pdf-preview-container .content,
+          .pdf-preview-container .prose,
+          .pdf-preview-container .MuiCard-root,
+          .pdf-preview-container .MuiPaper-root,
+          .pdf-preview-container .MuiCardContent-root,
+          .pdf-preview-container div,
+          .pdf-preview-container p,
+          .pdf-preview-container ul,
+          .pdf-preview-container ol {
+            display: block !important;
+          }
+    
+          /* 6) Headings */
+          .pdf-preview-container h1,
+          .pdf-preview-container h2,
+          .pdf-preview-container h3 {
+            break-after: avoid-page !important;
+            break-inside: avoid !important;
+          }
+    
+          /* 7) Atomic blocks */
+          .pdf-preview-container table,
+          .pdf-preview-container img,
+          .pdf-preview-container svg,
+          .pdf-preview-container figure,
+          .pdf-preview-container pre,
+          .pdf-preview-container code,
+          .pdf-preview-container blockquote {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+    
+          /* 8) Only .page-break should force a break */
+          .pdf-preview-container .page-break,
+          .pdf-preview-container .pagebreak {
+            break-after: page !important;
+            page-break-after: always !important;
+          }
+    
+          /* 9) Collapse trailing spacing */
+          .pdf-preview-container > :last-child,
+          .pdf-preview-container > :last-child *:last-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+          }
+    
+          /* Chart remains circular */
+          .pdf-preview-container .chart-section img[alt="Astro Chart"],
+          .pdf-preview-container .astro-chart,
+          .pdf-preview-container .astro-wheel,
+          .pdf-preview-container .chart-wheel {
+            border-radius: 50% !important;
+            clip-path: circle(50% at 50% 50%);
+            overflow: hidden !important;
+            aspect-ratio: 1 / 1;
+          }
+    
+          /* Preserve colors */
+          .pdf-preview-container svg,
+          .pdf-preview-container img {
+            print-color-adjust: exact !important;
+            -webkit-print-color-adjust: exact !important;
+          }
+        }
+      `,
     });
 
-    // Use options from frontend
+    // Use options from frontend, prefer CSS page size for stability
     const pdfOptions = {
       format: options?.format || ('A4' as const),
       printBackground: options?.printBackground ?? true,
@@ -244,7 +333,7 @@ export async function generatePdfFromReportId(
       displayHeaderFooter: false,
       headerTemplate: '',
       footerTemplate: '',
-      preferCSSPageSize: false,
+      preferCSSPageSize: true, // let @page control size/margins
       omitBackground: false,
       ...(options?.width && { width: options.width }),
       ...(options?.height && { height: options.height }),

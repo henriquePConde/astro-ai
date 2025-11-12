@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateTokenQuery } from '@/backend/features/pdf/http/pdf.schemas';
 import { validatePdfToken } from '@/backend/features/pdf';
@@ -8,7 +10,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const query = Object.fromEntries(searchParams);
 
-    // Validate query parameters
     const parseResult = validateTokenQuery.safeParse(query);
     if (!parseResult.success) {
       return NextResponse.json({ valid: false, error: 'Invalid parameters' }, { status: 400 });
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ valid: isValid });
   } catch (error) {
-    console.error('Error validating PDF token:', error);
-    return NextResponse.json({ valid: false, error: 'Validation failed' }, { status: 500 });
+    // keep error handling consistent
+    return handleError(error);
   }
 }
