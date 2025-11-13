@@ -1,3 +1,5 @@
+// astro-ai-fullstack/src/features/home/components/chart-experience/components/data-section/components/report-accordion/report-accordion.styles.ts
+
 import { Theme } from '@mui/material';
 
 export const styles = {
@@ -13,6 +15,7 @@ export const styles = {
     fontSize: 12,
     color: 'rgba(255,255,255,0.7)',
   }),
+
   noBirthDataBox: () => (theme: Theme) => ({
     mt: 2,
     minHeight: 160,
@@ -23,18 +26,27 @@ export const styles = {
     fontSize: 12,
     color: 'rgba(255,255,255,0.7)',
   }),
+
   container: () => (theme: Theme) => ({
     mt: 2,
+    mb: 2,
     borderRadius: 2,
     border: '1px solid rgba(255,255,255,0.12)',
     bgcolor: 'rgba(10,10,25,0.9)',
     p: 2,
   }),
+
   sectionItem: () => (theme: Theme) => ({
     mb: 1.5,
     pb: 1.5,
     borderBottom: '1px solid rgba(255,255,255,0.08)',
+    '&:last-of-type': {
+      borderBottom: 'none',
+      pb: 0,
+      mb: 0,
+    },
   }),
+
   sectionButton: () => (theme: Theme) => ({
     width: '100%',
     textAlign: 'left',
@@ -49,16 +61,21 @@ export const styles = {
     cursor: 'pointer',
     py: 0.75,
   }),
+
   sectionContent: () => (theme: Theme) => ({
-    fontSize: 12,
+    fontSize: 18,
+    lineHeight: 1.5,
     color: 'rgba(255,255,255,0.78)',
-    whiteSpace: 'pre-wrap',
+    paddingBottom: theme.spacing(2), // <- gives breathing room so last line isn't chopped
   }),
-  accordionSection: (isOpen: boolean, height: number) => (theme: Theme) => ({
-    maxHeight: isOpen ? `${height}px` : '0px',
+
+  // Simpler accordion: no measuring, just animate max-height between 0 and something huge
+  accordionSection: (isOpen: boolean) => (theme: Theme) => ({
+    maxHeight: isOpen ? '9999px' : '0px',
     overflow: 'hidden',
     transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1)',
   }),
+
   icon: (isOpen: boolean) => ({
     display: 'inline-block',
     transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
