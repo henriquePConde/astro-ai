@@ -257,6 +257,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
         const line = g
           .append('line')
+          .attr('class', 'house-cusp-line')
           .attr('x1', housesRadius * Math.cos(angle))
           .attr('y1', -housesRadius * Math.sin(angle))
           .attr('x2', outerRadius * Math.cos(angle))
@@ -449,6 +450,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
               // Hit area for hover highlight + tooltip
               const hit = aspectGroup
                 .append('line')
+                .attr('class', 'aspect-hit')
                 .attr('x1', x1)
                 .attr('y1', y1)
                 .attr('x2', x2)
@@ -496,6 +498,7 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
         const y = -planetRadius * Math.sin(angle);
 
         const group = g.append('g').attr('transform', `translate(${x},${y})`);
+        group.attr('class', 'planet-group');
 
         const color = (planetColors as any)[planet.name] || '#ffffff';
 
@@ -583,21 +586,71 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
     const g = svg.append('g').attr('class', 'zoom-group');
 
+    drawChart(g, dimensions, planetPositions);
+  }, [data, width, height, drawChart]);
+
+  // Gate zoom/pan/dblclick handlers with interactions toggle
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    const g = svg.select<SVGGElement>('.zoom-group');
+    if (g.empty()) return;
+
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
+      .filter(() => interactions?.enabled ?? true)
       .scaleExtent([0.5, 5])
-      .on('zoom', (event) => {
+      .on('zoom', (event: any) => {
         g.attr('transform', event.transform);
       });
 
-    svg.call(zoom);
+    if (interactions?.enabled) {
+      svg.call(zoom);
+      svg.on('dblclick.zoom', () => {
+        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+      });
+    } else {
+      svg.on('.zoom', null);
+      svg.on('dblclick.zoom', null);
+    }
+  }, [interactions?.enabled]);
 
-    svg.on('dblclick.zoom', () => {
-      svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
-    });
+  // Optional: toggle pointer events and cursor for interactive elements when interactions are off
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    const enabled = interactions?.enabled ?? true;
 
-    drawChart(g, dimensions, planetPositions);
-  }, [data, width, height, drawChart]);
+    // Zodiac sign labels
+    svg
+      .selectAll<SVGTextElement, unknown>('.zodiac-sign')
+      .style('pointer-events', enabled ? 'auto' : 'none')
+      .style('cursor', enabled ? 'pointer' : 'default');
+
+    // House highlight sectors
+    svg
+      .selectAll<SVGPathElement, unknown>('.house-highlight')
+      .style('pointer-events', enabled ? 'all' : 'none')
+      .style('cursor', enabled ? 'pointer' : 'default');
+
+    // House cusp lines
+    svg
+      .selectAll<SVGLineElement, unknown>('.house-cusp-line')
+      .style('pointer-events', enabled ? 'all' : 'none')
+      .style('cursor', enabled ? 'pointer' : 'default');
+
+    // Aspect hit lines
+    svg
+      .selectAll<SVGLineElement, unknown>('.aspect-hit')
+      .style('pointer-events', enabled ? 'stroke' : 'none')
+      .style('cursor', enabled ? 'pointer' : 'default');
+
+    // Planet groups
+    svg
+      .selectAll<SVGGElement, unknown>('.planet-group')
+      .style('pointer-events', enabled ? 'all' : 'none')
+      .style('cursor', enabled ? 'pointer' : 'default');
+  }, [interactions?.enabled]);
 
   if (!data) return null;
 
