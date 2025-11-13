@@ -35,4 +35,33 @@ export type ChartInteractionsContextType = {
     evt: MouseEvent | React.MouseEvent<any>,
   ) => void;
   onAspectLeave: () => void;
+
+  onPlanetClick: (
+    planet: {
+      name: string;
+      symbol: string;
+      degree: number;
+      signLabel?: string;
+      house?: number;
+      color?: string;
+    },
+    evt: MouseEvent | React.MouseEvent<any>,
+  ) => void;
+
+  onHouseClick: (
+    house: { number: number; degree: number },
+    evt: MouseEvent | React.MouseEvent<any>,
+  ) => void;
+
+  onSignClick: (index: number, evt: MouseEvent | React.MouseEvent<any>) => void;
+
+  onAspectClick: (
+    aspect: {
+      type: string;
+      p1?: string;
+      p2?: string;
+      angle?: number;
+    },
+    evt: MouseEvent | React.MouseEvent<any>,
+  ) => void;
 };

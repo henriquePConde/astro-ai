@@ -4,11 +4,14 @@ import React, { createContext, useContext, useMemo, useState } from 'react';
 import { TooltipProvider, useTooltip } from './tooltip.context';
 import type { TooltipState } from './tooltip.types';
 import type { ChartInteractionsContextType } from './chart-interactions.types';
+import { useAIInput } from '../components/astro-interpreter/hooks/use-ai-input.state';
+import { ZODIAC_SIGNS } from '@/shared/components/astro-chart/utils/constants';
 
 const ChartInteractionsContext = createContext<ChartInteractionsContextType | undefined>(undefined);
 
 const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { showTooltip, hideTooltip } = useTooltip();
+  const { setAIInput } = useAIInput();
   const [enabled, setEnabled] = useState(true);
 
   const value = useMemo<ChartInteractionsContextType>(
@@ -122,8 +125,37 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       onAspectLeave: () => {
         hideTooltip();
       },
+
+      onPlanetClick: (planet, evt) => {
+        if (!enabled) return;
+        const signText = planet.signLabel || 'unknown sign';
+        const houseText = planet.house ? ` in the ${planet.house} house` : '';
+        const message = `Tell me about ${planet.name} in ${signText}${houseText}`;
+        setAIInput(message);
+      },
+
+      onHouseClick: (house, evt) => {
+        if (!enabled) return;
+        const message = `Tell me about the ${house.number} house`;
+        setAIInput(message);
+      },
+
+      onSignClick: (index, evt) => {
+        if (!enabled) return;
+        const signName = ZODIAC_SIGNS[index] || 'unknown sign';
+        const message = `Tell me about ${signName}`;
+        setAIInput(message);
+      },
+
+      onAspectClick: (aspect, evt) => {
+        if (!enabled) return;
+        const planet1 = aspect.p1 || 'planet 1';
+        const planet2 = aspect.p2 || 'planet 2';
+        const message = `Tell me about the ${aspect.type} between ${planet1} and ${planet2}`;
+        setAIInput(message);
+      },
     }),
-    [enabled, showTooltip, hideTooltip],
+    [enabled, showTooltip, hideTooltip, setAIInput],
   );
 
   return (

@@ -192,6 +192,15 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
                     if (!interactions.enabled) return;
                     d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                     interactions.onSignLeave();
+                  })
+                  .on('click', function (event: any) {
+                    if (!interactions.enabled) return;
+                    const nativeEvent = getNativeEvent(event) as MouseEvent;
+                    try {
+                      interactions.onSignClick(sign.signIndex, nativeEvent);
+                    } catch (error) {
+                      console.error('Error handling sign click:', error);
+                    }
                   });
               }
             }
@@ -228,6 +237,15 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
                   if (!interactions.enabled) return;
                   d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                   interactions.onSignLeave();
+                })
+                .on('click', function (event: any) {
+                  if (!interactions.enabled) return;
+                  const nativeEvent = getNativeEvent(event) as MouseEvent;
+                  try {
+                    interactions.onSignClick(sign.signIndex, nativeEvent);
+                  } catch (error) {
+                    console.error('Error handling sign click:', error);
+                  }
                 });
             }
           });
@@ -284,6 +302,21 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
             .on('mouseleave', function () {
               if (!interactions.enabled) return;
               interactions.onHouseLeave();
+            })
+            .on('click', function (event: any) {
+              if (!interactions.enabled) return;
+              const nativeEvent = getNativeEvent(event) as MouseEvent;
+              try {
+                interactions.onHouseClick(
+                  {
+                    number: index + 1,
+                    degree: cusp,
+                  },
+                  nativeEvent,
+                );
+              } catch (error) {
+                console.error('Error handling house click:', error);
+              }
             });
         }
 
@@ -383,6 +416,21 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
               if (!interactions.enabled) return;
               sector.attr('fill-opacity', 0).attr('stroke-opacity', 0);
               interactions.onHouseLeave();
+            })
+            .on('click', function (event: any) {
+              if (!interactions.enabled) return;
+              const nativeEvent = getNativeEvent(event) as MouseEvent;
+              try {
+                interactions.onHouseClick(
+                  {
+                    number: houseNumber,
+                    degree: startCusp,
+                  },
+                  nativeEvent,
+                );
+              } catch (error) {
+                console.error('Error handling house click:', error);
+              }
             });
         }
       }
@@ -479,6 +527,23 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
                   if (!interactions.enabled) return;
                   line.attr('stroke-width', 1).attr('opacity', 0.6);
                   interactions.onAspectLeave();
+                })
+                .on('click', function (event: any) {
+                  if (!interactions.enabled) return;
+                  const nativeEvent = getNativeEvent(event) as MouseEvent;
+                  try {
+                    interactions.onAspectClick(
+                      {
+                        type: aspectType!,
+                        p1: p1.name,
+                        p2: p2.name,
+                        angle: minor,
+                      },
+                      nativeEvent,
+                    );
+                  } catch (error) {
+                    console.error('Error handling aspect click:', error);
+                  }
                 });
             }
           }
@@ -560,6 +625,33 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
               text.attr('font-size', `${planetFontSize}px`).attr('font-weight', 'normal');
 
               interactions.onPlanetLeave();
+            })
+            .on('click', function (event: any) {
+              // Only proceed if interactions are enabled
+              if (!interactions.enabled) return;
+
+              let nativeEvent: MouseEvent;
+              if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+                nativeEvent = event as MouseEvent;
+              } else {
+                nativeEvent = getNativeEvent(event) as MouseEvent;
+              }
+
+              try {
+                interactions.onPlanetClick(
+                  {
+                    name: planet.name,
+                    symbol: planet.symbol || planet.name,
+                    degree: adjustedPosition,
+                    signLabel: planet.sign,
+                    house: planet.house,
+                    color,
+                  },
+                  nativeEvent,
+                );
+              } catch (error) {
+                console.error('Error handling planet click:', error);
+              }
             });
         }
       });
