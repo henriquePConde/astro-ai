@@ -586,6 +586,11 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
     const g = svg.append('g').attr('class', 'zoom-group');
 
+    // Apply initial zoom transform (0.7 scale = 70% of original size)
+    // This applies regardless of interactions state
+    const initialTransform = d3.zoomIdentity.scale(0.7);
+    g.attr('transform', initialTransform.toString());
+
     drawChart(g, dimensions, planetPositions);
   }, [data, width, height, drawChart]);
 
@@ -606,8 +611,32 @@ const AstroWheel = ({ data, width = 800, height = 800 }: AstroWheelProps) => {
 
     if (interactions?.enabled) {
       svg.call(zoom);
+
+      // Read current transform from the g element's transform attribute
+      // The first useEffect already sets it to 0.7, so we preserve that
+      const currentTransformAttr = g.attr('transform');
+      const defaultTransform = d3.zoomIdentity.scale(0.7);
+
+      // If there's already a transform, try to extract the scale from it
+      // Otherwise use the default 0.7 scale
+      let transformToUse = defaultTransform;
+      if (currentTransformAttr) {
+        // Parse transform string like "translate(0,0) scale(0.7)"
+        const scaleMatch = currentTransformAttr.match(/scale\(([^)]+)\)/);
+        if (scaleMatch) {
+          const scale = parseFloat(scaleMatch[1]);
+          if (!isNaN(scale)) {
+            transformToUse = d3.zoomIdentity.scale(scale);
+          }
+        }
+      }
+
+      // Sync zoom behavior with current transform state
+      svg.call(zoom.transform, transformToUse);
+
+      // Double-click resets to default smaller size (0.7 scale)
       svg.on('dblclick.zoom', () => {
-        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+        svg.transition().duration(750).call(zoom.transform, defaultTransform);
       });
     } else {
       svg.on('.zoom', null);
