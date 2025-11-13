@@ -30,8 +30,7 @@ export function useChartExperienceProps({
 }: UseChartExperiencePropsParams): UseChartExperiencePropsReturn {
   const handleNewChart = useCallback(() => {
     chart.handleNewChart();
-    onNewChart?.();
-  }, [chart, onNewChart]);
+  }, [chart]);
 
   const props: ChartExperienceProps = useMemo(
     () => ({
