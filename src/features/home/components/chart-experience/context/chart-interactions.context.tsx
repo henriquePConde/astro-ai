@@ -130,20 +130,20 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         if (!enabled) return;
         const signText = planet.signLabel || 'unknown sign';
         const houseText = planet.house ? ` in the ${planet.house} house` : '';
-        const message = `Tell me about ${planet.name} in ${signText}${houseText}`;
+        const message = `Tell me about the meaning of ${planet.name} in ${signText}${houseText} in my chart`;
         setAIInput(message);
       },
 
       onHouseClick: (house, evt) => {
         if (!enabled) return;
-        const message = `Tell me about the ${house.number} house`;
+        const message = `Tell me about the meaning of the ${house.number} house in my chart`;
         setAIInput(message);
       },
 
       onSignClick: (index, evt) => {
         if (!enabled) return;
         const signName = ZODIAC_SIGNS[index] || 'unknown sign';
-        const message = `Tell me about ${signName}`;
+        const message = `Tell me about the meaning of ${signName} in my chart`;
         setAIInput(message);
       },
 
@@ -151,7 +151,7 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         if (!enabled) return;
         const planet1 = aspect.p1 || 'planet 1';
         const planet2 = aspect.p2 || 'planet 2';
-        const message = `Tell me about the ${aspect.type} between ${planet1} and ${planet2}`;
+        const message = `Tell me about the meaning of the ${aspect.type} between ${planet1} and ${planet2} in my chart`;
         setAIInput(message);
       },
     }),

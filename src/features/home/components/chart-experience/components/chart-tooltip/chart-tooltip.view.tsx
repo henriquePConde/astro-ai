@@ -27,14 +27,17 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
           <Typography sx={styles.contentText()(theme)}>
             {tooltip.symbol} {tooltip.name}
           </Typography>
-          <Typography>
-            {formatDegree(degree)}° {signLabel && `${config.copy.in} ${signLabel}`}
-          </Typography>
+          {signLabel && (
+            <Typography>
+              {config.copy.in} {signLabel}
+            </Typography>
+          )}
           {tooltip.house != null && (
             <Typography>
               {config.copy.house} {tooltip.house}
             </Typography>
           )}
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
       break;
@@ -45,9 +48,7 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
           <Typography sx={styles.contentText()(theme)}>
             {config.copy.house} {tooltip.number}
           </Typography>
-          <Typography>
-            {config.copy.cusp} {formatDegree(tooltip.degree)}°
-          </Typography>
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
       break;
@@ -59,6 +60,7 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
           <Typography sx={styles.contentText()(theme)}>
             {zodiacSymbols[idx]} {name}
           </Typography>
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
       break;
@@ -73,11 +75,7 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
               {tooltip.p2 && `${config.copy.separator}${tooltip.p2}`}
             </Typography>
           )}
-          {typeof tooltip.angle === 'number' && (
-            <Typography>
-              {config.copy.angle} {formatDegree(tooltip.angle)}°
-            </Typography>
-          )}
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
       break;

@@ -21,4 +21,13 @@ export const styles = {
   contentText: () => (theme: Theme) => ({
     fontWeight: 600,
   }),
+
+  clickHint: () => (theme: Theme) => ({
+    marginTop: theme.spacing(0.75),
+    paddingTop: theme.spacing(0.75),
+    borderTop: `1px solid ${theme.cosmic.colors.glassBorder}`,
+    fontSize: 11,
+    opacity: 0.7,
+    fontStyle: 'italic',
+  }),
 };

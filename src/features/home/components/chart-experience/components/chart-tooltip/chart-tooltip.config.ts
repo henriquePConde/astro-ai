@@ -12,6 +12,7 @@ export const CHART_TOOLTIP_CONFIG = {
     angle: 'Angle:',
     sign: 'Sign',
     separator: ' – ',
+    clickToAsk: 'Click to ask the AI interpreter',
   },
   ui: {
     degree: {

@@ -8,11 +8,11 @@ export const styles = {
   bubble: (isUser: boolean) => (theme: Theme) => ({
     maxWidth: '80%',
     borderRadius: 2,
-    p: 1.5,
+    p: 2.25,
     backdropFilter: 'blur(10px)',
     border: '1px solid rgba(255,255,255,0.06)',
     fontFamily: 'mystical, serif',
-    fontSize: 13,
+    fontSize: 18,
     lineHeight: 1.5,
     bgcolor: isUser ? 'rgba(138,43,226,0.35)' : 'rgba(13,12,34,0.8)',
     color: isUser ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.85)',

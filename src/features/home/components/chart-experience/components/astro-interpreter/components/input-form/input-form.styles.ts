@@ -13,6 +13,7 @@ export const styles = {
     borderRadius: 2,
     color: 'rgba(255,255,255,0.9)',
     fontFamily: 'mystical, serif',
+    fontSize: 18,
     px: 1.5,
     '&::placeholder': {
       color: 'rgba(255,255,255,0.5)',
