@@ -1,5 +1,15 @@
-import { countReportsByUserToday } from '../infra/limits.repo';
-import { DAILY_REPORT_LIMIT, hasExceededLimit, type DailyUsage } from '../domain/limits.entities';
+import {
+  countChartsByUserToday,
+  countReportsByUserToday,
+  countMessagesByUserToday,
+} from '../infra/limits.repo';
+import {
+  DAILY_CHART_LIMIT,
+  DAILY_REPORT_LIMIT,
+  DAILY_MESSAGE_LIMIT,
+  hasExceededLimit,
+  type DailyUsage,
+} from '../domain/limits.entities';
 import { forbidden } from '@/backend/core/errors/http-errors';
 import { env } from '@/backend/core/config/env';
 
@@ -14,6 +24,23 @@ function isBypassed(userId: string): boolean {
 }
 
 /**
+ * Checks if user has exceeded daily chart limit.
+ * Users in REPORT_LIMIT_BYPASS_USER_IDS are exempt.
+ */
+export async function checkDailyChartLimit(userId: string): Promise<void> {
+  if (isBypassed(userId)) {
+    return;
+  }
+
+  const used = await countChartsByUserToday(userId);
+  if (hasExceededLimit(used, DAILY_CHART_LIMIT)) {
+    throw forbidden(
+      `Você já gerou ${DAILY_CHART_LIMIT} mapa${DAILY_CHART_LIMIT > 1 ? 's' : ''} hoje. Tente novamente amanhã!`,
+    );
+  }
+}
+
+/**
  * Checks if user has exceeded daily report limit.
  * Users in REPORT_LIMIT_BYPASS_USER_IDS are exempt.
  */
@@ -24,7 +51,26 @@ export async function checkDailyLimit(userId: string): Promise<void> {
 
   const used = await countReportsByUserToday(userId);
   if (hasExceededLimit(used, DAILY_REPORT_LIMIT)) {
-    throw forbidden(`Você já gerou ${DAILY_REPORT_LIMIT} mapas hoje. Tente novamente amanhã!`);
+    throw forbidden(
+      `Você já gerou ${DAILY_REPORT_LIMIT} relatório${DAILY_REPORT_LIMIT > 1 ? 's' : ''} hoje. Tente novamente amanhã!`,
+    );
+  }
+}
+
+/**
+ * Checks if user has exceeded daily message limit.
+ * Users in REPORT_LIMIT_BYPASS_USER_IDS are exempt.
+ */
+export async function checkDailyMessageLimit(userId: string): Promise<void> {
+  if (isBypassed(userId)) {
+    return;
+  }
+
+  const used = await countMessagesByUserToday(userId);
+  if (hasExceededLimit(used, DAILY_MESSAGE_LIMIT)) {
+    throw forbidden(
+      `Você já enviou ${DAILY_MESSAGE_LIMIT} mensagens no interpretador hoje. Tente novamente amanhã!`,
+    );
   }
 }
 
@@ -35,14 +81,21 @@ export async function checkDailyLimit(userId: string): Promise<void> {
 export async function getDailyUsage(userId: string): Promise<DailyUsage> {
   if (isBypassed(userId)) {
     return {
-      used: 0,
-      limit: DAILY_REPORT_LIMIT,
+      charts: { used: 0, limit: DAILY_CHART_LIMIT },
+      reports: { used: 0, limit: DAILY_REPORT_LIMIT },
+      messages: { used: 0, limit: DAILY_MESSAGE_LIMIT },
     };
   }
 
-  const used = await countReportsByUserToday(userId);
+  const [chartsUsed, reportsUsed, messagesUsed] = await Promise.all([
+    countChartsByUserToday(userId),
+    countReportsByUserToday(userId),
+    countMessagesByUserToday(userId),
+  ]);
+
   return {
-    used,
-    limit: DAILY_REPORT_LIMIT,
+    charts: { used: chartsUsed, limit: DAILY_CHART_LIMIT },
+    reports: { used: reportsUsed, limit: DAILY_REPORT_LIMIT },
+    messages: { used: messagesUsed, limit: DAILY_MESSAGE_LIMIT },
   };
 }

@@ -11,6 +11,9 @@ import { calculateChart } from '@/backend/features/calculate';
 import { handleError } from '@/backend/core/errors/error-handler';
 import { getSessionUser } from '@/backend/core/auth/get-session';
 import { unauthorized } from '@/backend/core/errors/http-errors';
+import { checkDailyChartLimit } from '@/backend/features/limits';
+import { prisma } from '@/backend/core/db/prisma';
+import { getOrCreateCurrentUser } from '@/backend/features/users';
 
 // Force Node.js runtime (swisseph requires Node)
 export const runtime = 'nodejs';
@@ -123,16 +126,30 @@ function transformChartData(rawData: any) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
+    const authUser = await getSessionUser();
+    if (!authUser) {
       throw unauthorized();
     }
+
+    // Ensure user exists in Prisma database
+    const user = await getOrCreateCurrentUser();
 
     const body = await req.json();
     const input = birthDataSchema.parse(body);
 
+    // Check rate limit before calculating
+    await checkDailyChartLimit(user.id);
+
     const chartData = await calculateChart(input);
     const transformed = transformChartData(chartData);
+
+    // Track chart creation in database
+    await prisma.chart.create({
+      data: {
+        userId: user.id,
+        birthData: input,
+      },
+    });
 
     const response = calculateChartDto.parse({
       success: true as const,

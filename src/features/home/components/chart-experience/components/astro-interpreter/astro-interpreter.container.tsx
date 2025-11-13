@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import type { ChartData as WheelChartData } from '@/shared/components/astro-chart/types';
 import { AstroInterpreterView } from './astro-interpreter.view';
 import { useInterpreter } from './hooks/use-interpreter';
+import { useDailyUsage } from '@/features/reports/services/reports.queries';
 import type { AstroInterpreterContainerProps } from './astro-interpreter.types';
 
 export function AstroInterpreterContainer({ chartData }: AstroInterpreterContainerProps) {
@@ -24,6 +25,7 @@ export function AstroInterpreterContainer({ chartData }: AstroInterpreterContain
   );
 
   const { input, setInput, isLoading, messages, handleSubmit } = useInterpreter(wheelData);
+  const { data: usage } = useDailyUsage();
 
   return (
     <AstroInterpreterView
@@ -32,6 +34,7 @@ export function AstroInterpreterContainer({ chartData }: AstroInterpreterContain
       input={input}
       onInputChange={setInput}
       onSubmit={handleSubmit}
+      usage={usage}
     />
   );
 }

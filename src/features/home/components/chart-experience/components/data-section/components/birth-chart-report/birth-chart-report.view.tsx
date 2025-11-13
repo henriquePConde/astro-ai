@@ -15,9 +15,11 @@ export function BirthChartReportView({
   handleGenerateClick,
   handleDownloadClick,
   generateButtonText,
+  usage,
   config,
 }: BirthChartReportViewProps) {
   const theme = useTheme();
+  const isReportLimitReached = usage ? usage.reports.used >= usage.reports.limit : false;
 
   return (
     <Box sx={styles.container(config.ui.container.maxWidth)(theme)}>
@@ -27,13 +29,18 @@ export function BirthChartReportView({
           <Typography variant="body2" color="text.secondary">
             {config.copy.description}
           </Typography>
+          {usage && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Reports: {usage.reports.used}/{usage.reports.limit} used today
+            </Typography>
+          )}
         </Box>
 
         <Stack direction="row" spacing={1.5}>
           <Button
             variant={config.ui.button.generate.variant}
             onClick={handleGenerateClick}
-            disabled={!birthData || isGenerating || isDownloading}
+            disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
           >
             {generateButtonText}
           </Button>

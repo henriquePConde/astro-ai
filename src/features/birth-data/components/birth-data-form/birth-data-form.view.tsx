@@ -68,7 +68,11 @@ export function BirthDataFormView({
             cityLoading={cityLoading}
           />
         </Box>
-        <FormSubmitButton isSubmitting={isSubmitting} config={config} />
+        <FormSubmitButton
+          isSubmitting={isSubmitting}
+          isChartLimitReached={usage ? usage.charts.used >= usage.charts.limit : false}
+          config={config}
+        />
       </FormShell>
     </form>
   );

@@ -75,9 +75,31 @@ export async function syncServerSession(
 }
 
 export async function signUp(email: string, password: string) {
-  const supabase = supabaseBrowser();
-  const { error } = await supabase.auth.signUp({ email, password });
-  if (error) throw error;
+  // Call server-side signup endpoint which handles both Supabase Auth and Prisma user creation
+  const response = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Signup failed' }));
+    throw new Error(error.error || 'Signup failed');
+  }
+
+  const data = await response.json();
+
+  // Sync session to client if we got a session back
+  // Note: session may be null if email confirmation is required
+  if (data.session?.access_token && data.session?.refresh_token) {
+    const supabase = supabaseBrowser();
+    await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    });
+  }
+
+  return data;
 }
 
 /**

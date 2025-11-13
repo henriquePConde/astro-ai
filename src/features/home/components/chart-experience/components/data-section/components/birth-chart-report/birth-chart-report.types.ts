@@ -1,5 +1,6 @@
 import type { BirthChartData } from '@/features/home/types/chart.types';
 import type { BIRTH_CHART_REPORT_CONFIG } from './birth-chart-report.config';
+import type { DailyUsage } from '@/features/reports/services/reports.service';
 
 export interface BirthChartReportViewProps {
   birthData: BirthChartData | null;
@@ -13,6 +14,7 @@ export interface BirthChartReportViewProps {
   handleGenerateClick: () => void;
   handleDownloadClick: () => void;
   generateButtonText: string;
+  usage?: DailyUsage;
   config: typeof BIRTH_CHART_REPORT_CONFIG;
 }
 
