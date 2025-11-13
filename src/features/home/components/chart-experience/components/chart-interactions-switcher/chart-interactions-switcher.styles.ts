@@ -26,7 +26,7 @@ export const styles = {
   label: () => (theme: Theme) => ({
     m: 0,
     '& .MuiFormControlLabel-label': {
-      fontSize: 10,
+      fontSize: 14,
       color: 'rgba(255,255,255,0.75)',
     },
   }),

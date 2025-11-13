@@ -5,7 +5,7 @@ export const CHART_INTERACTIONS_SWITCHER_CONFIG = {
   },
   ui: {
     switch: {
-      size: 'small' as const,
+      size: 'medium' as const,
     },
   },
 } as const;
