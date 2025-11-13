@@ -74,7 +74,7 @@ export function PDFPreviewView({
           className={offscreenChartStyles.className}
           style={offscreenChartStyles.style}
         >
-          <AstroWheelComponent data={chartData} width={800} height={800} />
+          <AstroWheelComponent data={chartData} width={800} height={800} initialScale={1.0} />
         </div>
       )}
 

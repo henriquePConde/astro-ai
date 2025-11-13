@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const GLOBAL_STYLES = `
   @media print {
     @page {
@@ -103,13 +105,13 @@ export const styles = {
       height: '800px',
       pointerEvents: 'none',
       opacity: 0,
-    },
+    } satisfies React.CSSProperties,
   }),
   chartPage: {
     container: (totalPages: number) => ({
       style: {
         pageBreakAfter: totalPages === 1 ? 'auto' : 'always',
-      },
+      } satisfies React.CSSProperties,
     }),
     contentArea: () => ({
       className: 'pdf-content-area flex flex-col justify-center items-center',
@@ -170,7 +172,7 @@ export const styles = {
       className: 'a4-page pdf-content-section',
       style: {
         pageBreakAfter: allSectionKeysLength === 1 ? 'auto' : 'always',
-      },
+      } satisfies React.CSSProperties,
     }),
     contentArea: () => ({
       className: 'pdf-content-area',
