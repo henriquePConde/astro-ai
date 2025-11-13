@@ -56,7 +56,7 @@ export const styles = {
     border: 'none',
     background: 'transparent',
     color: 'rgba(255,255,255,0.9)',
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: 600,
     cursor: 'pointer',
     py: 0.75,
