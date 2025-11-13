@@ -1,18 +1,28 @@
 'use client';
 
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
 import { TooltipProvider, useTooltip } from './tooltip.context';
 import type { TooltipState } from './tooltip.types';
 import type { ChartInteractionsContextType } from './chart-interactions.types';
 import { useAIInput } from '../components/astro-interpreter/hooks/use-ai-input.state';
 import { ZODIAC_SIGNS } from '@/shared/components/astro-chart/utils/constants';
+import { useDataSectionTabsContext } from '../components/data-section/context/data-section-tabs.context';
+import { DATA_SECTION_TABS } from '../components/data-section/data-section.constants';
 
 const ChartInteractionsContext = createContext<ChartInteractionsContextType | undefined>(undefined);
 
 const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { showTooltip, hideTooltip } = useTooltip();
   const { setAIInput } = useAIInput();
+  const tabsContext = useDataSectionTabsContext();
   const [enabled, setEnabled] = useState(true);
+
+  // Helper function to switch to AI tab if needed
+  const switchToAITabIfNeeded = useCallback(() => {
+    if (tabsContext && tabsContext.activeTab !== DATA_SECTION_TABS.AI) {
+      tabsContext.setActiveTab(DATA_SECTION_TABS.AI);
+    }
+  }, [tabsContext]);
 
   const value = useMemo<ChartInteractionsContextType>(
     () => ({
@@ -128,6 +138,8 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       onPlanetClick: (planet, evt) => {
         if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
         const signText = planet.signLabel || 'unknown sign';
         const houseText = planet.house ? ` in the ${planet.house} house` : '';
         const message = `Tell me about the meaning of ${planet.name} in ${signText}${houseText} in my chart`;
@@ -136,12 +148,16 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       onHouseClick: (house, evt) => {
         if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
         const message = `Tell me about the meaning of the ${house.number} house in my chart`;
         setAIInput(message);
       },
 
       onSignClick: (index, evt) => {
         if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
         const signName = ZODIAC_SIGNS[index] || 'unknown sign';
         const message = `Tell me about the meaning of ${signName} in my chart`;
         setAIInput(message);
@@ -149,13 +165,15 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       onAspectClick: (aspect, evt) => {
         if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
         const planet1 = aspect.p1 || 'planet 1';
         const planet2 = aspect.p2 || 'planet 2';
         const message = `Tell me about the meaning of the ${aspect.type} between ${planet1} and ${planet2} in my chart`;
         setAIInput(message);
       },
     }),
-    [enabled, showTooltip, hideTooltip, setAIInput],
+    [enabled, showTooltip, hideTooltip, setAIInput, switchToAITabIfNeeded],
   );
 
   return (

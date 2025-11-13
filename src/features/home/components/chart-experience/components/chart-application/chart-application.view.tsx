@@ -7,6 +7,9 @@ import { ChartContentView } from '../chart-content/chart-content.view';
 import type { ChartApplicationViewProps } from './chart-application.types';
 import { ChartInteractionsProvider } from '../../context/chart-interactions.context';
 import { ChartTooltipOverlayContainer as ChartTooltipOverlay } from '../chart-tooltip/chart-tooltip.container';
+import { DataSectionTabsProvider } from '../data-section/context/data-section-tabs.context';
+import { useDataSectionTabs } from '../data-section/hooks/use-data-section-tabs.state';
+import { DEFAULT_DATA_SECTION_TAB } from '../data-section/data-section.constants';
 
 export function ChartApplicationView({
   chartData,
@@ -26,35 +29,39 @@ export function ChartApplicationView({
   onDrag,
   onDragEnd,
 }: ChartApplicationViewProps) {
+  const { activeTab, setActiveTab } = useDataSectionTabs(DEFAULT_DATA_SECTION_TAB);
+
   return (
-    <ChartInteractionsProvider>
-      <ChartLayoutWrapperView
-        currentSection={currentSection}
-        introFinished={introFinished}
-        isDragging={isDragging}
-        chartData={chartData}
-      >
-        {!chartData ? (
-          <FormWrapperView onFormSubmit={onFormSubmit} />
-        ) : (
-          <>
-            <LoadingOrErrorView loading={loading} error={error} />
-            <ChartContentView
-              chartData={transformedChartData}
-              isExpanded={isExpanded}
-              isDragging={isDragging}
-              splitPosition={splitPosition}
-              birthData={birthData}
-              onNewChart={onNewChart}
-              onToggleExpand={onToggleExpand}
-              onDrag={onDrag}
-              onDragStart={onDragStart}
-              onDragEnd={onDragEnd}
-            />
-          </>
-        )}
-      </ChartLayoutWrapperView>
-      <ChartTooltipOverlay />
-    </ChartInteractionsProvider>
+    <DataSectionTabsProvider activeTab={activeTab} setActiveTab={setActiveTab}>
+      <ChartInteractionsProvider>
+        <ChartLayoutWrapperView
+          currentSection={currentSection}
+          introFinished={introFinished}
+          isDragging={isDragging}
+          chartData={chartData}
+        >
+          {!chartData ? (
+            <FormWrapperView onFormSubmit={onFormSubmit} />
+          ) : (
+            <>
+              <LoadingOrErrorView loading={loading} error={error} />
+              <ChartContentView
+                chartData={transformedChartData}
+                isExpanded={isExpanded}
+                isDragging={isDragging}
+                splitPosition={splitPosition}
+                birthData={birthData}
+                onNewChart={onNewChart}
+                onToggleExpand={onToggleExpand}
+                onDrag={onDrag}
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+              />
+            </>
+          )}
+        </ChartLayoutWrapperView>
+        <ChartTooltipOverlay />
+      </ChartInteractionsProvider>
+    </DataSectionTabsProvider>
   );
 }
