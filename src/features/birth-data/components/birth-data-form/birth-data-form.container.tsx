@@ -18,6 +18,8 @@ export function BirthDataFormContainer({ onSubmit }: BirthDataFormContainerProps
       control={form.control}
       handleSubmit={handleSubmit}
       formState={form.formState}
+      watch={form.watch}
+      setValue={form.setValue}
       usage={usage ?? undefined}
       {...autocompleteState}
       config={BIRTH_DATA_FORM_CONFIG}

@@ -5,6 +5,7 @@ interface UseCityAutocompleteOptions {
   currentValue?: string;
   selectedCountry?: string;
   minQueryLength?: number;
+  debounceMs?: number;
 }
 
 export interface UseCityAutocompleteReturn {
@@ -12,7 +13,7 @@ export interface UseCityAutocompleteReturn {
   inputValue: string;
   isLoading: boolean;
   isOpen: boolean;
-  onInputChange: (value: string) => void;
+  onInputChange: (value: string, reason?: string) => void;
   onChange: (value: string) => void;
   onOpen: () => void;
   onClose: () => void;
@@ -26,15 +27,27 @@ export function useCityAutocomplete({
   currentValue,
   selectedCountry,
   minQueryLength = 2,
+  debounceMs = 350,
 }: UseCityAutocompleteOptions = {}): UseCityAutocompleteReturn {
   const [query, setQuery] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const { data: results = [], isLoading } = useCitiesQuery(query, selectedCountry);
 
   const options = useMemo(() => {
-    return results.map((c: any) => (typeof c === 'string' ? c : c.name)).filter(Boolean);
+    const names = results.map((c: any) => (typeof c === 'string' ? c : c.name)).filter(Boolean);
+    const seen = new Set<string>();
+    const deduped: string[] = [];
+    for (const n of names) {
+      const key = String(n).trim().toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(String(n));
+      }
+    }
+    return deduped;
   }, [results]);
 
   // Sync input value with form value
@@ -44,23 +57,46 @@ export function useCityAutocomplete({
     }
   }, [currentValue]);
 
-  const handleInputChange = useCallback(
-    (value: string) => {
-      setInputValue(value);
-      setQuery(value);
-      // Open dropdown when user types minimum characters
-      if (value.length >= minQueryLength) {
-        setIsOpen(true);
-      } else {
-        setIsOpen(false);
+  // Debounce query updates based on inputValue and selectedCountry
+  useEffect(() => {
+    // If no country selected, keep closed and avoid querying
+    if (!selectedCountry) {
+      setIsOpen(false);
+      setQuery('');
+      setIsTyping(false);
+      return;
+    }
+    const handler = setTimeout(() => {
+      setQuery(inputValue);
+      if (isTyping) {
+        if (inputValue.length >= minQueryLength) {
+          setIsOpen(true);
+        } else {
+          setIsOpen(false);
+        }
       }
-    },
-    [minQueryLength],
-  );
+    }, debounceMs);
+    return () => clearTimeout(handler);
+  }, [inputValue, minQueryLength, debounceMs, selectedCountry, isTyping]);
+
+  // Auto-open when results (or loading) are present after typing pause
+  useEffect(() => {
+    if (!selectedCountry) return;
+    if (!isTyping) return;
+    if (inputValue.length >= minQueryLength && (isLoading || options.length > 0)) {
+      setIsOpen(true);
+    }
+  }, [options, isLoading, inputValue, minQueryLength, selectedCountry, isTyping]);
+
+  const handleInputChange = useCallback((value: string, reason?: string) => {
+    setInputValue(value);
+    setIsTyping(reason === 'input');
+  }, []);
 
   const handleChange = useCallback((value: string) => {
     setInputValue(value);
     setIsOpen(false);
+    setIsTyping(false);
   }, []);
 
   const handleOpen = useCallback(() => {
@@ -71,6 +107,7 @@ export function useCityAutocomplete({
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
+    setIsTyping(false);
   }, []);
 
   // Compute if dropdown should be open (must have input >= min chars AND either loading or has options)

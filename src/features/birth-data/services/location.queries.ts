@@ -10,7 +10,7 @@ export function useCitiesQuery(q: string, country?: string, limit: number = 15) 
   return useQuery({
     queryKey: locationKeys.cities(q, country, limit),
     queryFn: () => searchCities({ q, country, limit }),
-    enabled: q.length >= 2,
+    enabled: q.length >= 2 && !!country,
     staleTime: 60_000,
   });
 }

@@ -1,16 +1,18 @@
-import type { Control, FormState } from 'react-hook-form';
+import type { Control, FormState, UseFormWatch, UseFormSetValue } from 'react-hook-form';
 import type { BirthDataFormValues } from './birth-data-form.schema';
 import type { BIRTH_DATA_FORM_CONFIG } from './birth-data-form.config';
 import type { DailyUsage } from '@/features/reports/services/reports.service';
 
 export interface BirthDataFormViewProps {
-  control: Control<BirthDataFormValues>;
+  control: Control<BirthDataFormValues, any, any>;
   formState: FormState<BirthDataFormValues>;
   handleSubmit: (e?: React.BaseSyntheticEvent) => void;
+  watch: UseFormWatch<BirthDataFormValues>;
+  setValue: UseFormSetValue<BirthDataFormValues>;
   usage?: DailyUsage;
   nationOptions: string[];
   nationInputValue: string;
-  onNationInputChange: (v: string) => void;
+  onNationInputChange: (v: string, reason?: string) => void;
   onNationChange: (v: string) => void;
   onNationOpen: () => void;
   onNationClose: () => void;
@@ -18,7 +20,7 @@ export interface BirthDataFormViewProps {
   nationLoading?: boolean;
   cityOptions: string[];
   cityInputValue: string;
-  onCityInputChange: (v: string) => void;
+  onCityInputChange: (v: string, reason?: string) => void;
   onCityChange: (v: string) => void;
   onCityOpen: () => void;
   onCityClose: () => void;

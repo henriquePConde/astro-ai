@@ -3,7 +3,7 @@ import { Theme } from '@mui/material';
 export const styles = {
   shell: () => (theme: Theme) => ({
     position: 'relative' as const,
-    maxWidth: '80rem',
+    maxWidth: '96rem',
     margin: '0 auto',
     padding: theme.spacing(3),
     borderRadius: '16px',
@@ -63,17 +63,17 @@ export const styles = {
   grid: () => (theme: Theme) => ({
     display: 'grid',
     gridTemplateColumns: '1fr',
-    gap: theme.spacing(1.5),
+    gap: theme.spacing(2),
     marginTop: theme.spacing(2),
     [theme.breakpoints.up('md')]: {
       gridTemplateColumns: '1fr 1fr',
-      gap: theme.spacing(3),
+      gap: theme.spacing(3.5),
     },
   }),
   group: () => (theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1.5),
+    gap: theme.spacing(2),
     backgroundColor: 'rgba(255,255,255,0.05)',
     padding: theme.spacing(2),
     borderRadius: '12px',

@@ -6,12 +6,14 @@ import type { BIRTH_DATA_FORM_CONFIG } from '../../birth-data-form.config';
 interface FormSubmitButtonProps {
   isSubmitting: boolean;
   isChartLimitReached?: boolean;
+  isValid: boolean;
   config: typeof BIRTH_DATA_FORM_CONFIG;
 }
 
 export function FormSubmitButton({
   isSubmitting,
   isChartLimitReached = false,
+  isValid,
   config,
 }: FormSubmitButtonProps) {
   return (
@@ -19,7 +21,7 @@ export function FormSubmitButton({
       <Button
         type={config.ui.button.type}
         variant={config.ui.button.variant}
-        disabled={isSubmitting || isChartLimitReached}
+        disabled={isSubmitting || isChartLimitReached || !isValid}
       >
         {config.copy.button.continue}
       </Button>

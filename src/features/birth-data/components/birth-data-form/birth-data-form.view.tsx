@@ -12,11 +12,15 @@ import {
   LocationFields,
   FormSubmitButton,
 } from './components';
+import { DateFields } from './components/date-fields/DateFields';
+import { TimeFields } from './components/time-fields/TimeFields';
 
 export function BirthDataFormView({
   control,
   formState,
   handleSubmit,
+  watch,
+  setValue,
   usage,
   nationOptions,
   nationInputValue,
@@ -36,7 +40,7 @@ export function BirthDataFormView({
   cityLoading,
   config,
 }: BirthDataFormViewProps) {
-  const { errors, isSubmitting } = formState;
+  const { errors, isSubmitting, isValid } = formState;
 
   return (
     <form onSubmit={handleSubmit} autoComplete="off">
@@ -46,6 +50,8 @@ export function BirthDataFormView({
 
         <Box sx={styles.grid()}>
           <PersonalInfoFields control={control} errors={errors} config={config} />
+          <DateFields control={control} errors={errors} watch={watch} setValue={setValue} />
+          <TimeFields control={control} errors={errors} watch={watch} setValue={setValue} />
           <LocationFields
             control={control}
             errors={errors}
@@ -71,6 +77,7 @@ export function BirthDataFormView({
         <FormSubmitButton
           isSubmitting={isSubmitting}
           isChartLimitReached={usage ? usage.charts.used >= usage.charts.limit : false}
+          isValid={isValid}
           config={config}
         />
       </FormShell>

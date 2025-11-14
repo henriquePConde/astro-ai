@@ -1,5 +1,10 @@
+import { Suspense } from 'react';
 import { LoginFormContainer } from '@/features/auth';
 
 export default function LoginPage() {
-  return <LoginFormContainer />;
+  return (
+    <Suspense fallback={null}>
+      <LoginFormContainer />
+    </Suspense>
+  );
 }

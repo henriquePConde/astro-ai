@@ -3,16 +3,17 @@ import { Controller } from 'react-hook-form';
 import { TextField, Autocomplete, CircularProgress, Box } from '@mui/material';
 import { styles } from '../../birth-data-form.styles';
 import type { Control, FieldErrors } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 import type { BirthDataFormValues } from '../../birth-data-form.schema';
 import type { BIRTH_DATA_FORM_CONFIG } from '../../birth-data-form.config';
 
 interface LocationFieldsProps {
-  control: Control<BirthDataFormValues>;
+  control: Control<BirthDataFormValues, any, BirthDataFormValues>;
   errors: FieldErrors<BirthDataFormValues>;
   config: typeof BIRTH_DATA_FORM_CONFIG;
   nationOptions: string[];
   nationInputValue: string;
-  onNationInputChange: (v: string) => void;
+  onNationInputChange: (v: string, reason?: string) => void;
   onNationChange: (v: string) => void;
   onNationOpen: () => void;
   onNationClose: () => void;
@@ -20,7 +21,7 @@ interface LocationFieldsProps {
   nationLoading?: boolean;
   cityOptions: string[];
   cityInputValue: string;
-  onCityInputChange: (v: string) => void;
+  onCityInputChange: (v: string, reason?: string) => void;
   onCityChange: (v: string) => void;
   onCityOpen: () => void;
   onCityClose: () => void;
@@ -49,6 +50,11 @@ export function LocationFields({
   cityOpen,
   cityLoading,
 }: LocationFieldsProps) {
+  const nationValue = useWatch({
+    control,
+    name: config.fields.nation.name,
+  }) as string | undefined;
+  const isCityDisabled = !nationValue || nationValue.trim().length === 0;
   return (
     <Box sx={styles.group()}>
       <Controller
@@ -64,8 +70,8 @@ export function LocationFields({
               open={nationOpen}
               onOpen={onNationOpen}
               onClose={onNationClose}
-              onInputChange={(_, newInputValue) => {
-                onNationInputChange(newInputValue);
+              onInputChange={(_, newInputValue, reason) => {
+                onNationInputChange(newInputValue, reason);
               }}
               onChange={(_, newValue) => {
                 const value = typeof newValue === 'string' ? newValue : newValue || '';
@@ -80,6 +86,8 @@ export function LocationFields({
                   label={config.copy.fields.country.label}
                   error={!!errors.nation}
                   helperText={errors.nation?.message}
+                  autoComplete="new-password"
+                  required
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
@@ -110,14 +118,15 @@ export function LocationFields({
               open={cityOpen}
               onOpen={onCityOpen}
               onClose={onCityClose}
-              onInputChange={(_, newInputValue) => {
-                onCityInputChange(newInputValue);
+              onInputChange={(_, newInputValue, reason) => {
+                onCityInputChange(newInputValue, reason);
               }}
               onChange={(_, newValue) => {
                 const value = typeof newValue === 'string' ? newValue : newValue || '';
                 field.onChange(value);
                 onCityChange(value);
               }}
+              disabled={isCityDisabled}
               filterOptions={(x) => x}
               getOptionLabel={(option) => (typeof option === 'string' ? option : String(option))}
               renderInput={(params) => (
@@ -126,6 +135,8 @@ export function LocationFields({
                   label={config.copy.fields.city.label}
                   error={!!errors.city}
                   helperText={errors.city?.message}
+                  autoComplete="new-password"
+                  required
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
