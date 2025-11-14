@@ -4,7 +4,10 @@ import { z } from 'zod';
 const finite = () => z.number().finite();
 
 export const birthDataSchema = z.object({
-  name: z.string().min(1).transform((s) => s.trim()),
+  name: z
+    .string()
+    .min(1)
+    .transform((s) => s.trim()),
   year: z.coerce.number().int().min(1900).max(2100),
   month: z.coerce.number().int().min(1).max(12),
   day: z.coerce.number().int().min(1).max(31),

@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 /**
  * Hook that handles URL error parameter cleanup when user becomes authenticated.
@@ -8,8 +8,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
  */
 export function useUrlErrorCleanup(isAuthenticated: boolean) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const urlError = searchParams.get('error');
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  // Read error from the URL on mount without useSearchParams to avoid Suspense requirement.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const current = new URL(window.location.href);
+      setUrlError(current.searchParams.get('error'));
+    }
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && urlError) {
