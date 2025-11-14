@@ -1,0 +1,78 @@
+'use client';
+
+import { Box, Button, Typography, Alert, Stack, useTheme, CircularProgress } from '@mui/material';
+import { styles } from './birth-chart-report.styles';
+import type { BirthChartReportViewProps } from './birth-chart-report.types';
+import { ReportAccordionContainer } from '../report-accordion/report-accordion.container';
+
+export function BirthChartReportView({
+  birthData,
+  isGenerating,
+  isDownloading,
+  error,
+  sections,
+  hasSections,
+  handleGenerateClick,
+  handleDownloadClick,
+  generateButtonText,
+  usage,
+  config,
+}: BirthChartReportViewProps) {
+  const theme = useTheme();
+  const isReportLimitReached = usage ? usage.reports.used >= usage.reports.limit : false;
+
+  return (
+    <Box sx={styles.container(config.ui.container.maxWidth)(theme)}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+        <Box>
+          <Typography variant="h6">{config.copy.title}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {config.copy.description}
+          </Typography>
+          {usage && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Reports: {usage.reports.used}/{usage.reports.limit} used today
+            </Typography>
+          )}
+        </Box>
+
+        <Stack direction="row" spacing={1.5}>
+          <Button
+            variant={config.ui.button.generate.variant}
+            onClick={handleGenerateClick}
+            disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
+          >
+            {generateButtonText}
+          </Button>
+
+          <Button
+            variant={config.ui.button.download.variant}
+            onClick={handleDownloadClick}
+            disabled={!hasSections || isGenerating || isDownloading}
+            sx={styles.downloadButton()(theme)}
+          >
+            <Box sx={styles.downloadContentWrapper()(theme)}>
+              <Box sx={{ visibility: isDownloading ? 'hidden' : 'visible' }}>
+                {config.copy.button.downloadPdf}
+              </Box>
+            </Box>
+            {isDownloading && (
+              <Box sx={styles.downloadSpinnerOverlay()(theme)}>
+                <CircularProgress size={20} />
+              </Box>
+            )}
+          </Button>
+        </Stack>
+      </Stack>
+
+      {error && <Alert severity={config.ui.alert.severity}>{error}</Alert>}
+
+      <ReportAccordionContainer
+        sections={sections}
+        isGenerating={isGenerating}
+        hasBirthData={!!birthData}
+        hasContent={hasSections}
+      />
+    </Box>
+  );
+}

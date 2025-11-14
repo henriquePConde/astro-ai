@@ -1,0 +1,668 @@
+{
+  "info": {
+    "_postman_id": "astro-ai-api-collection",
+    "name": "Astro AI API",
+    "description": "API collection for Astro AI application - Astrological chart calculations, reports, interpretations, and location services",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has ok field\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Out",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has ok field\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "signout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has ok field\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "});",
+                  "",
+                  "// Store access token for Bearer authentication",
+                  "var reqBody = JSON.parse(pm.request.body.raw);",
+                  "if (reqBody.access_token) {",
+                  "    pm.collectionVariables.set('accessToken', reqBody.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"access_token\": \"your_access_token_here\",\n    \"refresh_token\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "sync"]
+            },
+            "description": "Syncs client session to server cookies. Requires access_token and refresh_token from Supabase auth. After successful sync, the access_token is stored for Bearer authentication."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Current User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has user fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('email');",
+                  "    pm.expect(jsonData).to.have.property('created_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user", "me"]
+            },
+            "description": "Gets or creates the current user. Requires authentication. Uses Bearer token from {{accessToken}} variable."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Location",
+      "item": [
+        {
+          "name": "Search Countries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/location/countries?q=United States&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "location", "countries"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "United States",
+                  "description": "Search query (min 2 characters)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Max results (1-20, default 10)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Search for countries by name. Query must be at least 2 characters."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Cities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/location/cities?q=New York&country=United States&limit=15",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "location", "cities"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "New York",
+                  "description": "Search query (min 2 characters)"
+                },
+                {
+                  "key": "country",
+                  "value": "United States",
+                  "description": "Optional country filter",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "15",
+                  "description": "Max results (1-25, default 15)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Search for cities by name. Query must be at least 2 characters. Optionally filter by country."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Calculate",
+      "item": [
+        {
+          "name": "Calculate Chart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has chart data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "    pm.expect(jsonData.data).to.have.property('planets');",
+                  "    pm.expect(jsonData.data).to.have.property('houses');",
+                  "    pm.expect(jsonData.data).to.have.property('aspects');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"year\": 1990,\n    \"month\": 5,\n    \"day\": 15,\n    \"hour\": 14,\n    \"minute\": 30,\n    \"city\": \"New York\",\n    \"nation\": \"United States\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/calculate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "calculate"]
+            },
+            "description": "Calculates an astrological birth chart. Requires authentication. All fields except city and nation are required."
+          },
+          "response": []
+        },
+        {
+          "name": "Solar Return",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has chart data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "    pm.expect(jsonData.data).to.have.property('planets');",
+                  "    pm.expect(jsonData.data).to.have.property('houses');",
+                  "    pm.expect(jsonData.data).to.have.property('aspects');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"birthData\": {\n        \"name\": \"John Doe\",\n        \"year\": 1990,\n        \"month\": 5,\n        \"day\": 15,\n        \"hour\": 14,\n        \"minute\": 30,\n        \"city\": \"New York\",\n        \"nation\": \"United States\"\n    },\n    \"targetYear\": 2024,\n    \"locationCity\": \"Los Angeles\",\n    \"locationNation\": \"United States\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/calculate/solar-return",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "calculate", "solar-return"]
+            },
+            "description": "Calculates a solar return chart. Requires birth data and target year. Location is optional."
+          },
+          "response": []
+        },
+        {
+          "name": "Interpret Chart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is text stream\", function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('text/plain');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"message\": \"What does my Sun in Leo mean?\",\n    \"context\": {\n        \"planets\": [\n            {\n                \"name\": \"Sun\",\n                \"sign\": \"Leo\",\n                \"house\": 5,\n                \"position\": \"15° Leo\"\n            }\n        ],\n        \"aspects\": [\n            {\n                \"planet1\": \"Sun\",\n                \"planet2\": \"Moon\",\n                \"type\": \"trine\",\n                \"angle\": 120\n            }\n        ],\n        \"houses\": {\n            \"ascendant\": 10,\n            \"midheaven\": 20\n        }\n    },\n    \"chatHistory\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/calculate/interpret",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "calculate", "interpret"]
+            },
+            "description": "AI-powered chart interpretation via streaming response. Requires authentication. Returns text/plain stream."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Create Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has report data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('personName');",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "});",
+                  "",
+                  "// Store report ID for use in other requests",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('reportId', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"year\": 1990,\n    \"month\": 5,\n    \"day\": 15,\n    \"hour\": 14,\n    \"minute\": 30,\n    \"city\": \"New York\",\n    \"nation\": \"United States\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports"]
+            },
+            "description": "Generates a full astrological report with AI interpretation. Requires authentication. This is a long-running operation."
+          },
+          "response": []
+        },
+        {
+          "name": "List Reports",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports"]
+            },
+            "description": "Lists all reports for the authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Report by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has report data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('personName');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/{{reportId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "{{reportId}}"]
+            },
+            "description": "Gets a specific report by ID with full chart data."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Daily Usage",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has usage data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('used');",
+                  "    pm.expect(jsonData).to.have.property('limit');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/daily-usage",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "daily-usage"]
+            },
+            "description": "Gets the current daily usage statistics for the authenticated user. Requires authentication."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "PDF",
+      "item": [
+        {
+          "name": "Generate PDF",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is PDF\", function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reportId\": \"{{reportId}}\",\n    \"filename\": \"my-report.pdf\",\n    \"options\": {\n        \"format\": \"A4\",\n        \"printBackground\": true,\n        \"margin\": {\n            \"top\": \"1cm\",\n            \"bottom\": \"1cm\",\n            \"left\": \"1cm\",\n            \"right\": \"1cm\"\n        },\n        \"scale\": 1\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pdf"]
+            },
+            "description": "Generates a PDF from a report. Requires authentication. Returns binary PDF file."
+          },
+          "response": []
+        },
+        {
+          "name": "Validate PDF Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has valid field\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('valid');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pdf/validate-token?reportId={{reportId}}&pdfToken=your_token_here",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pdf", "validate-token"],
+              "query": [
+                {
+                  "key": "reportId",
+                  "value": "{{reportId}}"
+                },
+                {
+                  "key": "pdfToken",
+                  "value": "your_token_here"
+                }
+              ]
+            },
+            "description": "Validates a PDF access token for a specific report."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "reportId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

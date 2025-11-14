@@ -1,3 +1,4 @@
+// astro-ai-fullstack/src/backend/core/errors/http-errors.ts
 export class HttpError extends Error {
   constructor(
     public status: number,

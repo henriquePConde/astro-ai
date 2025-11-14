@@ -32,6 +32,7 @@ coverage/
 .env.local
 .env.*.local
 .env.development.local
+.env.development
 .env.test.local
 .env.production.local
 # Allow documented templates
@@ -51,5 +52,7 @@ reports/
 
 # Supabase (if CLI used)
 supabase/.temp/
+
+
 
 

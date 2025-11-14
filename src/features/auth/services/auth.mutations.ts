@@ -1,0 +1,182 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  signInWithOtp,
+  signInWithPassword,
+  signUp,
+  signOut,
+  signOutServer,
+  signInWithGoogle,
+  exchangeCodeForSession,
+  syncServerSession,
+  ensureUser,
+} from './auth.service';
+import { authKeys } from './auth.keys';
+
+/**
+ * Mutation hook for OTP sign-in (magic link).
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useSignInMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ email, redirectTo }: { email: string; redirectTo?: string }) =>
+      signInWithOtp(email, { redirectTo }),
+    onSuccess: () => {
+      // Invalidate user query to refetch after sign in
+      queryClient.invalidateQueries({ queryKey: authKeys.user() });
+    },
+  });
+}
+
+/**
+ * Mutation hook for password-based sign-in.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useSignInPasswordMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      signInWithPassword(email, password), // returns { user, session }
+    onSuccess: (data) => {
+      if (data?.user) {
+        queryClient.setQueryData(authKeys.user(), {
+          id: data.user.id,
+          email: data.user.email ?? undefined,
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: authKeys.user() });
+    },
+  });
+}
+
+/**
+ * Mutation hook for user sign-up.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useSignUpMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      signUp(email, password),
+    onSuccess: () => {
+      // Invalidate user query to refetch after sign up
+      queryClient.invalidateQueries({ queryKey: authKeys.user() });
+    },
+  });
+}
+
+/**
+ * Mutation hook for client-side sign-out (clears local storage).
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useSignOutMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => signOut(),
+    onSuccess: () => {
+      // ensure UI flips immediately
+      queryClient.setQueryData(authKeys.user(), null);
+      queryClient.invalidateQueries({ queryKey: authKeys.user(), refetchType: 'active' });
+    },
+  });
+}
+
+/**
+ * Mutation hook for server-side sign-out (clears cookies & revokes session).
+ * Idempotent: non-fatal if server sign-out fails.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useSignOutServerMutation() {
+  return useMutation({
+    mutationFn: () => signOutServer(),
+    // Non-fatal: server sign-out failures are handled gracefully
+    onError: () => {
+      // Silently handle errors - sign-out should be idempotent
+    },
+  });
+}
+
+/**
+ * Mutation hook for Google OAuth sign-in.
+ * This will redirect the user to Google's authentication page.
+ * After authentication, the user will be redirected back to the callback URL.
+ */
+export function useSignInWithGoogleMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (options?: { redirectTo?: string }) => signInWithGoogle(options),
+    onSuccess: (data) => {
+      // The data contains a URL that we need to redirect to
+      // Supabase handles the redirect automatically, but we can also do it manually
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (error) => {
+      // Error will be handled by the component
+      console.error('[useSignInWithGoogleMutation] Error:', error);
+    },
+  });
+}
+
+/**
+ * Mutation hook for exchanging OAuth code for session (PKCE flow).
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useExchangeCodeForSessionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (code: string) => exchangeCodeForSession(code),
+    onSuccess: (data) => {
+      if (data?.data?.user) {
+        queryClient.setQueryData(authKeys.user(), {
+          id: data.data.user.id,
+          email: data.data.user.email ?? undefined,
+        });
+        queryClient.invalidateQueries({ queryKey: authKeys.user() });
+      }
+    },
+  });
+}
+
+/**
+ * Mutation hook for syncing session to server cookies.
+ * Non-fatal: failures are silently handled.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useSyncServerSessionMutation() {
+  return useMutation({
+    mutationFn: (params: { access_token: string; refresh_token: string }) =>
+      syncServerSession(params.access_token, params.refresh_token),
+    // Non-fatal: session sync failure shouldn't break the app
+    onError: () => {
+      // Silently handle errors
+    },
+  });
+}
+
+/**
+ * Mutation hook for ensuring user exists in Prisma database.
+ * Non-fatal: failures are silently handled.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useEnsureUserMutation() {
+  return useMutation({
+    mutationFn: (params: {
+      userId: string;
+      email: string;
+      name: string | null;
+      accessToken: string;
+    }) => ensureUser(params),
+    // Non-fatal: user exists in Supabase Auth even if Prisma sync fails
+    onError: () => {
+      // Silently handle errors
+    },
+  });
+}

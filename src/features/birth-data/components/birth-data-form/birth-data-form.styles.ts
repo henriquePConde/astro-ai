@@ -1,0 +1,92 @@
+import { Theme } from '@mui/material';
+
+export const styles = {
+  shell: () => (theme: Theme) => ({
+    position: 'relative' as const,
+    maxWidth: '96rem',
+    margin: '0 auto',
+    padding: theme.spacing(3),
+    borderRadius: '16px',
+    color: 'hsl(var(--foreground))',
+    border: '1px solid rgba(255,255,255,0.1)',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+    overflow: 'hidden',
+    background: 'linear-gradient(135deg, rgb(13, 12, 34), rgb(49, 35, 89))',
+    backdropFilter: 'blur(15px)',
+  }),
+  stars: () => () => ({
+    position: 'absolute' as const,
+    inset: 0,
+    opacity: 0.1,
+    backgroundImage:
+      'radial-gradient(circle, transparent 20%, rgba(255,255,255,0.03) 20.5%, transparent 21%)',
+    backgroundSize: '15px 15px',
+    animation: 'starsFloat 120s linear infinite',
+    zIndex: 0,
+    '@keyframes starsFloat': {
+      '0%': { backgroundPosition: '200% 50%' },
+      '100%': { backgroundPosition: '-200% 50%' },
+    },
+  }),
+  glassOverlay: () => () => ({
+    position: 'absolute' as const,
+    inset: 0,
+    backdropFilter: 'blur(20px)',
+    background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2), rgba(0,0,0,0.1))',
+    border: '1px solid rgba(255,255,255,0.05)',
+    boxShadow: '0 0 50px -12px rgba(138, 43, 226, 0.15)',
+    zIndex: 1,
+  }),
+  content: () => (theme: Theme) => ({
+    position: 'relative' as const,
+    zIndex: 2,
+  }),
+  header: () => (theme: Theme) => ({
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing(1),
+  }),
+  headerTitle: () => () => ({
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    margin: 0,
+    background: 'linear-gradient(to right, #e2d4ff, #b388ff)',
+    WebkitBackgroundClip: 'text',
+    color: 'transparent',
+    textShadow: '0 4px 12px rgba(138,43,226,0.35)',
+    fontFamily: 'var(--font-cinzel-decorative), serif',
+  }),
+  headerSub: () => () => ({
+    fontSize: '0.875rem',
+    color: '#b8a8e0',
+    marginTop: '4px',
+  }),
+  grid: () => (theme: Theme) => ({
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    [theme.breakpoints.up('md')]: {
+      gridTemplateColumns: '1fr 1fr',
+      gap: theme.spacing(3.5),
+    },
+  }),
+  group: () => (theme: Theme) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    padding: theme.spacing(2),
+    borderRadius: '12px',
+    border: '1px solid rgba(255,255,255,0.1)',
+  }),
+  submitRow: () => (theme: Theme) => ({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: theme.spacing(2),
+  }),
+  usage: () => () => ({
+    color: '#555',
+    fontWeight: 500,
+    mb: 1,
+  }),
+};

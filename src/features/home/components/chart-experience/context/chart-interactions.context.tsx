@@ -1,0 +1,200 @@
+'use client';
+
+import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import { TooltipProvider, useTooltip } from './tooltip.context';
+import type { TooltipState } from './tooltip.types';
+import type { ChartInteractionsContextType } from './chart-interactions.types';
+import { useAIInput } from '../components/astro-interpreter/hooks/use-ai-input.state';
+import { ZODIAC_SIGNS } from '@/shared/components/astro-chart/utils/constants';
+import { useDataSectionTabsContext } from '../components/data-section/context/data-section-tabs.context';
+import { DATA_SECTION_TABS } from '../components/data-section/data-section.constants';
+
+const ChartInteractionsContext = createContext<ChartInteractionsContextType | undefined>(undefined);
+
+const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { showTooltip, hideTooltip } = useTooltip();
+  const { setAIInput } = useAIInput();
+  const tabsContext = useDataSectionTabsContext();
+  const [enabled, setEnabled] = useState(true);
+
+  // Helper function to switch to AI tab if needed
+  const switchToAITabIfNeeded = useCallback(() => {
+    if (tabsContext && tabsContext.activeTab !== DATA_SECTION_TABS.AI) {
+      tabsContext.setActiveTab(DATA_SECTION_TABS.AI);
+    }
+  }, [tabsContext]);
+
+  const value = useMemo<ChartInteractionsContextType>(
+    () => ({
+      enabled,
+      toggleEnabled: () => setEnabled((v) => !v),
+      setEnabled,
+
+      onPlanetHover: (planet, evt) => {
+        if (!enabled) return;
+        const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for planet hover:', e);
+          return;
+        }
+        const state: TooltipState = {
+          kind: 'planet',
+          x: e.clientX,
+          y: e.clientY,
+          name: planet.name,
+          symbol: planet.symbol,
+          degree: planet.degree,
+          signLabel: planet.signLabel,
+          house: planet.house,
+          color: planet.color,
+        };
+        showTooltip(state);
+      },
+      onPlanetLeave: () => {
+        hideTooltip();
+      },
+
+      onHouseHover: (house, evt) => {
+        if (!enabled) return;
+        const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for house hover:', e);
+          return;
+        }
+        showTooltip({
+          kind: 'house',
+          x: e.clientX,
+          y: e.clientY,
+          number: house.number,
+          degree: house.degree,
+        });
+      },
+      onHouseLeave: () => {
+        hideTooltip();
+      },
+
+      onSignHover: (index, evt) => {
+        if (!enabled) return;
+        const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for sign hover:', e);
+          return;
+        }
+        showTooltip({
+          kind: 'sign',
+          x: e.clientX,
+          y: e.clientY,
+          index,
+        });
+      },
+      onSignLeave: () => {
+        hideTooltip();
+      },
+
+      onAspectHover: (aspect, evt) => {
+        if (!enabled) return;
+        const e = evt as MouseEvent;
+        // Validate that we have valid coordinates
+        if (
+          typeof e.clientX !== 'number' ||
+          typeof e.clientY !== 'number' ||
+          isNaN(e.clientX) ||
+          isNaN(e.clientY)
+        ) {
+          console.warn('Invalid mouse coordinates for aspect hover:', e);
+          return;
+        }
+        showTooltip({
+          kind: 'aspect',
+          x: e.clientX,
+          y: e.clientY,
+          type: aspect.type,
+          p1: aspect.p1,
+          p2: aspect.p2,
+          angle: aspect.angle,
+        });
+      },
+      onAspectLeave: () => {
+        hideTooltip();
+      },
+
+      onPlanetClick: (planet, evt) => {
+        if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
+        const signText = planet.signLabel || 'unknown sign';
+        const houseText = planet.house ? ` in the ${planet.house} house` : '';
+        const message = `Tell me about the meaning of ${planet.name} in ${signText}${houseText} in my chart`;
+        setAIInput(message);
+      },
+
+      onHouseClick: (house, evt) => {
+        if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
+        const message = `Tell me about the meaning of the ${house.number} house in my chart`;
+        setAIInput(message);
+      },
+
+      onSignClick: (index, evt) => {
+        if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
+        const signName = ZODIAC_SIGNS[index] || 'unknown sign';
+        const message = `Tell me about the meaning of ${signName} in my chart`;
+        setAIInput(message);
+      },
+
+      onAspectClick: (aspect, evt) => {
+        if (!enabled) return;
+        // Switch to AI Interpreter tab if not already on it
+        switchToAITabIfNeeded();
+        const planet1 = aspect.p1 || 'planet 1';
+        const planet2 = aspect.p2 || 'planet 2';
+        const message = `Tell me about the meaning of the ${aspect.type} between ${planet1} and ${planet2} in my chart`;
+        setAIInput(message);
+      },
+    }),
+    [enabled, showTooltip, hideTooltip, setAIInput, switchToAITabIfNeeded],
+  );
+
+  return (
+    <ChartInteractionsContext.Provider value={value}>{children}</ChartInteractionsContext.Provider>
+  );
+};
+
+export const ChartInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
+  <TooltipProvider>
+    <InnerInteractionsProvider>{children}</InnerInteractionsProvider>
+  </TooltipProvider>
+);
+
+export const useChartInteractions = () => {
+  const ctx = useContext(ChartInteractionsContext);
+  if (!ctx) {
+    throw new Error('useChartInteractions must be used within ChartInteractionsProvider');
+  }
+  return ctx;
+};
+
+export const useOptionalChartInteractions = () => useContext(ChartInteractionsContext) ?? null;
