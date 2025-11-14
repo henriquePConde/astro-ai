@@ -9,6 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postinstall": "prisma generate",
     "typecheck": "prisma generate && tsc -noEmit",
     "lint": "next lint",
     "test": "vitest run --passWithNoTests",
