@@ -8,6 +8,7 @@ export interface SectionContentViewProps {
   sections: Record<string, string>;
   hasSections: boolean;
   isGenerating: boolean;
+  isDownloading: boolean;
   error: string | null;
   onGenerateReport: () => void;
   onDownloadPdf: () => void;
@@ -20,6 +21,7 @@ export interface SectionContentContainerProps {
   birthData: BirthChartData | null;
   reportData?: Record<string, string>;
   isGenerating: boolean;
+  isDownloading: boolean;
   error: string | null;
   onGenerateReport: () => void;
   onDownloadPdf: () => void;

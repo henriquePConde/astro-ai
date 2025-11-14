@@ -95,4 +95,41 @@ export const styles = {
     textAlign: 'center',
     color: theme.cosmic.colors.mutedText,
   }),
+  googleButton: () => (theme: Theme) => ({
+    height: '48px',
+    marginTop: theme.spacing(2),
+    fontWeight: 600,
+    fontSize: '1rem',
+    letterSpacing: '0.5px',
+    backgroundColor: '#fff',
+    color: '#757575',
+    border: `1px solid ${theme.cosmic.colors.glassBorder}`,
+    '&:hover': {
+      backgroundColor: '#f5f5f5',
+    },
+    '& .MuiButton-startIcon': {
+      marginRight: theme.spacing(1),
+    },
+  }),
+  divider: () => (theme: Theme) => ({
+    display: 'flex',
+    alignItems: 'center',
+    margin: theme.spacing(2, 0),
+    '&::before, &::after': {
+      content: '""',
+      flex: 1,
+      borderBottom: `1px solid ${theme.cosmic.colors.glassBorder}`,
+    },
+    '&::before': {
+      marginRight: theme.spacing(1),
+    },
+    '&::after': {
+      marginLeft: theme.spacing(1),
+    },
+  }),
+  dividerText: () => (theme: Theme) => ({
+    color: theme.cosmic.colors.mutedText,
+    fontSize: '0.875rem',
+    padding: theme.spacing(0, 1),
+  }),
 };

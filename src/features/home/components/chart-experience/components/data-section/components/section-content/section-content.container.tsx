@@ -11,6 +11,7 @@ export function SectionContentContainer({
   birthData,
   reportData,
   isGenerating,
+  isDownloading,
   error,
   onGenerateReport,
   onDownloadPdf,
@@ -25,6 +26,7 @@ export function SectionContentContainer({
       sections={sections}
       hasSections={hasSections}
       isGenerating={isGenerating}
+      isDownloading={isDownloading}
       error={error}
       onGenerateReport={onGenerateReport}
       onDownloadPdf={onDownloadPdf}

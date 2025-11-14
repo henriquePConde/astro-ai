@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
 
 /**
@@ -9,10 +9,14 @@ import { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
  */
 export function useAuthRedirect(isAuthenticated: boolean) {
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace(AUTH_ROUTES.HOME);
+      // Only redirect if we're on login or signup pages
+      if (pathname === '/login' || pathname === '/signup') {
+        router.replace(AUTH_ROUTES.HOME);
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, pathname]);
 }

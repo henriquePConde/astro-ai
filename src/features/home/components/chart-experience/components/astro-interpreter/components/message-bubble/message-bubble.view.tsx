@@ -12,12 +12,12 @@ export function MessageBubbleView({ role, content }: MessageBubbleViewProps) {
   const isUser = role === 'user';
 
   return (
-    <Box sx={styles.container(isUser)()}>
-      <Box sx={styles.bubble(isUser)()}>
+    <Box sx={styles.container(isUser)}>
+      <Box sx={styles.bubble(isUser)}>
         {isUser ? (
           content
         ) : (
-          <Box className="markdown prose prose-invert" sx={styles.markdown()()}>
+          <Box className="markdown prose prose-invert" sx={styles.markdown()}>
             <ReactMarkdown>{content}</ReactMarkdown>
           </Box>
         )}

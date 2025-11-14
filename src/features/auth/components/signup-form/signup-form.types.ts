@@ -5,7 +5,9 @@ import type { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
 
 export interface SignupFormViewProps {
   onSubmit: (values: SignupFormValues) => void;
+  onGoogleSignIn: () => void;
   isLoading: boolean;
+  isGoogleLoading: boolean;
   error: string | null;
   successMessage: string | null;
   control: Control<SignupFormValues>;

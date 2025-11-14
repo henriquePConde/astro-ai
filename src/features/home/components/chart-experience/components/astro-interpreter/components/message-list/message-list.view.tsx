@@ -9,13 +9,13 @@ import type { MessageListViewProps } from './message-list.types';
 
 export function MessageListView({ messages, isLoading }: MessageListViewProps) {
   return (
-    <Box sx={styles.container()()}>
+    <Box sx={styles.container()}>
       {messages.map((m, i) => (
         <MessageBubble key={i} role={m.role} content={m.content} />
       ))}
 
       {isLoading && (
-        <Box sx={styles.loadingContainer()()}>
+        <Box sx={styles.loadingContainer()}>
           <LoadingIndicator />
         </Box>
       )}

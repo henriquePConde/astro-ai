@@ -18,6 +18,13 @@ export const LOGIN_FORM_CONFIG = {
       loading: 'Logging in...',
       default: 'Log in',
     },
+    googleButton: {
+      default: 'Continue with Google',
+      loading: 'Redirecting...',
+    },
+    divider: {
+      text: 'or',
+    },
     link: {
       prompt: "Don't have an account?",
       text: 'Sign up',

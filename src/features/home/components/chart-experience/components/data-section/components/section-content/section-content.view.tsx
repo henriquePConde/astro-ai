@@ -13,6 +13,7 @@ export function SectionContentView({
   sections,
   hasSections,
   isGenerating,
+  isDownloading,
   error,
   onGenerateReport,
   onDownloadPdf,
@@ -26,6 +27,7 @@ export function SectionContentView({
         <BirthChartReportContainer
           birthData={birthData}
           isGenerating={isGenerating}
+          isDownloading={isDownloading}
           error={error}
           sections={sections}
           hasSections={hasSections}

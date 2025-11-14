@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import type { SyntheticEvent } from 'react';
-import type { DataSectionTab } from '../../../../data-section.types';
+import type { DataSectionTab } from '../../../data-section.types';
 
 export interface UseTabsSectionHandlerParams {
   onTabChange: (tab: DataSectionTab) => void;

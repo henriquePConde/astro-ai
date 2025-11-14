@@ -1,11 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { usePdfPreviewPage } from './hooks/usePdfPreviewPage';
 import { PDFPreview } from '@/shared/components/pdf-preview';
 import { styles } from './page.styles';
 
-export default function PublicPDFPreviewPage() {
+function PublicPDFPreviewContent() {
   const theme = useTheme();
   const { reportSections, chartData, error, isLoading } = usePdfPreviewPage();
 
@@ -61,5 +62,31 @@ export default function PublicPDFPreviewPage() {
     >
       <PDFPreview isPublic={true} reportData={reportSections} chartData={chartData} />
     </Box>
+  );
+}
+
+export default function PublicPDFPreviewPage() {
+  return (
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            py: 8,
+          }}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body1" color="text.secondary">
+              Loading PDF preview...
+            </Typography>
+          </Box>
+        </Box>
+      }
+    >
+      <PublicPDFPreviewContent />
+    </Suspense>
   );
 }

@@ -3,13 +3,20 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField, Button, Stack, Alert, Typography, Link, Box } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
 import { LoginFormSchema, type LoginFormValues } from './login-form.schema';
 import type { LoginFormViewProps } from './login-form.types';
 import { styles } from './login-form.styles';
 import { LOGIN_FORM_CONFIG } from './login-form.config';
 import { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
 
-export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps) {
+export function LoginFormView({
+  onSubmit,
+  onGoogleSignIn,
+  isLoading,
+  isGoogleLoading,
+  error,
+}: LoginFormViewProps) {
   const {
     control,
     handleSubmit,
@@ -74,7 +81,7 @@ export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps
             <Button
               type={LOGIN_FORM_CONFIG.ui.button.type}
               variant={LOGIN_FORM_CONFIG.ui.button.variant}
-              disabled={isLoading}
+              disabled={isLoading || isGoogleLoading}
               fullWidth
               sx={styles.button()}
             >
@@ -89,6 +96,23 @@ export function LoginFormView({ onSubmit, isLoading, error }: LoginFormViewProps
             )}
           </Stack>
         </form>
+        <Box sx={styles.divider()}>
+          <Typography variant="body2" sx={styles.dividerText()}>
+            {LOGIN_FORM_CONFIG.copy.divider.text}
+          </Typography>
+        </Box>
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={onGoogleSignIn}
+          disabled={isLoading || isGoogleLoading}
+          startIcon={<GoogleIcon />}
+          sx={styles.googleButton()}
+        >
+          {isGoogleLoading
+            ? LOGIN_FORM_CONFIG.copy.googleButton.loading
+            : LOGIN_FORM_CONFIG.copy.googleButton.default}
+        </Button>
         <Box sx={styles.linkContainer()}>
           <Typography variant={LOGIN_FORM_CONFIG.ui.linkText.variant}>
             {LOGIN_FORM_CONFIG.copy.link.prompt}{' '}

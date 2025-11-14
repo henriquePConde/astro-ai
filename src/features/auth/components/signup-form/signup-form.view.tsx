@@ -2,12 +2,15 @@
 
 import { Controller } from 'react-hook-form';
 import { TextField, Button, Stack, Alert, Typography, Link, Box } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
 import type { SignupFormViewProps } from './signup-form.types';
 import { styles } from './signup-form.styles';
 
 export function SignupFormView({
   onSubmit,
+  onGoogleSignIn,
   isLoading,
+  isGoogleLoading,
   error,
   successMessage,
   control,
@@ -84,7 +87,7 @@ export function SignupFormView({
             <Button
               type={config.ui.button.type}
               variant={config.ui.button.variant}
-              disabled={isLoading}
+              disabled={isLoading || isGoogleLoading}
               fullWidth
               sx={styles.button()}
             >
@@ -102,6 +105,21 @@ export function SignupFormView({
             )}
           </Stack>
         </form>
+        <Box sx={styles.divider()}>
+          <Typography variant="body2" sx={styles.dividerText()}>
+            {config.copy.divider.text}
+          </Typography>
+        </Box>
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={onGoogleSignIn}
+          disabled={isLoading || isGoogleLoading}
+          startIcon={<GoogleIcon />}
+          sx={styles.googleButton()}
+        >
+          {isGoogleLoading ? config.copy.googleButton.loading : config.copy.googleButton.default}
+        </Button>
         <Box sx={styles.linkContainer()}>
           <Typography variant={config.ui.linkText.variant}>
             {config.copy.link.prompt}{' '}

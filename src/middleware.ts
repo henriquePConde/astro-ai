@@ -17,8 +17,17 @@ export async function middleware(req: NextRequest) {
     '/api/auth/sync',
     '/api/auth/signout',
     '/api/auth/signup',
+    '/api/auth/callback',
+    '/api/auth/ensure-user',
     '/api/pdf/validate-token',
   ];
+
+  // Skip public pages
+  const publicPages = ['/auth/callback', '/login', '/signup'];
+
+  if (publicPages.includes(pathname)) {
+    return NextResponse.next();
+  }
 
   // Check if this is a public reports endpoint (/api/reports/[id])
   if (

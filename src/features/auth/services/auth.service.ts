@@ -53,6 +53,31 @@ export async function signInWithPassword(email: string, password: string) {
 }
 
 /**
+ * Sign in with Google OAuth.
+ * This will redirect the user to Google's authentication page.
+ * After authentication, Google will redirect back to the callback URL.
+ */
+export async function signInWithGoogle(options?: { redirectTo?: string }) {
+  const supabase = supabaseBrowser();
+  // Redirect to client-side callback page to handle PKCE code exchange
+  const redirectTo = options?.redirectTo || `${window.location.origin}/auth/callback`;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  });
+
+  if (error) throw error;
+  return data; // { url } - the OAuth URL to redirect to
+}
+
+/**
  * Server session synchronization: syncs client session to server cookies.
  * Non-fatal: failures are silently handled.
  */

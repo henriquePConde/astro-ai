@@ -21,6 +21,13 @@ export const SIGNUP_FORM_CONFIG = {
       loading: 'Creating account...',
       default: 'Create account',
     },
+    googleButton: {
+      default: 'Continue with Google',
+      loading: 'Redirecting...',
+    },
+    divider: {
+      text: 'or',
+    },
     link: {
       prompt: 'Already have an account?',
       text: 'Log in',

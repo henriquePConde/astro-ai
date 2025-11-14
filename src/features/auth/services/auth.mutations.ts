@@ -1,5 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { signInWithOtp, signInWithPassword, signUp, signOut, signOutServer } from './auth.service';
+import {
+  signInWithOtp,
+  signInWithPassword,
+  signUp,
+  signOut,
+  signOutServer,
+  signInWithGoogle,
+} from './auth.service';
 import { authKeys } from './auth.keys';
 
 /**
@@ -86,6 +93,30 @@ export function useSignOutServerMutation() {
     // Non-fatal: server sign-out failures are handled gracefully
     onError: () => {
       // Silently handle errors - sign-out should be idempotent
+    },
+  });
+}
+
+/**
+ * Mutation hook for Google OAuth sign-in.
+ * This will redirect the user to Google's authentication page.
+ * After authentication, the user will be redirected back to the callback URL.
+ */
+export function useSignInWithGoogleMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (options?: { redirectTo?: string }) => signInWithGoogle(options),
+    onSuccess: (data) => {
+      // The data contains a URL that we need to redirect to
+      // Supabase handles the redirect automatically, but we can also do it manually
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (error) => {
+      // Error will be handled by the component
+      console.error('[useSignInWithGoogleMutation] Error:', error);
     },
   });
 }
