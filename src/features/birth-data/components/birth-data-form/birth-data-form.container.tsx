@@ -4,7 +4,7 @@ import React from 'react';
 import { BirthDataFormView } from './birth-data-form.view';
 import { useBirthDataForm } from '../../hooks/use-birth-data-form.state';
 import { useBirthDataAutocomplete } from '../../hooks/use-birth-data-autocomplete.state';
-import { useDailyUsage } from '@/features/reports/services/reports.queries';
+import { useDailyUsage } from '../../../reports/services/reports.queries';
 import { BIRTH_DATA_FORM_CONFIG } from './birth-data-form.config';
 import type { BirthDataFormContainerProps } from './birth-data-form.types';
 
