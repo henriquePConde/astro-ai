@@ -49,7 +49,7 @@ Thumbs.db
 # Tests & tooling outputs
 .playwright/
 test-results/
-reports/
+/reports/
 
 # Supabase (if CLI used)
 supabase/.temp/
