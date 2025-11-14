@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 
 const nextConfig: NextConfig = {
   eslint: {
@@ -30,6 +31,12 @@ const nextConfig: NextConfig = {
       test: /\.node$/,
       type: 'asset/resource',
     });
+
+    // Ensure path alias '@' resolves to 'src' in all environments
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+    };
 
     return config;
   },
