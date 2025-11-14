@@ -5,6 +5,7 @@ import { TextField, Button, Stack, Alert, Typography, Link, Box } from '@mui/mat
 import GoogleIcon from '@mui/icons-material/Google';
 import type { SignupFormViewProps } from './signup-form.types';
 import { styles } from './signup-form.styles';
+import { BackgroundSolarSystem } from '@/shared/components/solar-system/BackgroundSolarSystem';
 
 export function SignupFormView({
   onSubmit,
@@ -21,6 +22,7 @@ export function SignupFormView({
 }: SignupFormViewProps) {
   return (
     <Box sx={styles.container()}>
+      <BackgroundSolarSystem overlayOpacity={0.8} />
       <Box sx={styles.root()}>
         <Box sx={styles.header()}>
           <Typography

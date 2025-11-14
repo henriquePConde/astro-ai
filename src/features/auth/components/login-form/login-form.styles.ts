@@ -6,7 +6,7 @@ export const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: `linear-gradient(135deg, ${theme.cosmic.colors.deepSpace} 0%, ${theme.cosmic.colors.spaceCard} 100%)`,
+    background: 'transparent',
     position: 'relative',
     padding: theme.spacing(3),
   }),
@@ -21,6 +21,7 @@ export const styles = {
     boxShadow: `0 8px 32px 0 ${theme.cosmic.colors.purpleGlow}`,
     position: 'relative',
     overflow: 'hidden',
+    zIndex: 2,
     '&::before': {
       content: '""',
       position: 'absolute',

@@ -9,6 +9,7 @@ import type { LoginFormViewProps } from './login-form.types';
 import { styles } from './login-form.styles';
 import { LOGIN_FORM_CONFIG } from './login-form.config';
 import { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
+import { BackgroundSolarSystem } from '@/shared/components/solar-system/BackgroundSolarSystem';
 
 export function LoginFormView({
   onSubmit,
@@ -31,6 +32,7 @@ export function LoginFormView({
 
   return (
     <Box sx={styles.container()}>
+      <BackgroundSolarSystem overlayOpacity={0.8} />
       <Box sx={styles.root()}>
         <Box sx={styles.header()}>
           <Typography
