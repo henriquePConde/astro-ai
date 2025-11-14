@@ -152,3 +152,86 @@ export async function signOutServer(): Promise<{ ok: boolean }> {
 
   return response.json();
 }
+
+/**
+ * Exchange OAuth code for session (PKCE flow).
+ * Handles the code exchange and retries if needed.
+ */
+export async function exchangeCodeForSession(code: string) {
+  const supabase = supabaseBrowser();
+  const result = await supabase.auth.exchangeCodeForSession(code);
+
+  // If exchange failed, wait a bit and check if session was established anyway
+  // (Supabase with detectSessionInUrl might have processed it)
+  if (result.error || !result.data?.session) {
+    // Wait a moment for Supabase to process the session (with retries)
+    let retries = 3;
+    let existingSession = null;
+
+    while (retries > 0 && !existingSession) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) {
+        existingSession = session;
+        break;
+      }
+      retries--;
+    }
+
+    if (existingSession?.user) {
+      return {
+        data: { user: existingSession.user, session: existingSession },
+        error: null,
+      };
+    }
+
+    return {
+      data: null,
+      error: result.error || new Error('Failed to establish session'),
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Ensure user exists in Prisma database.
+ * Non-fatal: failures are silently handled.
+ */
+export async function ensureUser(params: {
+  userId: string;
+  email: string;
+  name: string | null;
+  accessToken: string;
+}): Promise<void> {
+  try {
+    const response = await fetch('/api/auth/ensure-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${params.accessToken}`,
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        userId: params.userId,
+        email: params.email,
+        name: params.name,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      console.error('[ensureUser] Failed to ensure user in Prisma:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+      // Don't fail the auth flow - user exists in Supabase Auth
+    }
+  } catch (error) {
+    console.error('[ensureUser] Error ensuring user:', error);
+    // Don't fail the auth flow - user exists in Supabase Auth
+  }
+}

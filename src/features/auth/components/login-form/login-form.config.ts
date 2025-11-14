@@ -62,6 +62,8 @@ export const LOGIN_FORM_CONFIG = {
   messages: {
     error: {
       loginFailed: 'Login failed',
+      authenticationFailed: 'Authentication failed. Please try again.',
+      genericError: 'Error:',
     },
   },
 } as const;

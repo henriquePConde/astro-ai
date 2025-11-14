@@ -7,9 +7,12 @@ import { ChartExperienceContainer } from '../chart-experience/chart-experience.c
 import { useIntroSectionState } from '../intro-section/hooks/use-intro-section-state';
 import { useSectionControls } from '../intro-section/hooks/use-section-controls';
 import { useHomePageHandlers } from './hooks/use-home-page-handlers.state';
+import { useProtectedRoute } from './hooks/use-protected-route.state';
 import { HomePageView } from './home-page.view';
 
 export function HomePageContainer() {
+  const { shouldRender } = useProtectedRoute();
+
   const {
     currentSection,
     introFinished,
@@ -32,6 +35,11 @@ export function HomePageContainer() {
     setIntroFinished,
     setCurrentSection,
   });
+
+  // Don't render content if user is not authenticated
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <HomePageView

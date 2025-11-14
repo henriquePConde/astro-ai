@@ -6,6 +6,9 @@ import {
   signOut,
   signOutServer,
   signInWithGoogle,
+  exchangeCodeForSession,
+  syncServerSession,
+  ensureUser,
 } from './auth.service';
 import { authKeys } from './auth.keys';
 
@@ -117,6 +120,63 @@ export function useSignInWithGoogleMutation() {
     onError: (error) => {
       // Error will be handled by the component
       console.error('[useSignInWithGoogleMutation] Error:', error);
+    },
+  });
+}
+
+/**
+ * Mutation hook for exchanging OAuth code for session (PKCE flow).
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useExchangeCodeForSessionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (code: string) => exchangeCodeForSession(code),
+    onSuccess: (data) => {
+      if (data?.data?.user) {
+        queryClient.setQueryData(authKeys.user(), {
+          id: data.data.user.id,
+          email: data.data.user.email ?? undefined,
+        });
+        queryClient.invalidateQueries({ queryKey: authKeys.user() });
+      }
+    },
+  });
+}
+
+/**
+ * Mutation hook for syncing session to server cookies.
+ * Non-fatal: failures are silently handled.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useSyncServerSessionMutation() {
+  return useMutation({
+    mutationFn: (params: { access_token: string; refresh_token: string }) =>
+      syncServerSession(params.access_token, params.refresh_token),
+    // Non-fatal: session sync failure shouldn't break the app
+    onError: () => {
+      // Silently handle errors
+    },
+  });
+}
+
+/**
+ * Mutation hook for ensuring user exists in Prisma database.
+ * Non-fatal: failures are silently handled.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useEnsureUserMutation() {
+  return useMutation({
+    mutationFn: (params: {
+      userId: string;
+      email: string;
+      name: string | null;
+      accessToken: string;
+    }) => ensureUser(params),
+    // Non-fatal: user exists in Supabase Auth even if Prisma sync fails
+    onError: () => {
+      // Silently handle errors
     },
   });
 }
