@@ -1,6 +1,16 @@
 import React from 'react';
 
 export const GLOBAL_STYLES = `
+  /* Load a font that contains zodiac + planet symbols */
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap');
+
+  /* Ensure our chart text uses the symbol-capable font in the PDF preview */
+  .pdf-preview-container .zodiac-sign,
+  .pdf-preview-container .planet-group text {
+    font-family: 'Noto Sans Symbols 2', system-ui, -apple-system, BlinkMacSystemFont,
+      'Segoe UI Symbol', 'Segoe UI Emoji', sans-serif;
+  }
+
   @media print {
     @page {
       size: A4;

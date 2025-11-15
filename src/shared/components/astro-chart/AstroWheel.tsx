@@ -16,6 +16,9 @@ interface AstroWheelProps {
   initialScale?: number; // Default initial zoom scale (default: 0.7 for regular view, 1.0 for PDF)
 }
 
+const SYMBOL_FONT_FAMILY =
+  'Noto Sans Symbols 2, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI Emoji", sans-serif';
+
 const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const interactions = useOptionalChartInteractions();
@@ -40,27 +43,19 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
       if (!data) return;
 
       // Helper to extract native MouseEvent from D3 event
-      // In D3 v7, .on() handlers receive the native DOM event directly
       const getNativeEvent = (d3Event: any): MouseEvent => {
-        // In D3 v7, mouse events are native DOM events with clientX/clientY
         if (d3Event && typeof d3Event.clientX === 'number' && typeof d3Event.clientY === 'number') {
           return d3Event as MouseEvent;
         }
-
-        // If it's a wrapped event (shouldn't happen with mouse events, but handle it)
         if (d3Event?.sourceEvent) {
           const source = d3Event.sourceEvent;
           if (typeof source.clientX === 'number' && typeof source.clientY === 'number') {
             return source as MouseEvent;
           }
         }
-
-        // Fallback: get coordinates from the event target
         if (d3Event && d3Event.target) {
           const target = d3Event.target as Element;
           const rect = target.getBoundingClientRect();
-          // Get mouse position relative to viewport
-          // Use pageX/pageY if available, otherwise estimate from target
           const clientX = (d3Event.pageX ?? rect.left + rect.width / 2) - (window.scrollX || 0);
           const clientY = (d3Event.pageY ?? rect.top + rect.height / 2) - (window.scrollY || 0);
 
@@ -69,8 +64,6 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             clientY,
           } as MouseEvent;
         }
-
-        // Last resort: use d3.pointer if available
         const svgNode = g.node()?.ownerSVGElement || svgRef.current;
         if (svgNode && d3Event) {
           try {
@@ -80,16 +73,13 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
               clientX: svgRect.left + x,
               clientY: svgRect.top + y,
             } as MouseEvent;
-          } catch (e) {
-            // If all else fails, return center of viewport
+          } catch {
             return {
               clientX: window.innerWidth / 2,
               clientY: window.innerHeight / 2,
             } as MouseEvent;
           }
         }
-
-        // Ultimate fallback
         return {
           clientX: 0,
           clientY: 0,
@@ -122,7 +112,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
       const houseNumberFontSize = Math.floor(radius * 0.045);
       const symbolRadius = (outerRadius + middleRadius) / 2;
 
-      // === Base gradient + concentric circles (ORIGINAL) ===
+      // === Base gradient + concentric circles ===
       const gradient = g
         .append('defs')
         .append('linearGradient')
@@ -148,7 +138,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
           .attr('stroke-opacity', 0.6);
       });
 
-      // === Zodiac signs (ORIGINAL visuals, + hover highlight) ===
+      // === Zodiac signs ===
       const signInfo = getSignInfo(data);
       g.selectAll('.zodiac-sign').remove();
 
@@ -178,6 +168,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
                 .attr('font-size', '28px')
                 .attr('fill', '#666')
                 .attr('class', `zodiac-sign zodiac-sign-${sign.name.toLowerCase()}`)
+                .attr('font-family', SYMBOL_FONT_FAMILY)
                 .text(zodiacSymbols[sign.signIndex]);
 
               if (interactions) {
@@ -189,7 +180,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
                     const nativeEvent = getNativeEvent(event) as MouseEvent;
                     interactions.onSignHover(sign.signIndex, nativeEvent);
                   })
-                  .on('mouseleave', function (event: any) {
+                  .on('mouseleave', function () {
                     if (!interactions.enabled) return;
                     d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                     interactions.onSignLeave();
@@ -223,6 +214,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
               .attr('font-size', '28px')
               .attr('fill', '#fff')
               .attr('class', `zodiac-sign zodiac-sign-${sign.name.toLowerCase()}`)
+              .attr('font-family', SYMBOL_FONT_FAMILY)
               .text(zodiacSymbols[sign.signIndex]);
 
             if (interactions) {
@@ -234,7 +226,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
                   interactions.onSignHover(sign.signIndex, nativeEvent);
                 })
-                .on('mouseleave', function (event: any) {
+                .on('mouseleave', function () {
                   if (!interactions.enabled) return;
                   d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                   interactions.onSignLeave();
@@ -253,7 +245,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
         }
       });
 
-      // === Houses: cusp lines + numbers (ORIGINAL visuals) ===
+      // === Houses: cusp lines + numbers ===
       houseCusps.forEach((cusp, index) => {
         const angle = (((cusp - data.houses.firstHouse + rotationOffset) % 360) * Math.PI) / 180;
         const isCardinal = [0, 3, 6, 9].includes(index);
@@ -321,7 +313,6 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             });
         }
 
-        // House number label (unchanged)
         const textRadius = (innerRadius + housesRadius) / 2;
         const nextCusp = houseCusps[(index + 1) % 12];
         let midpointAngle: number;
@@ -359,7 +350,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
           .text((index + 1).toString());
       });
 
-      // === House sector highlight overlays (NEW, only visual on hover) ===
+      // === House sector highlight overlays (hover only) ===
       if (interactions) {
         for (let i = 0; i < 12; i++) {
           const startCusp = houseCusps[i];
@@ -436,7 +427,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
         }
       }
 
-      // === Aspects (ORIGINAL visuals + highlight via invisible hit line) ===
+      // === Aspects ===
       const aspectGroup = g.append('g').attr('class', 'aspects');
 
       for (let i = 0; i < planetPositions.length; i++) {
@@ -483,7 +474,6 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             const x2 = planetRadius * Math.cos(a2);
             const y2 = -planetRadius * Math.sin(a2);
 
-            // Visible line (unchanged base look)
             const line = aspectGroup
               .append('line')
               .attr('x1', x1)
@@ -496,7 +486,6 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
               .style('pointer-events', interactions ? 'none' : 'auto');
 
             if (interactions) {
-              // Hit area for hover highlight + tooltip
               const hit = aspectGroup
                 .append('line')
                 .attr('class', 'aspect-hit')
@@ -551,7 +540,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
         }
       }
 
-      // === Planets (ORIGINAL visuals + highlight on hover) ===
+      // === Planets ===
       const adjustedPositions = getAdjustedPlanetPositions(planetPositions);
       const planetFontSize = Math.floor(radius * 0.085);
 
@@ -574,33 +563,25 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
           .attr('dominant-baseline', 'middle')
           .attr('font-size', `${planetFontSize}px`)
           .attr('fill', color)
+          .attr('font-family', SYMBOL_FONT_FAMILY)
           .text(planet.symbol || planet.name);
 
-        // Always attach handlers if interactions context exists (even if disabled)
-        // This ensures handlers are available when interactions are toggled on
         if (interactions) {
           group
             .style('cursor', 'pointer')
             .on('mouseenter', function (event: any) {
-              // Only proceed if interactions are enabled
               if (!interactions.enabled) return;
 
-              // visual highlight
               text.attr('font-size', `${planetFontSize * 1.18}px`).attr('font-weight', 'bold');
 
-              // In D3 v7, .on() handlers receive the native DOM MouseEvent
-              // The event should have clientX/clientY directly
               let nativeEvent: MouseEvent;
 
-              // Check if event has clientX/clientY (should always be true for mouse events in D3 v7)
               if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
                 nativeEvent = event as MouseEvent;
               } else {
-                // Fallback: use helper function to extract coordinates
                 nativeEvent = getNativeEvent(event) as MouseEvent;
               }
 
-              // Call the interaction handler with the event
               try {
                 interactions.onPlanetHover(
                   {
@@ -614,21 +595,17 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
                   nativeEvent,
                 );
               } catch (error) {
-                // Silently handle errors to prevent breaking the chart
                 console.error('Error showing planet tooltip:', error);
               }
             })
             .on('mouseleave', function () {
-              // Only proceed if interactions are enabled
               if (!interactions.enabled) return;
 
-              // reset visual
               text.attr('font-size', `${planetFontSize}px`).attr('font-weight', 'normal');
 
               interactions.onPlanetLeave();
             })
             .on('click', function (event: any) {
-              // Only proceed if interactions are enabled
               if (!interactions.enabled) return;
 
               let nativeEvent: MouseEvent;
@@ -679,15 +656,12 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
 
     const g = svg.append('g').attr('class', 'zoom-group');
 
-    // Apply initial zoom transform
-    // This applies regardless of interactions state
     const initialTransform = d3.zoomIdentity.scale(initialScale);
     g.attr('transform', initialTransform.toString());
 
     drawChart(g, dimensions, planetPositions);
   }, [data, width, height, drawChart, initialScale]);
 
-  // Gate zoom/pan/dblclick handlers with interactions toggle
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = d3.select(svgRef.current);
@@ -705,16 +679,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
     if (interactions?.enabled) {
       svg.call(zoom);
 
-      // Read current transform from the g element's transform attribute
-      // The first useEffect already sets it to initialScale, so we preserve that
       const currentTransformAttr = g.attr('transform');
       const defaultTransform = d3.zoomIdentity.scale(initialScale);
 
-      // If there's already a transform, try to extract the scale from it
-      // Otherwise use the default initialScale
       let transformToUse = defaultTransform;
       if (currentTransformAttr) {
-        // Parse transform string like "translate(0,0) scale(0.7)"
         const scaleMatch = currentTransformAttr.match(/scale\(([^)]+)\)/);
         if (scaleMatch) {
           const scale = parseFloat(scaleMatch[1]);
@@ -724,10 +693,8 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
         }
       }
 
-      // Sync zoom behavior with current transform state
       svg.call(zoom.transform, transformToUse);
 
-      // Double-click resets to default initial scale
       svg.on('dblclick.zoom', () => {
         svg.transition().duration(750).call(zoom.transform, defaultTransform);
       });
@@ -737,37 +704,31 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
     }
   }, [interactions?.enabled, initialScale]);
 
-  // Optional: toggle pointer events and cursor for interactive elements when interactions are off
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = d3.select(svgRef.current);
     const enabled = interactions?.enabled ?? true;
 
-    // Zodiac sign labels
     svg
       .selectAll<SVGTextElement, unknown>('.zodiac-sign')
       .style('pointer-events', enabled ? 'auto' : 'none')
       .style('cursor', enabled ? 'pointer' : 'default');
 
-    // House highlight sectors
     svg
       .selectAll<SVGPathElement, unknown>('.house-highlight')
       .style('pointer-events', enabled ? 'all' : 'none')
       .style('cursor', enabled ? 'pointer' : 'default');
 
-    // House cusp lines
     svg
       .selectAll<SVGLineElement, unknown>('.house-cusp-line')
       .style('pointer-events', enabled ? 'all' : 'none')
       .style('cursor', enabled ? 'pointer' : 'default');
 
-    // Aspect hit lines
     svg
       .selectAll<SVGLineElement, unknown>('.aspect-hit')
       .style('pointer-events', enabled ? 'stroke' : 'none')
       .style('cursor', enabled ? 'pointer' : 'default');
 
-    // Planet groups
     svg
       .selectAll<SVGGElement, unknown>('.planet-group')
       .style('pointer-events', enabled ? 'all' : 'none')
