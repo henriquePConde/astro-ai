@@ -1,4 +1,9 @@
-const puppeteer = require('puppeteer');
+// Use puppeteer-core + @sparticuz/chromium on Vercel; fall back to puppeteer locally
+const isVercel = !!process.env.VERCEL;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const chromium = isVercel ? require('@sparticuz/chromium') : null;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const puppeteer = isVercel ? require('puppeteer-core') : require('puppeteer');
 import { PassThrough } from 'stream';
 import { getReportById } from '@/backend/features/reports';
 import { generatePdfToken } from './pdf-token.util';
@@ -23,11 +28,19 @@ export async function generatePdfFromReportId(
   // Build secure URL with id and pdfToken
   const puppeteerUrl = `${FRONTEND_BASE_URL}/pdf-preview/public?id=${reportId}&pdfToken=${pdfToken}`;
 
-  // Launch Puppeteer
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  // Launch Puppeteer (Vercel-friendly when in serverless environment)
+  const browser = isVercel
+    ? await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: true,
+        ignoreHTTPSErrors: true,
+      })
+    : await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
 
   try {
     const page = await browser.newPage();

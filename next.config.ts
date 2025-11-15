@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  experimental: {
+    // Ensure these native packages are available to server components (Node runtime)
+    serverComponentsExternalPackages: ['@sparticuz/chromium'],
+  },
   webpack: (config, { isServer }) => {
     // Handle native .node modules (swisseph-v2)
     if (isServer) {

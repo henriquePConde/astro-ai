@@ -39,6 +39,8 @@
     "jsonwebtoken": "^9.0.2",
     "next": "15.1.6",
     "puppeteer": "^24.10.0",
+    "puppeteer-core": "^24.10.0",
+    "@sparticuz/chromium": "^126.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.66.0",
