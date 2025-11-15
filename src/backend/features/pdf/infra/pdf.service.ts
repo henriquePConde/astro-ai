@@ -1,7 +1,13 @@
 // Use puppeteer-core + @sparticuz/chromium on Vercel; fall back to puppeteer locally
-const isVercel = !!process.env.VERCEL;
-const chromium = isVercel ? require('@sparticuz/chromium') : null;
-const puppeteer = isVercel ? require('puppeteer-core') : require('puppeteer');
+const forceLocalPuppeteer = process.env.PDF_FORCE_LOCAL === 'true';
+const useServerlessChromium = !!process.env.VERCEL && !forceLocalPuppeteer;
+const chromium = useServerlessChromium ? require('@sparticuz/chromium') : null;
+let puppeteer: any;
+if (useServerlessChromium) {
+  puppeteer = require('puppeteer-core');
+} else {
+  puppeteer = require('puppeteer');
+}
 import { PassThrough } from 'stream';
 import { getReportById } from '@/backend/features/reports';
 import { generatePdfToken } from './pdf-token.util';
@@ -27,18 +33,55 @@ export async function generatePdfFromReportId(
   const puppeteerUrl = `${FRONTEND_BASE_URL}/pdf-preview/public?id=${reportId}&pdfToken=${pdfToken}`;
 
   // Launch Puppeteer (Vercel-friendly when in serverless environment)
-  const browser = isVercel
-    ? await puppeteer.launch({
+  let browser: any;
+  try {
+    if (useServerlessChromium) {
+      browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
-        headless: true,
+        headless: (chromium as any).headless ?? true,
         ignoreHTTPSErrors: true,
-      })
-    : await puppeteer.launch({
+      });
+    } else {
+      browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
       });
+    }
+  } catch (launchError: any) {
+    const message = launchError?.message || '';
+    const stderr = (launchError && (launchError.stderr || launchError.toString?.())) || '';
+    const combined = `${message}\n${stderr}`;
+    const isMissingLib = /libnss3\.so|error while loading shared libraries|code:\s*127/i.test(
+      combined,
+    );
+
+    // If serverless chromium fails (e.g., missing libs), try local puppeteer as a fallback
+    if (useServerlessChromium) {
+      try {
+        const localPuppeteer = require('puppeteer');
+        browser = await localPuppeteer.launch({
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+        console.log('Fell back to local Puppeteer successfully.');
+      } catch (fallbackError: any) {
+        const help =
+          'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
+        const advice = isMissingLib
+          ? `Missing native libraries for Chromium. ${help}. Or set PDF_FORCE_LOCAL=true to force local Puppeteer.`
+          : 'Failed to launch Chromium for PDF generation.';
+        throw new Error(`${advice}\nOriginal error: ${message || stderr}`);
+      }
+    } else {
+      const help =
+        'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
+      throw new Error(
+        `Failed to launch Chromium for PDF generation.\n${help}\nOriginal error: ${message || stderr}`,
+      );
+    }
+  }
 
   try {
     const page = await browser.newPage();
@@ -359,7 +402,9 @@ export async function generatePdfFromReportId(
     stream.end(buffer);
     return stream;
   } catch (error) {
-    await browser.close();
+    try {
+      await browser?.close?.();
+    } catch {}
     throw error;
   }
 }
