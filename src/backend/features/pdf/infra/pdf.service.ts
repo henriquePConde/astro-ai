@@ -1,19 +1,14 @@
-// Use puppeteer-core + @sparticuz/chromium-min on Vercel; fall back to puppeteer locally
+// src/backend/features/pdf/infra/pdf.service.ts
 
+// Use puppeteer-core + @sparticuz/chromium on Vercel; fall back to puppeteer locally
 const forceLocalPuppeteer = process.env.PDF_FORCE_LOCAL === 'true';
-const isVercel = !!process.env.VERCEL;
-const useServerlessChromium = isVercel && !forceLocalPuppeteer;
-
-// When running on Vercel and not forcing local Puppeteer, use the -min package + remote pack.
-// Otherwise, use full Puppeteer (local dev / non-serverless).
-const chromium = useServerlessChromium ? require('@sparticuz/chromium-min') : null;
+const useServerlessChromium = !!process.env.VERCEL && !forceLocalPuppeteer;
+const chromium = useServerlessChromium ? require('@sparticuz/chromium') : null;
 
 let puppeteer: any;
 if (useServerlessChromium) {
-  // Serverless: lightweight puppeteer-core
   puppeteer = require('puppeteer-core');
 } else {
-  // Local / non-Vercel: full Puppeteer with bundled Chromium
   puppeteer = require('puppeteer');
 }
 
@@ -24,11 +19,6 @@ import { getSessionUser } from '@/backend/core/auth/get-session';
 
 const FRONTEND_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
-
-// Default remote Chromium pack URL for @sparticuz/chromium-min v141
-// You can override this via the CHROMIUM_REMOTE_EXEC_PATH env var in Vercel.
-const DEFAULT_CHROMIUM_PACK_URL =
-  'https://github.com/Sparticuz/chromium/releases/download/v141.0.0/chromium-v141.0.0-pack.x64.tar';
 
 export async function generatePdfFromReportId(
   reportId: string,
@@ -50,20 +40,14 @@ export async function generatePdfFromReportId(
   let browser: any;
   try {
     if (useServerlessChromium) {
-      // Use @sparticuz/chromium-min with a remote pack tar for Node 22 on Vercel
-      const remotePackUrl = process.env.CHROMIUM_REMOTE_EXEC_PATH || DEFAULT_CHROMIUM_PACK_URL;
-
-      const executablePath = await chromium.executablePath(remotePackUrl);
-
       browser = await puppeteer.launch({
         args: chromium.args,
-        defaultViewport: chromium.defaultViewport ?? null,
-        executablePath,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
         headless: (chromium as any).headless ?? true,
         ignoreHTTPSErrors: true,
       });
     } else {
-      // Local dev / non-Vercel environment: use full Puppeteer with bundled Chromium
       browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -73,10 +57,11 @@ export async function generatePdfFromReportId(
     const message = launchError?.message || '';
     const stderr = (launchError && (launchError.stderr || launchError.toString?.())) || '';
     const combined = `${message}\n${stderr}`;
-    const isMissingLib =
-      /libnss3\.so|libnspr4\.so|error while loading shared libraries|code:\s*127/i.test(combined);
+    const isMissingLib = /libnss3\.so|error while loading shared libraries|code:\s*127/i.test(
+      combined,
+    );
 
-    // If serverless chromium fails (e.g., missing libs or bad pack), try local Puppeteer as a fallback
+    // If serverless chromium fails (e.g., missing libs), try local puppeteer as a fallback
     if (useServerlessChromium) {
       try {
         const localPuppeteer = require('puppeteer');
@@ -87,15 +72,15 @@ export async function generatePdfFromReportId(
         console.log('Fell back to local Puppeteer successfully.');
       } catch (fallbackError: any) {
         const help =
-          'On Vercel Node 22, Chromium must be provided by @sparticuz/chromium-min with a compatible pack URL. Ensure CHROMIUM_REMOTE_EXEC_PATH points to a valid pack, and AWS_LAMBDA_JS_RUNTIME=nodejs22.x is set in your Vercel env.';
+          'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
         const advice = isMissingLib
-          ? `Missing native libraries for Chromium in the current runtime. ${help}`
+          ? `Missing native libraries for Chromium. ${help}. Or set PDF_FORCE_LOCAL=true to force local Puppeteer.`
           : 'Failed to launch Chromium for PDF generation.';
         throw new Error(`${advice}\nOriginal error: ${message || stderr}`);
       }
     } else {
       const help =
-        'If you see this in production, ensure your environment has the required Chromium dependencies or use @sparticuz/chromium-min on a serverless-friendly platform.';
+        'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
       throw new Error(
         `Failed to launch Chromium for PDF generation.\n${help}\nOriginal error: ${message || stderr}`,
       );
@@ -135,14 +120,12 @@ export async function generatePdfFromReportId(
       );
       console.log('PDF preview base container/ready marker found');
 
-      // Wait for content to be ready
+      // Wait for content to be ready (this usually implies chart PNG is ready)
       await page.waitForFunction(
         () => {
-          // Prefer explicit ready flag
           const readyContainer = document.querySelector('[data-pdf-ready="true"]');
           if (readyContainer) return true;
 
-          // Fallback: check container existence and content
           const pdfContainer = document.querySelector(
             '.pdf-preview-container',
           ) as HTMLElement | null;
@@ -155,12 +138,10 @@ export async function generatePdfFromReportId(
             (bodyText.includes('Error') && bodyText.includes('h2'));
           if (hasError) return false;
 
-          // loading states
           if (bodyText.includes('Loading PDF preview') || bodyText.includes('Carregando PDF')) {
             return false;
           }
 
-          // substantial content
           const containerText = pdfContainer.textContent || '';
           return containerText.length > 100;
         },
@@ -238,8 +219,21 @@ export async function generatePdfFromReportId(
       console.log('Images timeout - proceeding anyway');
     }
 
-    // Additional wait for any remaining async operations
+    // Extra wait for any remaining async operations
     await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // 🔴 NEW: ensure fonts are fully loaded in headless Chromium
+    try {
+      await page.evaluate(async () => {
+        const anyDoc = document as any;
+        if (anyDoc.fonts && anyDoc.fonts.ready) {
+          await anyDoc.fonts.ready;
+        }
+      });
+      console.log('document.fonts.ready resolved before PDF generation');
+    } catch (e) {
+      console.log('document.fonts.ready check failed (continuing anyway):', e);
+    }
 
     // Print CSS: pagination fixes (allow text/content to continue on next page)
     await page.addStyleTag({
@@ -267,7 +261,6 @@ export async function generatePdfFromReportId(
             padding: 0 !important;
           }
     
-          /* 1) Normalize all breaks by default */
           .pdf-preview-container,
           .pdf-preview-container * {
             break-before: auto !important;
@@ -278,7 +271,6 @@ export async function generatePdfFromReportId(
             page-break-inside: auto !important;
           }
     
-          /* 2) Avoid phantom breaks at start/end */
           .pdf-preview-container > :first-child {
             break-before: avoid-page !important;
           }
@@ -301,7 +293,6 @@ export async function generatePdfFromReportId(
             page-break-after: auto !important;
           }
     
-          /* 3) Anti-clipping + anti-layerization */
           .pdf-preview-container, .pdf-preview-container * {
             overflow: visible !important;
             height: auto !important;
@@ -312,7 +303,6 @@ export async function generatePdfFromReportId(
             contain: none !important;
           }
     
-          /* 4) Neutralize flex/grid */
           .pdf-preview-container,
           .pdf-preview-container .MuiGrid-root,
           .pdf-preview-container [class*="MuiGrid"],
@@ -324,7 +314,6 @@ export async function generatePdfFromReportId(
             display: block !important;
           }
     
-          /* 5) Flow content can split */
           .pdf-preview-container section,
           .pdf-preview-container article,
           .pdf-preview-container main,
@@ -342,7 +331,6 @@ export async function generatePdfFromReportId(
             display: block !important;
           }
     
-          /* 6) Headings */
           .pdf-preview-container h1,
           .pdf-preview-container h2,
           .pdf-preview-container h3 {
@@ -350,7 +338,6 @@ export async function generatePdfFromReportId(
             break-inside: avoid !important;
           }
     
-          /* 7) Atomic blocks */
           .pdf-preview-container table,
           .pdf-preview-container img,
           .pdf-preview-container svg,
@@ -362,21 +349,18 @@ export async function generatePdfFromReportId(
             page-break-inside: avoid !important;
           }
     
-          /* 8) Only .page-break should force a break */
           .pdf-preview-container .page-break,
           .pdf-preview-container .pagebreak {
             break-after: page !important;
             page-break-after: always !important;
           }
     
-          /* 9) Collapse trailing spacing */
           .pdf-preview-container > :last-child,
           .pdf-preview-container > :last-child *:last-child {
             margin-bottom: 0 !important;
             padding-bottom: 0 !important;
           }
     
-          /* Chart remains circular */
           .pdf-preview-container .chart-section img[alt="Astro Chart"],
           .pdf-preview-container .astro-chart,
           .pdf-preview-container .astro-wheel,
@@ -387,7 +371,6 @@ export async function generatePdfFromReportId(
             aspect-ratio: 1 / 1;
           }
     
-          /* Preserve colors */
           .pdf-preview-container svg,
           .pdf-preview-container img {
             print-color-adjust: exact !important;
@@ -397,7 +380,6 @@ export async function generatePdfFromReportId(
       `,
     });
 
-    // Use options from frontend, prefer CSS page size for stability
     const pdfOptions = {
       format: options?.format || ('A4' as const),
       printBackground: options?.printBackground ?? true,
@@ -406,7 +388,7 @@ export async function generatePdfFromReportId(
       displayHeaderFooter: false,
       headerTemplate: '',
       footerTemplate: '',
-      preferCSSPageSize: true, // let @page control size/margins
+      preferCSSPageSize: true,
       omitBackground: false,
       ...(options?.width && { width: options.width }),
       ...(options?.height && { height: options.height }),
@@ -416,7 +398,6 @@ export async function generatePdfFromReportId(
     const buffer = await page.pdf(pdfOptions);
     await browser.close();
 
-    // Stream the buffer
     const stream = new PassThrough();
     stream.end(buffer);
     return stream;
@@ -428,9 +409,6 @@ export async function generatePdfFromReportId(
   }
 }
 
-/**
- * No top-level signing — everything runs lazily inside functions.
- */
 export async function issuePdfTokenForCurrentUser() {
   const user = await getSessionUser();
   if (!user) return null;
