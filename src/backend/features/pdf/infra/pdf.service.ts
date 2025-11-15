@@ -1,8 +1,6 @@
 // Use puppeteer-core + @sparticuz/chromium on Vercel; fall back to puppeteer locally
 const isVercel = !!process.env.VERCEL;
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const chromium = isVercel ? require('@sparticuz/chromium') : null;
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = isVercel ? require('puppeteer-core') : require('puppeteer');
 import { PassThrough } from 'stream';
 import { getReportById } from '@/backend/features/reports';
