@@ -17,5 +17,5 @@ export function useErrorMessage(...errors: Array<unknown | null | undefined>): s
       }
     }
     return null;
-  }, errors);
+  }, [...errors]);
 }

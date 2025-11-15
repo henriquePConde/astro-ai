@@ -1,9 +1,24 @@
 // src/backend/features/pdf/infra/pdf.service.ts
 
-// Use puppeteer-core + @sparticuz/chromium on Vercel; fall back to puppeteer locally
+import { PassThrough } from 'stream';
+import { getReportById } from '@/backend/features/reports';
+import { generatePdfToken } from './pdf-token.util';
+import { getSessionUser } from '@/backend/core/auth/get-session';
+
+// Use puppeteer-core + @sparticuz/chromium-min on Vercel; fall back to puppeteer locally
 const forceLocalPuppeteer = process.env.PDF_FORCE_LOCAL === 'true';
-const useServerlessChromium = !!process.env.VERCEL && !forceLocalPuppeteer;
-const chromium = useServerlessChromium ? require('@sparticuz/chromium') : null;
+
+let chromium: any = null;
+let useServerlessChromium = !!process.env.VERCEL && !forceLocalPuppeteer;
+
+if (useServerlessChromium) {
+  try {
+    chromium = require('@sparticuz/chromium-min');
+  } catch {
+    // If the package isn't available for some reason, fall back to local Puppeteer
+    useServerlessChromium = false;
+  }
+}
 
 let puppeteer: any;
 if (useServerlessChromium) {
@@ -11,11 +26,6 @@ if (useServerlessChromium) {
 } else {
   puppeteer = require('puppeteer');
 }
-
-import { PassThrough } from 'stream';
-import { getReportById } from '@/backend/features/reports';
-import { generatePdfToken } from './pdf-token.util';
-import { getSessionUser } from '@/backend/core/auth/get-session';
 
 const FRONTEND_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
@@ -39,7 +49,7 @@ export async function generatePdfFromReportId(
   // Launch Puppeteer (Vercel-friendly when in serverless environment)
   let browser: any;
   try {
-    if (useServerlessChromium) {
+    if (useServerlessChromium && chromium) {
       browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
@@ -222,7 +232,7 @@ export async function generatePdfFromReportId(
     // Extra wait for any remaining async operations
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // 🔴 NEW: ensure fonts are fully loaded in headless Chromium
+    // Ensure fonts are fully loaded in headless Chromium
     try {
       await page.evaluate(async () => {
         const anyDoc = document as any;

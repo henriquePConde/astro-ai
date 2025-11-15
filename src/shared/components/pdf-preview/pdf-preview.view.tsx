@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import type { PDFPreviewViewProps, EmptyStateViewProps } from './pdf-preview.types';
 import { styles, GLOBAL_STYLES } from './pdf-preview.styles';
 
@@ -88,10 +89,13 @@ export function PDFPreviewView({
               </h2>
               <div style={chartPageChartContainer.style}>
                 {chartImgUrl ? (
-                  <img
+                  <Image
                     src={chartImgUrl}
                     alt={config.copy.chart.altText}
                     style={chartPageChartImage.style}
+                    width={800}
+                    height={800}
+                    unoptimized
                   />
                 ) : (
                   <span className={chartPageGeneratingText.className}>
