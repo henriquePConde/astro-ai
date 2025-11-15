@@ -1,13 +1,20 @@
 import React from 'react';
 
 export const GLOBAL_STYLES = `
-  /* Load a font that contains zodiac + planet symbols */
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap');
+  /* Local font that contains zodiac + planetary symbols.
+     File must exist at public/fonts/DejaVuSans.ttf */
+  @font-face {
+    font-family: 'AstroSymbols';
+    src: url('/fonts/DejaVuSans.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
 
-  /* Ensure our chart text uses the symbol-capable font in the PDF preview */
+  /* Use it for all glyph-based text inside the chart */
   .pdf-preview-container .zodiac-sign,
   .pdf-preview-container .planet-group text {
-    font-family: 'Noto Sans Symbols 2', system-ui, -apple-system, BlinkMacSystemFont,
+    font-family: 'AstroSymbols', system-ui, -apple-system, BlinkMacSystemFont,
       'Segoe UI Symbol', 'Segoe UI Emoji', sans-serif;
   }
 

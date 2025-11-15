@@ -17,7 +17,7 @@ interface AstroWheelProps {
 }
 
 const SYMBOL_FONT_FAMILY =
-  'Noto Sans Symbols 2, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI Emoji", sans-serif';
+  'AstroSymbols, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI Emoji", sans-serif';
 
 const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
