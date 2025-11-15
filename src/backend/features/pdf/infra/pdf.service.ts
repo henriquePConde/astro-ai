@@ -1,13 +1,22 @@
-// Use puppeteer-core + @sparticuz/chromium on Vercel; fall back to puppeteer locally
+// Use puppeteer-core + @sparticuz/chromium-min on Vercel; fall back to puppeteer locally
+
 const forceLocalPuppeteer = process.env.PDF_FORCE_LOCAL === 'true';
-const useServerlessChromium = !!process.env.VERCEL && !forceLocalPuppeteer;
-const chromium = useServerlessChromium ? require('@sparticuz/chromium') : null;
+const isVercel = !!process.env.VERCEL;
+const useServerlessChromium = isVercel && !forceLocalPuppeteer;
+
+// When running on Vercel and not forcing local Puppeteer, use the -min package + remote pack.
+// Otherwise, use full Puppeteer (local dev / non-serverless).
+const chromium = useServerlessChromium ? require('@sparticuz/chromium-min') : null;
+
 let puppeteer: any;
 if (useServerlessChromium) {
+  // Serverless: lightweight puppeteer-core
   puppeteer = require('puppeteer-core');
 } else {
+  // Local / non-Vercel: full Puppeteer with bundled Chromium
   puppeteer = require('puppeteer');
 }
+
 import { PassThrough } from 'stream';
 import { getReportById } from '@/backend/features/reports';
 import { generatePdfToken } from './pdf-token.util';
@@ -15,6 +24,11 @@ import { getSessionUser } from '@/backend/core/auth/get-session';
 
 const FRONTEND_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
+
+// Default remote Chromium pack URL for @sparticuz/chromium-min v141
+// You can override this via the CHROMIUM_REMOTE_EXEC_PATH env var in Vercel.
+const DEFAULT_CHROMIUM_PACK_URL =
+  'https://github.com/Sparticuz/chromium/releases/download/v141.0.0/chromium-v141.0.0-pack.x64.tar';
 
 export async function generatePdfFromReportId(
   reportId: string,
@@ -36,14 +50,20 @@ export async function generatePdfFromReportId(
   let browser: any;
   try {
     if (useServerlessChromium) {
+      // Use @sparticuz/chromium-min with a remote pack tar for Node 22 on Vercel
+      const remotePackUrl = process.env.CHROMIUM_REMOTE_EXEC_PATH || DEFAULT_CHROMIUM_PACK_URL;
+
+      const executablePath = await chromium.executablePath(remotePackUrl);
+
       browser = await puppeteer.launch({
         args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
+        defaultViewport: chromium.defaultViewport ?? null,
+        executablePath,
         headless: (chromium as any).headless ?? true,
         ignoreHTTPSErrors: true,
       });
     } else {
+      // Local dev / non-Vercel environment: use full Puppeteer with bundled Chromium
       browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -53,11 +73,10 @@ export async function generatePdfFromReportId(
     const message = launchError?.message || '';
     const stderr = (launchError && (launchError.stderr || launchError.toString?.())) || '';
     const combined = `${message}\n${stderr}`;
-    const isMissingLib = /libnss3\.so|error while loading shared libraries|code:\s*127/i.test(
-      combined,
-    );
+    const isMissingLib =
+      /libnss3\.so|libnspr4\.so|error while loading shared libraries|code:\s*127/i.test(combined);
 
-    // If serverless chromium fails (e.g., missing libs), try local puppeteer as a fallback
+    // If serverless chromium fails (e.g., missing libs or bad pack), try local Puppeteer as a fallback
     if (useServerlessChromium) {
       try {
         const localPuppeteer = require('puppeteer');
@@ -68,15 +87,15 @@ export async function generatePdfFromReportId(
         console.log('Fell back to local Puppeteer successfully.');
       } catch (fallbackError: any) {
         const help =
-          'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
+          'On Vercel Node 22, Chromium must be provided by @sparticuz/chromium-min with a compatible pack URL. Ensure CHROMIUM_REMOTE_EXEC_PATH points to a valid pack, and AWS_LAMBDA_JS_RUNTIME=nodejs22.x is set in your Vercel env.';
         const advice = isMissingLib
-          ? `Missing native libraries for Chromium. ${help}. Or set PDF_FORCE_LOCAL=true to force local Puppeteer.`
+          ? `Missing native libraries for Chromium in the current runtime. ${help}`
           : 'Failed to launch Chromium for PDF generation.';
         throw new Error(`${advice}\nOriginal error: ${message || stderr}`);
       }
     } else {
       const help =
-        'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
+        'If you see this in production, ensure your environment has the required Chromium dependencies or use @sparticuz/chromium-min on a serverless-friendly platform.';
       throw new Error(
         `Failed to launch Chromium for PDF generation.\n${help}\nOriginal error: ${message || stderr}`,
       );
