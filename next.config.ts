@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   // Ensure these native packages are available to server components (Node runtime)
-  serverExternalPackages: ['puppeteer'],
+  serverExternalPackages: ['@sparticuz/chromium', 'puppeteer-core'],
   webpack: (config, { isServer }) => {
     // Handle native .node modules (swisseph-v2)
     if (isServer) {

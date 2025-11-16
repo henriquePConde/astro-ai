@@ -1,12 +1,26 @@
 // src/backend/features/pdf/infra/pdf.service.ts
 
+// Decide which runtime to use
+const forceLocalPuppeteer = process.env.PDF_FORCE_LOCAL === 'true';
+const isVercel = !!process.env.VERCEL;
+const useServerlessChromium = isVercel && !forceLocalPuppeteer;
+
+let chromium: any = null;
+let puppeteer: any;
+
+// On Vercel (serverless), use @sparticuz/chromium + puppeteer-core
+if (useServerlessChromium) {
+  chromium = require('@sparticuz/chromium');
+  puppeteer = require('puppeteer-core');
+} else {
+  // Local dev / forced local: full Puppeteer, which brings its own Chrome
+  puppeteer = require('puppeteer');
+}
+
 import { PassThrough } from 'stream';
 import { getReportById } from '@/backend/features/reports';
 import { generatePdfToken } from './pdf-token.util';
 import { getSessionUser } from '@/backend/core/auth/get-session';
-
-// Use plain puppeteer everywhere (no Sparticuz)
-const puppeteer = require('puppeteer');
 
 const FRONTEND_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
@@ -15,36 +29,74 @@ export async function generatePdfFromReportId(
   reportId: string,
   options?: any,
 ): Promise<PassThrough> {
-  // Verify report exists
+  // 1. Verify report exists
   const report = await getReportById(reportId);
   if (!report) {
     throw new Error('Report not found');
   }
 
-  // Generate a temporary JWT token (expires in 15 min)
+  // 2. Short-lived JWT to access /pdf-preview/public
   const pdfToken = generatePdfToken({ reportId, purpose: 'puppeteer-pdf' });
 
-  // Build secure URL with id and pdfToken
   const puppeteerUrl = `${FRONTEND_BASE_URL}/pdf-preview/public?id=${reportId}&pdfToken=${pdfToken}`;
 
   let browser: any;
 
   try {
-    // Launch Chromium downloaded by puppeteer
-    browser = await puppeteer.launch({
-      headless: true, // or 'new' if you prefer
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    // 3. Launch browser
+    if (useServerlessChromium) {
+      // 🟢 Vercel + @sparticuz/chromium
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: (chromium as any).headless ?? true,
+        ignoreHTTPSErrors: true,
+      });
+    } else {
+      // 🟢 Local dev or forced local
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+    }
+  } catch (launchError: any) {
+    const message = launchError?.message || '';
+    const stderr = (launchError && (launchError.stderr || launchError.toString?.())) || '';
+    const combined = `${message}\n${stderr}`;
+    const isMissingLib =
+      /libnss3\.so|libnspr4\.so|error while loading shared libraries|code:\s*127/i.test(combined);
 
+    // On Vercel we don't want to silently fall back; we want a clear error
+    if (useServerlessChromium) {
+      const help =
+        'This function is running on Vercel with Node 22.x. Make sure you have:\n' +
+        '- Installed @sparticuz/chromium as a dependency\n' +
+        '- Set AWS_LAMBDA_JS_RUNTIME=nodejs22.x in your Vercel env\n' +
+        '- Disabled Fluid Compute for this project';
+
+      const advice = isMissingLib
+        ? `Missing native libraries for Chromium. ${help}`
+        : 'Failed to launch Chromium for PDF generation.';
+
+      throw new Error(`${advice}\nOriginal error: ${message || stderr}`);
+    }
+
+    // Local dev: rethrow with useful info
+    throw new Error(
+      `Failed to launch local Chromium for PDF generation.\nOriginal error: ${message || stderr}`,
+    );
+  }
+
+  try {
     const page = await browser.newPage();
 
-    // Set a longer timeout for navigation and all operations (90 seconds)
+    // Timeouts
     page.setDefaultNavigationTimeout(90000);
     page.setDefaultTimeout(90000);
 
     console.log(`Navigating to: ${puppeteerUrl}`);
 
-    // Navigate with a longer timeout and less strict wait condition
     await page.goto(puppeteerUrl, {
       waitUntil: 'domcontentloaded',
       timeout: 90000,
@@ -52,12 +104,11 @@ export async function generatePdfFromReportId(
 
     console.log('Page loaded (domcontentloaded), waiting for content...');
 
-    // Give the page a moment to start rendering
+    // Tiny pause to let React/MUI render
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Wait for the PDF preview content to be loaded (not in loading state)
+    // Wait for container / ready flag
     try {
-      // Wait for either the container or the ready attribute
       await page.waitForFunction(
         () => {
           const hasContainer = !!document.querySelector('.pdf-preview-container');
@@ -68,7 +119,7 @@ export async function generatePdfFromReportId(
       );
       console.log('PDF preview base container/ready marker found');
 
-      // Wait for content to be ready (this usually implies chart PNG is ready)
+      // Wait for content to be really loaded
       await page.waitForFunction(
         () => {
           const readyContainer = document.querySelector('[data-pdf-ready="true"]');
@@ -122,7 +173,7 @@ export async function generatePdfFromReportId(
 
     await page.emulateMediaType('print');
 
-    // Wait for chart image to be generated (SVG to PNG conversion)
+    // Wait for chart PNG image to be ready (from useSvgToPng hook)
     try {
       await page.waitForFunction(
         () => {
@@ -154,7 +205,7 @@ export async function generatePdfFromReportId(
       console.log('Chart image generation timeout - proceeding anyway', error);
     }
 
-    // Wait for all images to be loaded
+    // Wait for all images
     try {
       await page.waitForFunction(
         () => {
@@ -167,10 +218,11 @@ export async function generatePdfFromReportId(
       console.log('Images timeout - proceeding anyway');
     }
 
-    // Extra wait for any remaining async operations
+    // Extra small delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Ensure fonts are fully loaded in headless Chromium
+    // 🔤 Very important for your missing-symbols issue:
+    // wait until all fonts are loaded in headless Chromium
     try {
       await page.evaluate(async () => {
         const anyDoc = document as any;
@@ -183,7 +235,7 @@ export async function generatePdfFromReportId(
       console.log('document.fonts.ready check failed (continuing anyway):', e);
     }
 
-    // Print CSS: pagination & layout tweaks
+    // Inject print styles
     await page.addStyleTag({
       content: `
         @page { size: A4; margin: 10mm; }
@@ -328,6 +380,7 @@ export async function generatePdfFromReportId(
       `,
     });
 
+    // Generate PDF
     const pdfOptions = {
       format: options?.format || ('A4' as const),
       printBackground: options?.printBackground ?? true,
@@ -352,16 +405,11 @@ export async function generatePdfFromReportId(
   } catch (error) {
     try {
       await browser?.close?.();
-    } catch {
-      // ignore
-    }
+    } catch {}
     throw error;
   }
 }
 
-/**
- * No top-level signing — everything runs lazily inside functions.
- */
 export async function issuePdfTokenForCurrentUser() {
   const user = await getSessionUser();
   if (!user) return null;
