@@ -7,6 +7,9 @@ import { useMemo } from 'react';
  * Single responsibility: transform various error shapes into string messages.
  */
 export function useErrorMessage(...errors: Array<unknown | null | undefined>): string | null {
+  // Serialize errors for stable dependency comparison
+  const errorsKey = JSON.stringify(errors);
+
   return useMemo(() => {
     for (const error of errors) {
       if (error instanceof Error) {
@@ -17,5 +20,6 @@ export function useErrorMessage(...errors: Array<unknown | null | undefined>): s
       }
     }
     return null;
-  }, [...errors]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorsKey]);
 }

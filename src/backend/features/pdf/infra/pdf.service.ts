@@ -5,27 +5,8 @@ import { getReportById } from '@/backend/features/reports';
 import { generatePdfToken } from './pdf-token.util';
 import { getSessionUser } from '@/backend/core/auth/get-session';
 
-// Use puppeteer-core + @sparticuz/chromium-min on Vercel; fall back to puppeteer locally
-const forceLocalPuppeteer = process.env.PDF_FORCE_LOCAL === 'true';
-
-let chromium: any = null;
-let useServerlessChromium = !!process.env.VERCEL && !forceLocalPuppeteer;
-
-if (useServerlessChromium) {
-  try {
-    chromium = require('@sparticuz/chromium-min');
-  } catch {
-    // If the package isn't available for some reason, fall back to local Puppeteer
-    useServerlessChromium = false;
-  }
-}
-
-let puppeteer: any;
-if (useServerlessChromium) {
-  puppeteer = require('puppeteer-core');
-} else {
-  puppeteer = require('puppeteer');
-}
+// Use plain puppeteer everywhere (no Sparticuz)
+const puppeteer = require('puppeteer');
 
 const FRONTEND_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
@@ -46,58 +27,15 @@ export async function generatePdfFromReportId(
   // Build secure URL with id and pdfToken
   const puppeteerUrl = `${FRONTEND_BASE_URL}/pdf-preview/public?id=${reportId}&pdfToken=${pdfToken}`;
 
-  // Launch Puppeteer (Vercel-friendly when in serverless environment)
   let browser: any;
-  try {
-    if (useServerlessChromium && chromium) {
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: (chromium as any).headless ?? true,
-        ignoreHTTPSErrors: true,
-      });
-    } else {
-      browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      });
-    }
-  } catch (launchError: any) {
-    const message = launchError?.message || '';
-    const stderr = (launchError && (launchError.stderr || launchError.toString?.())) || '';
-    const combined = `${message}\n${stderr}`;
-    const isMissingLib = /libnss3\.so|error while loading shared libraries|code:\s*127/i.test(
-      combined,
-    );
-
-    // If serverless chromium fails (e.g., missing libs), try local puppeteer as a fallback
-    if (useServerlessChromium) {
-      try {
-        const localPuppeteer = require('puppeteer');
-        browser = await localPuppeteer.launch({
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
-        console.log('Fell back to local Puppeteer successfully.');
-      } catch (fallbackError: any) {
-        const help =
-          'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
-        const advice = isMissingLib
-          ? `Missing native libraries for Chromium. ${help}. Or set PDF_FORCE_LOCAL=true to force local Puppeteer.`
-          : 'Failed to launch Chromium for PDF generation.';
-        throw new Error(`${advice}\nOriginal error: ${message || stderr}`);
-      }
-    } else {
-      const help =
-        'Install system dependencies (Debian/Ubuntu): sudo apt-get update && sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libasound2 libxshmfence1 libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libxkbcommon0 libgbm1 libdrm2 libxfixes3 libxss1 fonts-liberation';
-      throw new Error(
-        `Failed to launch Chromium for PDF generation.\n${help}\nOriginal error: ${message || stderr}`,
-      );
-    }
-  }
 
   try {
+    // Launch Chromium downloaded by puppeteer
+    browser = await puppeteer.launch({
+      headless: true, // or 'new' if you prefer
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
     const page = await browser.newPage();
 
     // Set a longer timeout for navigation and all operations (90 seconds)
@@ -245,7 +183,7 @@ export async function generatePdfFromReportId(
       console.log('document.fonts.ready check failed (continuing anyway):', e);
     }
 
-    // Print CSS: pagination fixes (allow text/content to continue on next page)
+    // Print CSS: pagination & layout tweaks
     await page.addStyleTag({
       content: `
         @page { size: A4; margin: 10mm; }
@@ -261,7 +199,7 @@ export async function generatePdfFromReportId(
           padding: 0 !important;
           border: none !important;
           background: white !important;
-          min-height: auto !important; /* avoid trailing blank page */
+          min-height: auto !important;
         }
     
         @media print {
@@ -414,11 +352,16 @@ export async function generatePdfFromReportId(
   } catch (error) {
     try {
       await browser?.close?.();
-    } catch {}
+    } catch {
+      // ignore
+    }
     throw error;
   }
 }
 
+/**
+ * No top-level signing — everything runs lazily inside functions.
+ */
 export async function issuePdfTokenForCurrentUser() {
   const user = await getSessionUser();
   if (!user) return null;
