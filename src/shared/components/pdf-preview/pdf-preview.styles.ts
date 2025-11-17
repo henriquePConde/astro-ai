@@ -2,10 +2,13 @@ import React from 'react';
 
 export const GLOBAL_STYLES = `
   /* Local font that contains zodiac + planetary symbols.
-     File must exist at public/fonts/DejaVuSans.ttf */
+     File must exist at public/fonts/DejaVuSans.ttf (and/or system-installed DejaVu Sans) */
   @font-face {
     font-family: 'AstroSymbols';
-    src: url('/fonts/DejaVuSans.ttf') format('truetype');
+    src:
+      local('DejaVu Sans'),
+      local('DejaVuSans'),
+      url('/fonts/DejaVuSans.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;

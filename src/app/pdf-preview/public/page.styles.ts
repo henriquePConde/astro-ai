@@ -50,10 +50,11 @@ export const styles = {
         overflow: 'visible !important',
         height: 'auto !important',
         maxHeight: 'none !important',
-        transform: 'none !important',
         filter: 'none !important',
         backdropFilter: 'none !important',
         contain: 'none !important',
+        // 🚫 DO NOT reset transform here – it breaks D3 / layout-based transforms
+        // transform: 'none !important',
       },
 
       /* 3) Neutralize flex/grid so long text can split */
