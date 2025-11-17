@@ -1,13 +1,15 @@
+// src/shared/components/astro-chart/AstroWheel.tsx
 'use client';
 
 import { useRef, useEffect, useCallback } from 'react';
 import * as d3 from 'd3';
 import type { ChartData, ChartDimensions, PlanetInfo } from './types';
 import { planetColors } from './types';
-import { zodiacSymbols } from './utils/zodiacUtils';
 import { calculatePlanetPositions, getAdjustedPlanetPositions } from './utils/planetUtils';
 import { getSignInfo } from './utils/signUtils';
 import { useOptionalChartInteractions } from '@/features/home/components/chart-experience/context/chart-interactions.context';
+import { renderZodiacIcon } from './utils/zodiacIconUtils';
+import { renderPlanetIcon } from './utils/planetIconUtils';
 
 interface AstroWheelProps {
   data: ChartData | null;
@@ -15,11 +17,6 @@ interface AstroWheelProps {
   height?: number;
   initialScale?: number; // Default initial zoom scale (default: 0.7 for regular view, 1.0 for PDF)
 }
-
-// Use a robust, generic font stack that works in dev, prod, and headless Chrome.
-// Modern browsers (including headless) have symbol fonts for zodiac / planets.
-const SYMBOL_FONT_FAMILY =
-  'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI Emoji", sans-serif';
 
 const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -140,12 +137,13 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
           .attr('stroke-opacity', 0.6);
       });
 
-      // === Zodiac signs ===
+      // === Zodiac signs (as SVG icons now) ===
       const signInfo = getSignInfo(data);
       g.selectAll('.zodiac-sign').remove();
 
       signInfo.forEach((sign) => {
         if (sign.isIntercepted) {
+          // Intercepted sign: place a single icon at middle of intercepted span
           const mid = sign.signIndex * 30 + 15;
 
           for (let i = 0; i < 12; i++) {
@@ -161,30 +159,24 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
               const x = symbolRadius * Math.cos(angle);
               const y = -symbolRadius * Math.sin(angle);
 
-              const text = g
-                .append('text')
-                .attr('x', x)
-                .attr('y', y)
-                .attr('text-anchor', 'middle')
-                .attr('dominant-baseline', 'middle')
-                .attr('font-size', '28px')
-                .attr('fill', '#666')
+              const group = g
+                .append('g')
                 .attr('class', `zodiac-sign zodiac-sign-${sign.name.toLowerCase()}`)
-                .attr('font-family', SYMBOL_FONT_FAMILY)
-                .text(zodiacSymbols[sign.signIndex]);
+                .attr('transform', `translate(${x},${y})`);
+
+              // grey-ish intercepted color
+              renderZodiacIcon(group, sign.signIndex, 28, '#666');
 
               if (interactions) {
-                text
+                group
                   .style('cursor', 'pointer')
                   .on('mouseenter', function (event: any) {
                     if (!interactions.enabled) return;
-                    d3.select<SVGTextElement, unknown>(this).attr('font-size', '38px');
                     const nativeEvent = getNativeEvent(event) as MouseEvent;
                     interactions.onSignHover(sign.signIndex, nativeEvent);
                   })
                   .on('mouseleave', function () {
                     if (!interactions.enabled) return;
-                    d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                     interactions.onSignLeave();
                   })
                   .on('click', function (event: any) {
@@ -200,6 +192,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             }
           }
         } else {
+          // Non-intercepted: place at each ruling house cusp position
           sign.rulingHouses.forEach((_, i) => {
             const degree = sign.signIndex * 30 + sign.cuspDegrees[i];
             const angle =
@@ -207,30 +200,24 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             const x = symbolRadius * Math.cos(angle);
             const y = -symbolRadius * Math.sin(angle);
 
-            const text = g
-              .append('text')
-              .attr('x', x)
-              .attr('y', y)
-              .attr('text-anchor', 'middle')
-              .attr('dominant-baseline', 'middle')
-              .attr('font-size', '28px')
-              .attr('fill', '#fff')
+            const group = g
+              .append('g')
               .attr('class', `zodiac-sign zodiac-sign-${sign.name.toLowerCase()}`)
-              .attr('font-family', SYMBOL_FONT_FAMILY)
-              .text(zodiacSymbols[sign.signIndex]);
+              .attr('transform', `translate(${x},${y})`);
+
+            // bright color for normal sign
+            renderZodiacIcon(group, sign.signIndex, 28, '#ffffff');
 
             if (interactions) {
-              text
+              group
                 .style('cursor', 'pointer')
                 .on('mouseenter', function (event: any) {
                   if (!interactions.enabled) return;
-                  d3.select<SVGTextElement, unknown>(this).attr('font-size', '38px');
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
                   interactions.onSignHover(sign.signIndex, nativeEvent);
                 })
                 .on('mouseleave', function () {
                   if (!interactions.enabled) return;
-                  d3.select<SVGTextElement, unknown>(this).attr('font-size', '28px');
                   interactions.onSignLeave();
                 })
                 .on('click', function (event: any) {
@@ -542,9 +529,9 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
         }
       }
 
-      // === Planets ===
+      // === Planets (as SVG icons now) ===
       const adjustedPositions = getAdjustedPlanetPositions(planetPositions);
-      const planetFontSize = Math.floor(radius * 0.085);
+      const planetIconSize = Math.floor(radius * 0.085);
 
       planetPositions.forEach((planet) => {
         const adjustedPosition = adjustedPositions.get(planet.name) ?? parseFloat(planet.position);
@@ -554,19 +541,14 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
         const x = planetRadius * Math.cos(angle);
         const y = -planetRadius * Math.sin(angle);
 
-        const group = g.append('g').attr('transform', `translate(${x},${y})`);
-        group.attr('class', 'planet-group');
+        const group = g
+          .append('g')
+          .attr('class', 'planet-group')
+          .attr('transform', `translate(${x},${y})`);
 
         const color = (planetColors as any)[planet.name] || '#ffffff';
 
-        const text = group
-          .append('text')
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('font-size', `${planetFontSize}px`)
-          .attr('fill', color)
-          .attr('font-family', SYMBOL_FONT_FAMILY)
-          .text(planet.symbol || planet.name);
+        renderPlanetIcon(group, planet.name, planetIconSize, color);
 
         if (interactions) {
           group
@@ -574,10 +556,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             .on('mouseenter', function (event: any) {
               if (!interactions.enabled) return;
 
-              text.attr('font-size', `${planetFontSize * 1.18}px`).attr('font-weight', 'bold');
-
               let nativeEvent: MouseEvent;
-
               if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
                 nativeEvent = event as MouseEvent;
               } else {
@@ -602,9 +581,6 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             })
             .on('mouseleave', function () {
               if (!interactions.enabled) return;
-
-              text.attr('font-size', `${planetFontSize}px`).attr('font-weight', 'normal');
-
               interactions.onPlanetLeave();
             })
             .on('click', function (event: any) {
@@ -712,7 +688,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
     const enabled = interactions?.enabled ?? true;
 
     svg
-      .selectAll<SVGTextElement, unknown>('.zodiac-sign')
+      .selectAll<SVGGElement, unknown>('.zodiac-sign')
       .style('pointer-events', enabled ? 'auto' : 'none')
       .style('cursor', enabled ? 'pointer' : 'default');
 
