@@ -1,24 +1,13 @@
 import React from 'react';
 
 export const GLOBAL_STYLES = `
-  /* Local font that contains zodiac + planetary symbols.
-     File must exist at public/fonts/DejaVuSans.ttf (and/or system-installed DejaVu Sans) */
-  @font-face {
-    font-family: 'AstroSymbols';
-    src:
-      local('DejaVu Sans'),
-      local('DejaVuSans'),
-      url('/fonts/DejaVuSans.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  /* Use it for all glyph-based text inside the chart */
+  /* Use a robust system / browser font stack for glyph-based text inside the chart.
+     We no longer rely on a custom AstroSymbols font so production isn't dependent
+     on /fonts assets or server font availability. */
   .pdf-preview-container .zodiac-sign,
   .pdf-preview-container .planet-group text {
-    font-family: 'AstroSymbols', system-ui, -apple-system, BlinkMacSystemFont,
-      'Segoe UI Symbol', 'Segoe UI Emoji', sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI Symbol", "Segoe UI Emoji", sans-serif;
   }
 
   @media print {

@@ -16,8 +16,10 @@ interface AstroWheelProps {
   initialScale?: number; // Default initial zoom scale (default: 0.7 for regular view, 1.0 for PDF)
 }
 
+// Use a robust, generic font stack that works in dev, prod, and headless Chrome.
+// Modern browsers (including headless) have symbol fonts for zodiac / planets.
 const SYMBOL_FONT_FAMILY =
-  'AstroSymbols, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI Emoji", sans-serif';
+  'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI Emoji", sans-serif';
 
 const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
