@@ -1,4 +1,3 @@
-// src/shared/components/astro-chart/AstroWheel.tsx
 'use client';
 
 import { useRef, useEffect, useCallback } from 'react';
@@ -8,7 +7,7 @@ import { planetColors } from './types';
 import { calculatePlanetPositions, getAdjustedPlanetPositions } from './utils/planetUtils';
 import { getSignInfo } from './utils/signUtils';
 import { useOptionalChartInteractions } from '@/features/home/components/chart-experience/context/chart-interactions.context';
-import { renderZodiacIcon } from './utils/zodiacIconUtils';
+import { renderZodiacIcon } from './utils/zodiac';
 import { renderPlanetIcon } from './utils/planetIconUtils';
 
 interface AstroWheelProps {
@@ -416,6 +415,8 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
         }
       }
 
+      g.selectAll<SVGGElement, unknown>('.zodiac-sign').raise();
+
       // === Aspects ===
       const aspectGroup = g.append('g').attr('class', 'aspects');
 
@@ -531,7 +532,8 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
 
       // === Planets (as SVG icons now) ===
       const adjustedPositions = getAdjustedPlanetPositions(planetPositions);
-      const planetIconSize = Math.floor(radius * 0.085);
+      // Slightly larger multiplier so planets are more pronounced
+      const planetIconSize = Math.floor(radius * 0.105);
 
       planetPositions.forEach((planet) => {
         const adjustedPosition = adjustedPositions.get(planet.name) ?? parseFloat(planet.position);
@@ -548,13 +550,21 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
 
         const color = (planetColors as any)[planet.name] || '#ffffff';
 
+        // Draw SVG icon for the planet
         renderPlanetIcon(group, planet.name, planetIconSize, color);
 
+        // Hover highlight + interactions
         if (interactions) {
           group
             .style('cursor', 'pointer')
             .on('mouseenter', function (event: any) {
               if (!interactions.enabled) return;
+
+              const sel = d3.select<SVGGElement, unknown>(this);
+              const originalTransform = sel.attr('transform') || '';
+              // Store original transform so we can restore it on mouseleave
+              sel.attr('data-original-transform', originalTransform);
+              sel.attr('transform', `${originalTransform} scale(1.18)`);
 
               let nativeEvent: MouseEvent;
               if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
@@ -581,6 +591,13 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
             })
             .on('mouseleave', function () {
               if (!interactions.enabled) return;
+
+              const sel = d3.select<SVGGElement, unknown>(this);
+              const originalTransform = sel.attr('data-original-transform');
+              if (originalTransform) {
+                sel.attr('transform', originalTransform);
+              }
+
               interactions.onPlanetLeave();
             })
             .on('click', function (event: any) {
