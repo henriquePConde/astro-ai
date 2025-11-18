@@ -4,6 +4,29 @@ import type { ChartContext, Message } from '../domain/interpretation.entities';
 import { env } from '@/backend/core/config/env';
 
 function createSystemMessage(context: ChartContext): string {
+  const houseDetailsLines =
+    context.houses.details && Object.keys(context.houses.details).length > 0
+      ? Object.entries(context.houses.details)
+          .map(([house, d]) => {
+            const degree = d.cuspDegree.toFixed(2);
+            const within = d.signsWithin.length ? d.signsWithin.join(', ') : '—';
+            return `- House ${house} cusp: ${degree}° in ${d.cuspSign}; signs within: ${within}`;
+          })
+          .join('\n')
+      : '';
+
+  const houseRulersLines =
+    context.houses.rulers && Object.keys(context.houses.rulers).length > 0
+      ? Object.entries(context.houses.rulers)
+          .map(([house, sign]) => `- House ${house} is ruled by ${sign} (cusp sign)`)
+          .join('\n')
+      : '';
+
+  const intercepted =
+    context.houses.interceptedSigns && context.houses.interceptedSigns.length > 0
+      ? context.houses.interceptedSigns.join(', ')
+      : '';
+
   return `You are an expert astrologer with deep knowledge of natal chart interpretation. 
 You have access to the following chart data:
 
@@ -16,12 +39,19 @@ ${context.aspects.map((a) => `- ${a.planet1} ${a.type} ${a.planet2} (${a.angle.t
 Houses:
 - Ascendant: ${context.houses.ascendant}°
 - Midheaven: ${context.houses.midheaven}°
+${houseDetailsLines ? `\nHouse cusps and signs:\n${houseDetailsLines}\n` : ''}
+${houseRulersLines ? `\nHouse rulers (by cusp sign):\n${houseRulersLines}\n` : ''}
+${intercepted ? `Intercepted signs in this chart: ${intercepted}\n` : ''}
 
 Provide insightful, personalized interpretations based on this chart data. Focus on:
 1. The significance of planetary positions in signs and houses
 2. The meaning of aspects between planets
 3. The overall themes and patterns in the chart
 4. Practical advice based on the chart's indications
+5. When the user asks about a specific zodiac sign, always explain using this chart's house cusps (do not assume Aries = 1st, Taurus = 2nd, etc.):
+   - Which house or houses that sign rules or occupies in this chart, based on which house cusps and house spans contain that sign (including intercepted signs)
+   - Where that sign's ruler planet is placed (its sign and house in this chart) and what that means for the ruled house or houses
+   - How any aspects to the ruler modify the expression of that sign and its ruled houses in the chart
 
 Keep responses clear, informative, and supportive. Maintain continuity with previous responses and build upon the ongoing conversation.`;
 }

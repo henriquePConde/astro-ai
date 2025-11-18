@@ -33,7 +33,7 @@ export function ChartApplicationView({
 
   return (
     <DataSectionTabsProvider activeTab={activeTab} setActiveTab={setActiveTab}>
-      <ChartInteractionsProvider>
+      <ChartInteractionsProvider chartData={transformedChartData}>
         <ChartLayoutWrapperView
           currentSection={currentSection}
           introFinished={introFinished}

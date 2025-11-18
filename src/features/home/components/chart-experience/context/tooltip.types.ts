@@ -23,6 +23,8 @@ export type SignTooltip = {
   x: number;
   y: number;
   index: number; // 0-11
+  houseSummary?: string;
+  rulerSummary?: string;
 };
 
 export type AspectTooltip = {

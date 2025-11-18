@@ -22,6 +22,30 @@ export type ChartContext = {
   houses: {
     ascendant: number;
     midheaven: number;
+    cusps?: {
+      firstHouse: number;
+      secondHouse: number;
+      thirdHouse: number;
+      fourthHouse: number;
+      fifthHouse: number;
+      sixthHouse: number;
+      seventhHouse: number;
+      eighthHouse: number;
+      ninthHouse: number;
+      tenthHouse: number;
+      eleventhHouse: number;
+      twelfthHouse: number;
+    };
+    details?: Record<
+      string,
+      {
+        cuspDegree: number;
+        cuspSign: string;
+        signsWithin: string[];
+      }
+    >;
+    interceptedSigns?: string[];
+    rulers?: Record<string, string>;
   };
 };
 

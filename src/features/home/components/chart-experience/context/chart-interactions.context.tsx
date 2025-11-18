@@ -8,14 +8,135 @@ import { useAIInput } from '../components/astro-interpreter/hooks/use-ai-input.s
 import { ZODIAC_SIGNS } from '@/shared/components/astro-chart/utils/constants';
 import { useDataSectionTabsContext } from '../components/data-section/context/data-section-tabs.context';
 import { DATA_SECTION_TABS } from '../components/data-section/data-section.constants';
+import type { ChartData as WheelChartData } from '@/shared/components/astro-chart/types';
+import type { ChartData as HomeChartData } from '@/features/home/types/chart.types';
+import { getSignInfo } from '@/shared/components/astro-chart/utils/signUtils';
+import { calculatePlanetPositions } from '@/shared/components/astro-chart/utils/planetUtils';
+import { calculateChartAspects } from '../components/astro-interpreter/utils/aspectUtils';
+import { getRulerPlanetName } from '@/shared/components/astro-chart/utils/rulership';
 
 const ChartInteractionsContext = createContext<ChartInteractionsContextType | undefined>(undefined);
 
-const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+type ChartInteractionsProviderProps = {
+  children: React.ReactNode;
+  chartData: HomeChartData | null;
+};
+
+const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
+  children,
+  chartData,
+}) => {
   const { showTooltip, hideTooltip } = useTooltip();
   const { setAIInput } = useAIInput();
   const tabsContext = useDataSectionTabsContext();
   const [enabled, setEnabled] = useState(true);
+
+  const wheelData: WheelChartData | null = useMemo(() => {
+    if (!chartData) return null;
+
+    return {
+      planets: chartData.planets.map((p) => ({
+        name: p.name,
+        symbol: p.symbol,
+        position: p.position,
+        absolutePosition: p.absolutePosition,
+        sign: p.sign,
+      })),
+      houses: chartData.houses,
+      aspects: chartData.aspects ?? [],
+    };
+  }, [chartData]);
+
+  const signContext = useMemo(() => {
+    if (!wheelData) {
+      return null;
+    }
+
+    const signInfo = getSignInfo(wheelData);
+    const planetPositions = calculatePlanetPositions(wheelData);
+    const aspects = calculateChartAspects(planetPositions);
+
+    return {
+      signInfo,
+      planetPositions,
+      aspects,
+    };
+  }, [wheelData]);
+
+  const buildSignContextSummary = useCallback(
+    (index: number) => {
+      const signName = ZODIAC_SIGNS[index] || 'unknown sign';
+
+      if (!signContext) {
+        return {
+          signName,
+          houseSentence: '',
+          rulerSentence: '',
+          aspectsSentence: '',
+          contextSentence: '',
+        };
+      }
+
+      const info = signContext.signInfo[index];
+      let houseSentence = '';
+
+      if (info) {
+        if (info.rulingHouses.length > 0) {
+          const houses = info.rulingHouses;
+          const houseList =
+            houses.length === 1
+              ? `${houses[0]}`
+              : houses.length === 2
+                ? `${houses[0]} and ${houses[1]}`
+                : `${houses.slice(0, -1).join(', ')}, and ${houses[houses.length - 1]}`;
+
+          houseSentence = `${signName} rules house${houses.length > 1 ? 's' : ''} ${houseList}.`;
+        } else {
+          houseSentence = `${signName} does not rule any house cusp in this chart (it may be intercepted).`;
+        }
+      }
+
+      const rulerName = getRulerPlanetName(index);
+      let rulerSentence = '';
+      let aspectsSentence = '';
+
+      if (rulerName && signContext.planetPositions.length > 0) {
+        const rulerPlanet = signContext.planetPositions.find((p) => p.name === rulerName);
+
+        if (rulerPlanet) {
+          const { sign, signDegree, house } = rulerPlanet;
+          rulerSentence = `Its ruler ${rulerName} is in ${sign} at ${signDegree} in house ${house}.`;
+        }
+
+        if (signContext.aspects.length > 0) {
+          const relevantAspects = signContext.aspects.filter(
+            (a) => a.planet1 === rulerName || a.planet2 === rulerName,
+          );
+
+          if (relevantAspects.length > 0) {
+            const formatted = relevantAspects.slice(0, 3).map((a) => {
+              const other = a.planet1 === rulerName ? a.planet2 : a.planet1;
+              return `${rulerName} ${a.type.toLowerCase()} ${other} (${a.angle.toFixed(0)}°)`;
+            });
+
+            aspectsSentence = `Key aspects involving its ruler include ${formatted.join('; ')}.`;
+          }
+        }
+      }
+
+      const pieces = [houseSentence, rulerSentence, aspectsSentence].filter(Boolean);
+      const contextSentence = pieces.join(' ');
+
+      return {
+        signName,
+        houseSentence,
+        rulerSentence,
+        aspectsSentence,
+        contextSentence,
+      };
+    },
+    [signContext],
+  );
 
   // Helper function to switch to AI tab if needed
   const switchToAITabIfNeeded = useCallback(() => {
@@ -98,11 +219,15 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           console.warn('Invalid mouse coordinates for sign hover:', e);
           return;
         }
+        const { houseSentence, rulerSentence } = buildSignContextSummary(index);
+
         showTooltip({
           kind: 'sign',
           x: e.clientX,
           y: e.clientY,
           index,
+          houseSummary: houseSentence || undefined,
+          rulerSummary: rulerSentence || undefined,
         });
       },
       onSignLeave: () => {
@@ -158,9 +283,9 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         if (!enabled) return;
         // Switch to AI Interpreter tab if not already on it
         switchToAITabIfNeeded();
-        const signName = ZODIAC_SIGNS[index] || 'unknown sign';
-        const message = `Tell me about the meaning of ${signName} in my chart`;
-        setAIInput(message);
+        const { signName } = buildSignContextSummary(index);
+        const baseQuestion = `Tell me about the meaning of ${signName} in my chart`;
+        setAIInput(baseQuestion);
       },
 
       onAspectClick: (aspect, evt) => {
@@ -173,7 +298,7 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setAIInput(message);
       },
     }),
-    [enabled, showTooltip, hideTooltip, setAIInput, switchToAITabIfNeeded],
+    [enabled, showTooltip, hideTooltip, setAIInput, switchToAITabIfNeeded, buildSignContextSummary],
   );
 
   return (
@@ -181,11 +306,12 @@ const InnerInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   );
 };
 
-export const ChartInteractionsProvider: React.FC<{ children: React.ReactNode }> = ({
+export const ChartInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
   children,
+  chartData,
 }) => (
   <TooltipProvider>
-    <InnerInteractionsProvider>{children}</InnerInteractionsProvider>
+    <InnerInteractionsProvider chartData={chartData}>{children}</InnerInteractionsProvider>
   </TooltipProvider>
 );
 

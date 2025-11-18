@@ -14,12 +14,37 @@ export const chartAspectDto = z.object({
   angle: z.number(),
 });
 
+const housesCuspsDto = z.object({
+  firstHouse: z.number(),
+  secondHouse: z.number(),
+  thirdHouse: z.number(),
+  fourthHouse: z.number(),
+  fifthHouse: z.number(),
+  sixthHouse: z.number(),
+  seventhHouse: z.number(),
+  eighthHouse: z.number(),
+  ninthHouse: z.number(),
+  tenthHouse: z.number(),
+  eleventhHouse: z.number(),
+  twelfthHouse: z.number(),
+});
+
+const houseDetailsDto = z.object({
+  cuspDegree: z.number(),
+  cuspSign: z.string(),
+  signsWithin: z.array(z.string()),
+});
+
 export const chartContextDto = z.object({
   planets: z.array(chartPlanetDto),
   aspects: z.array(chartAspectDto),
   houses: z.object({
     ascendant: z.number(),
     midheaven: z.number(),
+    cusps: housesCuspsDto.optional(),
+    details: z.record(houseDetailsDto).optional(),
+    interceptedSigns: z.array(z.string()).optional(),
+    rulers: z.record(z.string()).optional(),
   }),
 });
 

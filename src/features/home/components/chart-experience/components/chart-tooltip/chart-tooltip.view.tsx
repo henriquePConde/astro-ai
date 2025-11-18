@@ -60,6 +60,8 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
           <Typography sx={styles.contentText()(theme)}>
             {zodiacSymbols[idx]} {name}
           </Typography>
+          {tooltip.houseSummary && <Typography>{tooltip.houseSummary}</Typography>}
+          {tooltip.rulerSummary && <Typography>{tooltip.rulerSummary}</Typography>}
           <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
