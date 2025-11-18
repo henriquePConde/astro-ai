@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import type { ChartData as WheelChartData } from '@/shared/components/astro-chart/types';
 import { AstroInterpreterView } from './astro-interpreter.view';
 import { useInterpreter } from './hooks/use-interpreter';
 import { useDailyUsage } from '@/features/reports/services/reports.queries';
 import type { AstroInterpreterContainerProps } from './astro-interpreter.types';
+import { ASTRO_INTERPRETER_CONFIG } from './astro-interpreter.config';
 
 export function AstroInterpreterContainer({ chartData }: AstroInterpreterContainerProps) {
   // Normalize to the wheel-style ChartData the AstroWheel & utils expect.
@@ -25,6 +26,12 @@ export function AstroInterpreterContainer({ chartData }: AstroInterpreterContain
   );
 
   const { input, setInput, isLoading, messages, handleSubmit } = useInterpreter(wheelData);
+  const handleSuggestedQuestionClick = useCallback(
+    (question: string) => {
+      setInput(question);
+    },
+    [setInput],
+  );
   const { data: usage } = useDailyUsage();
 
   return (
@@ -35,6 +42,10 @@ export function AstroInterpreterContainer({ chartData }: AstroInterpreterContain
       onInputChange={setInput}
       onSubmit={handleSubmit}
       usage={usage}
+      suggestedQuestions={ASTRO_INTERPRETER_CONFIG.suggestedQuestions}
+      onSuggestedQuestionClick={handleSuggestedQuestionClick}
+      suggestionsTitle={ASTRO_INTERPRETER_CONFIG.copy.suggestions.title}
+      suggestionsSubtitle={ASTRO_INTERPRETER_CONFIG.copy.suggestions.subtitle}
     />
   );
 }

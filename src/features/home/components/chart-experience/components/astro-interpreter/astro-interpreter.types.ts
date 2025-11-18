@@ -12,4 +12,8 @@ export interface AstroInterpreterViewProps {
   onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   usage?: DailyUsage;
+  suggestedQuestions: readonly string[];
+  onSuggestedQuestionClick: (question: string) => void;
+  suggestionsTitle: string;
+  suggestionsSubtitle?: string;
 }

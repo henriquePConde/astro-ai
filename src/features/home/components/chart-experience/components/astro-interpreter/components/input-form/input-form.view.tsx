@@ -14,6 +14,8 @@ export function InputFormView({ input, onChange, onSubmit, disabled }: InputForm
         <TextField
           fullWidth
           size="small"
+          multiline
+          maxRows={3}
           value={input}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Ask about your chart..."
