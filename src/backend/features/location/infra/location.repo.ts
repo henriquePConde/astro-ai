@@ -142,7 +142,8 @@ function makeHttpRequest(url: string): Promise<any> {
       path: urlObj.pathname + urlObj.search,
       method: 'GET',
       headers: HEADERS,
-      timeout: 10000,
+      // Keep external requests well under Vercel's 10s limit
+      timeout: 7000,
     };
 
     const req = https.request(options, (res) => {
@@ -206,7 +207,8 @@ export function makeLocationRepo() {
       // If we don't have enough results, try the API for additional matches
       if (results.length < limit) {
         try {
-          await delay(1000); // Rate limiting for Nominatim API
+          // Keep a small delay to respect Nominatim, but avoid adding a full second
+          await delay(300);
 
           const searchParams = new URLSearchParams({
             q: query.trim(),
@@ -274,7 +276,8 @@ export function makeLocationRepo() {
       }
 
       try {
-        await delay(1000); // Rate limiting for Nominatim API
+        // Keep a small delay to respect Nominatim, but avoid adding a full second
+        await delay(300);
 
         const countryCode = countryName ? getCountryCode(countryName) : null;
 

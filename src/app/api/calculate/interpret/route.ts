@@ -1,3 +1,5 @@
+export const maxDuration = 30;
+
 import { NextRequest } from 'next/server';
 import { interpretBody } from '@/backend/features/interpretation/http/interpretation.schemas';
 import { interpretChartUseCase } from '@/backend/features/interpretation';
