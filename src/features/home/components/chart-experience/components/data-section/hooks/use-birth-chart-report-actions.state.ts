@@ -91,6 +91,11 @@ export function useBirthChartReportActions(
 
   const generateReport = useCallback(() => {
     if (!birthData) return;
+    // Reset previous job state so progress starts from a clean slate
+    // when (re)generating a report.
+    setJobId(null);
+    setReportData(undefined);
+
     generateReportMutation(
       { birthData, chartData },
       {
