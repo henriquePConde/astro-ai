@@ -89,7 +89,9 @@ export function ReportAccordionView({
 }: ReportAccordionViewProps) {
   const theme = useTheme();
 
-  if (isGenerating && !hasContent) {
+  // While a report is being generated (including regenerate), hide existing content
+  // and show only the loading panel.
+  if (isGenerating) {
     return (
       <ReportLoadingPanel
         variant="generate"
@@ -110,18 +112,6 @@ export function ReportAccordionView({
 
   return (
     <Box sx={styles.container()(theme)}>
-      {isGenerating && hasContent && (
-        <Box sx={{ mb: 2 }}>
-          <ReportLoadingPanel
-            variant="generate"
-            title={config.copy.generatingTitle}
-            subtitle={config.copy.generatingSubtitle}
-            ctaLabel={config.copy.generatingCta}
-            jobProgress={jobProgress}
-            onGoToAI={onGoToAI}
-          />
-        </Box>
-      )}
       {isDownloading && (
         <Box sx={{ mb: 2 }}>
           <ReportLoadingPanel
