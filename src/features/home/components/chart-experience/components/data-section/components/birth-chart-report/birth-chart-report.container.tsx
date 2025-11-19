@@ -16,6 +16,8 @@ export function BirthChartReportContainer({
   hasSections,
   onGenerate,
   onDownloadPdf,
+  jobProgress,
+  onGoToAI,
 }: BirthChartReportContainerProps) {
   const { handleGenerateClick, handleDownloadClick } = useBirthChartReportHandlers({
     birthData,
@@ -49,6 +51,8 @@ export function BirthChartReportContainer({
       generateButtonText={generateButtonText}
       usage={usage}
       config={BIRTH_CHART_REPORT_CONFIG}
+      jobProgress={jobProgress}
+      onGoToAI={onGoToAI}
     />
   );
 }

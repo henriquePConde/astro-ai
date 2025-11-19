@@ -24,6 +24,30 @@ export type Report = {
   updatedAt: Date;
 };
 
+export type ReportJobStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
+
+export type ReportJobMeta = {
+  // Serialized context for generation steps (e.g., transformed chart data)
+  transformedData?: any;
+};
+
+export type ReportJob = {
+  id: string;
+  userId: string;
+  personName: string;
+  birthData: any;
+  status: ReportJobStatus;
+  currentStep: number;
+  totalSteps: number;
+  progress: number;
+  errorMessage?: string | null;
+  partialContent?: Partial<ReportContent> | null;
+  meta?: ReportJobMeta | null;
+  reportId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 /**
  * Validates report content structure.
  */

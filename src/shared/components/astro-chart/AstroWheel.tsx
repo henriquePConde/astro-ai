@@ -658,7 +658,9 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
   }, [data, width, height, drawChart, initialScale]);
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    // Only set up zoom once the chart (and its zoom group) has been rendered
+    if (!svgRef.current || !data) return;
+
     const svg = d3.select(svgRef.current);
     const g = svg.select<SVGGElement>('.zoom-group');
     if (g.empty()) return;
@@ -697,7 +699,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
       svg.on('.zoom', null);
       svg.on('dblclick.zoom', null);
     }
-  }, [interactions?.enabled, initialScale]);
+  }, [data, interactions?.enabled, initialScale]);
 
   useEffect(() => {
     if (!svgRef.current) return;

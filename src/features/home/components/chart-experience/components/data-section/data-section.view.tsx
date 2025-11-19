@@ -23,6 +23,7 @@ export function DataSectionView({
   hasSections,
   onGenerateReport,
   onDownloadPdf,
+  jobProgress,
 }: DataSectionViewProps) {
   const theme = useTheme();
   if (!chartData) return null;
@@ -61,6 +62,8 @@ export function DataSectionView({
             hasSections={hasSections}
             onGenerate={onGenerateReport}
             onDownloadPdf={onDownloadPdf}
+            jobProgress={jobProgress}
+            onGoToAI={() => onTabChange(DATA_SECTION_TABS.AI)}
           />
         </Box>
       </Box>

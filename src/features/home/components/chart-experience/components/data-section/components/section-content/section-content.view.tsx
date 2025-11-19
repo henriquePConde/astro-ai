@@ -33,6 +33,8 @@ export function SectionContentView({
           hasSections={hasSections}
           onGenerate={onGenerateReport}
           onDownloadPdf={onDownloadPdf}
+          jobProgress={null}
+          onGoToAI={() => {}}
         />
       )}
     </Box>

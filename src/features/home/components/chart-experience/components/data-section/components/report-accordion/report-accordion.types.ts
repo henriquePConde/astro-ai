@@ -9,6 +9,8 @@ export interface ReportAccordionViewProps {
   openSections: Record<string, boolean>;
   onToggleSection: (key: string) => void;
   config: typeof REPORT_ACCORDION_CONFIG;
+  jobProgress: number | null;
+  onGoToAI: () => void;
 }
 
 export interface ReportAccordionContainerProps {
@@ -16,4 +18,6 @@ export interface ReportAccordionContainerProps {
   isGenerating: boolean;
   hasBirthData: boolean;
   hasContent: boolean;
+  jobProgress: number | null;
+  onGoToAI: () => void;
 }

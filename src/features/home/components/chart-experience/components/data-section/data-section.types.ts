@@ -28,4 +28,5 @@ export interface DataSectionViewProps {
   hasSections: boolean;
   onGenerateReport: () => void;
   onDownloadPdf: () => void;
+  jobProgress: number | null;
 }

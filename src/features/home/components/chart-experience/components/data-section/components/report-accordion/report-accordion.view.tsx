@@ -2,7 +2,7 @@
 
 'use client';
 
-import { Box, useTheme } from '@mui/material';
+import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material';
 import { styles } from './report-accordion.styles';
 import type { ReportAccordionViewProps } from './report-accordion.types';
 import { MarkdownRenderer } from '@/shared/components/markdown-renderer';
@@ -27,11 +27,40 @@ export function ReportAccordionView({
   openSections,
   onToggleSection,
   config,
+  jobProgress,
+  onGoToAI,
 }: ReportAccordionViewProps) {
   const theme = useTheme();
 
   if (isGenerating && !hasContent) {
-    return <Box sx={styles.generatingBox()(theme)}>{config.copy.generating}</Box>;
+    const percent = jobProgress != null ? Math.round(jobProgress * 100) : null;
+
+    return (
+      <Box sx={styles.generatingBox()(theme)}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          {config.copy.generatingTitle}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {config.copy.generatingSubtitle}
+        </Typography>
+        <Box sx={{ mt: 1 }}>
+          <LinearProgress
+            variant={percent != null ? 'determinate' : 'indeterminate'}
+            value={percent ?? undefined}
+          />
+          {percent != null && (
+            <Typography variant="caption" sx={{ mt: 0.5, display: 'block' }}>
+              {percent}% complete
+            </Typography>
+          )}
+        </Box>
+        <Box sx={{ mt: 1.5 }}>
+          <Button size="small" variant="outlined" onClick={onGoToAI}>
+            {config.copy.generatingCta}
+          </Button>
+        </Box>
+      </Box>
+    );
   }
 
   if (!hasBirthData && !isGenerating) {

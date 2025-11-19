@@ -1,6 +1,9 @@
 export const REPORT_ACCORDION_CONFIG = {
   copy: {
-    generating: 'Generating your report...',
+    generatingTitle: 'Generating your report...',
+    generatingSubtitle:
+      'This can take a few minutes while we analyze your chart in depth. You can explore the AI interpreter while you wait.',
+    generatingCta: 'Go to AI interpreter',
     noBirthData: 'Provide your birth details above to generate a personalized report.',
     sectionLabels: {
       introduction: 'Introduction',

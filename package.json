@@ -16,6 +16,7 @@
     "prepare": "husky install",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "bash -lc 'export $(grep -v \"^#\" .env.production | xargs); prisma migrate deploy'",
     "prisma:studio": "prisma studio",
     "gen:types": "dotenv -e .env -- npx supabase gen types typescript --db-url \"$DB_URL\" --schema public,auth,storage,graphql_public > src/types/supabase.ts"
   },

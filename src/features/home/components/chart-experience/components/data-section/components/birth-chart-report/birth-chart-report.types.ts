@@ -16,6 +16,8 @@ export interface BirthChartReportViewProps {
   generateButtonText: string;
   usage?: DailyUsage;
   config: typeof BIRTH_CHART_REPORT_CONFIG;
+  jobProgress: number | null;
+  onGoToAI: () => void;
 }
 
 export interface BirthChartReportContainerProps {
@@ -27,4 +29,6 @@ export interface BirthChartReportContainerProps {
   hasSections: boolean;
   onGenerate: () => void;
   onDownloadPdf: () => void;
+  jobProgress: number | null;
+  onGoToAI: () => void;
 }

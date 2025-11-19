@@ -11,19 +11,6 @@ export interface GenerateBirthChartReportPayload {
   chartData?: any; // optional: include if/when backend uses it
 }
 
-/**
- * Backend /api/reports POST:
- *  - parses with generateReportBody (BirthData)
- *  - generateReport(user.id, birthData, name)
- *  - returns reportDto:
- *      {
- *        id, userId, personName,
- *        birthData,
- *        content: { ...sections },
- *        createdAt, updatedAt
- *      }
- */
-
 const BirthChartReportResponseSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -53,12 +40,5 @@ export async function generateBirthChartReport(
   const body = toBackendBody(payload);
 
   const response = await client.post('/api/reports', body);
-
-  const data = response.data;
-
-  if (typeof data !== 'object' || data === null) {
-    throw new Error('Unexpected response from /api/reports');
-  }
-
-  return BirthChartReportResponseSchema.parse(data);
+  return BirthChartReportResponseSchema.parse(response.data);
 }

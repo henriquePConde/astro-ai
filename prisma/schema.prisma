@@ -18,6 +18,7 @@ model User {
   reports   Report[]
   charts    Chart[]
   messages  InterpretMessage[]
+  reportJobs ReportJob[]
 
   @@map("users")
 }
@@ -34,6 +35,29 @@ model Report {
 
   @@index([userId])
   @@map("reports")
+}
+
+model ReportJob {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  personName    String   @map("person_name")
+  birthData     Json     @map("birth_data")
+  status        String
+  currentStep   Int      @default(0) @map("current_step")
+  totalSteps    Int      @default(0) @map("total_steps")
+  progress      Float    @default(0)
+  errorMessage  String?  @map("error_message")
+  partialContent Json?   @map("partial_content")
+  meta          Json?    @map("meta")
+  reportId      String?  @map("report_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("report_jobs")
 }
 
 model Chart {

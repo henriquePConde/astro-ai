@@ -10,10 +10,13 @@ export const styles = {
     border: '1px solid rgba(255,255,255,0.12)',
     bgcolor: 'rgba(10,10,25,0.9)',
     display: 'flex',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'stretch',
     justifyContent: 'center',
+    gap: theme.spacing(1.5),
     fontSize: 12,
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255,255,255,0.8)',
+    p: 2,
   }),
 
   noBirthDataBox: () => (theme: Theme) => ({

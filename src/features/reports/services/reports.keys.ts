@@ -3,4 +3,5 @@ export const reportsKeys = {
   list: () => [...reportsKeys.all, 'list'] as const,
   detail: (id: string) => [...reportsKeys.all, 'detail', id] as const,
   usage: () => [...reportsKeys.all, 'daily-usage'] as const,
+  job: (id: string) => [...reportsKeys.all, 'job', id] as const,
 };

@@ -11,6 +11,8 @@ export function ReportAccordionContainer({
   isGenerating,
   hasBirthData,
   hasContent,
+  jobProgress,
+  onGoToAI,
 }: ReportAccordionContainerProps) {
   const sectionKeys = useMemo(() => Object.keys(sections || {}), [sections]);
   const { openSections, toggleSection } = useAccordionSections({ sectionKeys });
@@ -25,6 +27,8 @@ export function ReportAccordionContainer({
       openSections={openSections}
       onToggleSection={toggleSection}
       config={REPORT_ACCORDION_CONFIG}
+      jobProgress={jobProgress}
+      onGoToAI={onGoToAI}
     />
   );
 }

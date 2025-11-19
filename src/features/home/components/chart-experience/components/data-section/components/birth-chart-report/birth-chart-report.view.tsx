@@ -17,6 +17,8 @@ export function BirthChartReportView({
   generateButtonText,
   usage,
   config,
+  jobProgress,
+  onGoToAI,
 }: BirthChartReportViewProps) {
   const theme = useTheme();
   const isReportLimitReached = usage ? usage.reports.used >= usage.reports.limit : false;
@@ -72,6 +74,8 @@ export function BirthChartReportView({
         isGenerating={isGenerating}
         hasBirthData={!!birthData}
         hasContent={hasSections}
+        jobProgress={jobProgress}
+        onGoToAI={onGoToAI}
       />
     </Box>
   );

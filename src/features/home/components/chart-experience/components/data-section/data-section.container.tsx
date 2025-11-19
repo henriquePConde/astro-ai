@@ -29,6 +29,7 @@ export function DataSectionContainer({
     reportData,
     generateError,
     downloadError,
+    jobProgress,
   } = useBirthChartReportActions(birthData, chartData);
 
   const { sections, hasSections } = useBirthChartReportSections(reportData);
@@ -51,6 +52,7 @@ export function DataSectionContainer({
       hasSections={hasSections}
       onGenerateReport={generateReport}
       onDownloadPdf={downloadPdf}
+      jobProgress={jobProgress}
     />
   );
 }
