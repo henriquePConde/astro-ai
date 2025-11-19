@@ -9,6 +9,7 @@ import type { ReportAccordionContainerProps } from './report-accordion.types';
 export function ReportAccordionContainer({
   sections,
   isGenerating,
+  isDownloading,
   hasBirthData,
   hasContent,
   jobProgress,
@@ -21,6 +22,7 @@ export function ReportAccordionContainer({
     <ReportAccordionView
       sections={sections}
       isGenerating={isGenerating}
+      isDownloading={isDownloading}
       hasBirthData={hasBirthData}
       hasContent={hasContent}
       sectionKeys={sectionKeys}

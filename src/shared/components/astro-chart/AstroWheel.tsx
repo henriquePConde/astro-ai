@@ -17,7 +17,9 @@ interface AstroWheelProps {
   initialScale?: number; // Default initial zoom scale (default: 0.7 for regular view, 1.0 for PDF)
 }
 
-const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: AstroWheelProps) => {
+// Keep the canvas size the same, but use a slightly smaller default zoom scale
+// so the wheel appears visually smaller without changing the SVG dimensions.
+const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const interactions = useOptionalChartInteractions();
 
@@ -171,11 +173,23 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
                   .style('cursor', 'pointer')
                   .on('mouseenter', function (event: any) {
                     if (!interactions.enabled) return;
+                    const sel = d3.select<SVGGElement, unknown>(this);
+                    const originalTransform = sel.attr('transform') || '';
+                    // Store original transform so we can restore it on mouseleave
+                    sel.attr('data-original-transform', originalTransform);
+                    sel.attr('transform', `${originalTransform} scale(1.18)`);
+
                     const nativeEvent = getNativeEvent(event) as MouseEvent;
                     interactions.onSignHover(sign.signIndex, nativeEvent);
                   })
                   .on('mouseleave', function () {
                     if (!interactions.enabled) return;
+                    const sel = d3.select<SVGGElement, unknown>(this);
+                    const originalTransform = sel.attr('data-original-transform');
+                    if (originalTransform) {
+                      sel.attr('transform', originalTransform);
+                    }
+
                     interactions.onSignLeave();
                   })
                   .on('click', function (event: any) {
@@ -212,11 +226,23 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.7 }: Ast
                 .style('cursor', 'pointer')
                 .on('mouseenter', function (event: any) {
                   if (!interactions.enabled) return;
+                  const sel = d3.select<SVGGElement, unknown>(this);
+                  const originalTransform = sel.attr('transform') || '';
+                  // Store original transform so we can restore it on mouseleave
+                  sel.attr('data-original-transform', originalTransform);
+                  sel.attr('transform', `${originalTransform} scale(1.18)`);
+
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
                   interactions.onSignHover(sign.signIndex, nativeEvent);
                 })
                 .on('mouseleave', function () {
                   if (!interactions.enabled) return;
+                  const sel = d3.select<SVGGElement, unknown>(this);
+                  const originalTransform = sel.attr('data-original-transform');
+                  if (originalTransform) {
+                    sel.attr('transform', originalTransform);
+                  }
+
                   interactions.onSignLeave();
                 })
                 .on('click', function (event: any) {

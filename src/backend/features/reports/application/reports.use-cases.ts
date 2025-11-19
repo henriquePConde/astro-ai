@@ -175,7 +175,28 @@ export async function createReportJob(userId: string, birthData: BirthData, pers
   await checkDailyLimit(userId);
 
   const repo = makeReportsRepo();
-  const job = await repo.createJob(userId, personName, birthData);
+  const totalSteps = 1 + SECTION_ORDER.length;
+
+  // In mock mode, create a full report and a completed job immediately.
+  if (USE_REPORT_MOCKS) {
+    const mockSections: ReportContent = getMockReportSections();
+    const report = await repo.create(userId, personName, birthData, mockSections);
+
+    const job = await repo.createJob(userId, personName, birthData, {
+      status: 'completed',
+      currentStep: totalSteps,
+      totalSteps,
+      progress: 1,
+      partialContent: mockSections,
+      reportId: report.id,
+    });
+
+    return job;
+  }
+
+  const job = await repo.createJob(userId, personName, birthData, {
+    totalSteps,
+  });
   return job;
 }
 

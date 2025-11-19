@@ -3,10 +3,12 @@ import { Theme } from '@mui/material';
 export const styles = {
   root: (visible: boolean) => (theme: Theme) => ({
     position: 'absolute' as const,
-    top: 0,
+    // Offset for app header (~89px) so the carousel is centered in the
+    // visible area below the navigation.
+    top: '89px',
     left: 0,
     width: '100%',
-    height: '100%',
+    height: 'calc(100vh - 89px)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -15,14 +17,15 @@ export const styles = {
     transition: 'all 1000ms',
     opacity: visible ? 1 : 0,
     pointerEvents: visible ? ('auto' as const) : ('none' as const),
-    transform: visible ? 'scale(1)' : 'scale(0.95)',
+    // Slight scale gives an inset look (~10% smaller feel when visible)
+    transform: visible ? 'scale(0.9)' : 'scale(0.85)',
     zIndex: 50,
   }),
   container: () => (theme: Theme) => ({
     position: 'relative' as const,
-    maxWidth: '80rem',
+    maxWidth: '72rem', // ~10% narrower than before
     width: '100%',
-    height: '550px',
+    height: '495px', // ~10% shorter than previous 550px
   }),
   carousel: () => (theme: Theme) => ({
     position: 'relative' as const,

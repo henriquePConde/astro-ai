@@ -3,10 +3,12 @@ import { Theme } from '@mui/material';
 export const styles = {
   root: (visible: boolean) => (theme: Theme) => ({
     position: 'absolute' as const,
-    top: 0,
+    // Offset for app header (~89px) so the prompt sits in the visible area
+    top: '89px',
     left: 0,
     width: '100%',
-    height: '100%',
+    // Use remaining viewport height below header
+    height: 'calc(100vh - 89px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

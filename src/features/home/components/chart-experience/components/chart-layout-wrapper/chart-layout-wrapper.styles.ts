@@ -32,7 +32,13 @@ export const styles = {
           bgcolor: 'rgba(13, 12, 34, 0.98)',
         }
       : {
-          height: '100%',
+          // Center the initial birth data form within the viewport,
+          // accounting for the navigation header height (~89px).
+          minHeight: 'calc(100vh - 89px)',
+          mt: '89px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           maxWidth: '90%',
           mx: 'auto',
           px: { xs: 2, md: 4 },

@@ -19,6 +19,12 @@ export const styles = {
     p: 2,
   }),
 
+  generatingCtaButton: () => (_theme: Theme) => ({
+    fontWeight: 600,
+    textTransform: 'none',
+    boxShadow: '0 0 12px rgba(255,255,255,0.35)',
+  }),
+
   noBirthDataBox: () => (theme: Theme) => ({
     mt: 2,
     minHeight: 160,

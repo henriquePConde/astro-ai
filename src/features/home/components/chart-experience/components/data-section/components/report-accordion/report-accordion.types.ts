@@ -3,6 +3,7 @@ import type { REPORT_ACCORDION_CONFIG } from './report-accordion.config';
 export interface ReportAccordionViewProps {
   sections: Record<string, string>;
   isGenerating: boolean;
+  isDownloading: boolean;
   hasBirthData: boolean;
   hasContent: boolean;
   sectionKeys: string[];
@@ -16,6 +17,7 @@ export interface ReportAccordionViewProps {
 export interface ReportAccordionContainerProps {
   sections: Record<string, string>;
   isGenerating: boolean;
+  isDownloading: boolean;
   hasBirthData: boolean;
   hasContent: boolean;
   jobProgress: number | null;

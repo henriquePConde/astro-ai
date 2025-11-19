@@ -18,9 +18,66 @@ function AccordionSection({ isOpen, children }: { isOpen: boolean; children: Rea
   );
 }
 
+type LoadingVariant = 'generate' | 'download';
+
+interface LoadingPanelProps {
+  variant: LoadingVariant;
+  title: string;
+  subtitle: string;
+  ctaLabel: string;
+  jobProgress: number | null;
+  onGoToAI: () => void;
+}
+
+function ReportLoadingPanel({
+  variant,
+  title,
+  subtitle,
+  ctaLabel,
+  jobProgress,
+  onGoToAI,
+}: LoadingPanelProps) {
+  const theme = useTheme();
+  const percent = jobProgress != null ? Math.round(jobProgress * 100) : null;
+
+  return (
+    <Box sx={styles.generatingBox()(theme)}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {subtitle}
+      </Typography>
+      <Box sx={{ mt: 1 }}>
+        <LinearProgress
+          variant={percent != null ? 'determinate' : 'indeterminate'}
+          value={percent ?? undefined}
+        />
+        {percent != null && (
+          <Typography variant="caption" sx={{ mt: 0.5, display: 'block' }}>
+            {percent}% complete
+          </Typography>
+        )}
+      </Box>
+      <Box sx={{ mt: 1.5 }}>
+        <Button
+          size="small"
+          variant="contained"
+          color="secondary"
+          onClick={onGoToAI}
+          sx={styles.generatingCtaButton()(theme)}
+        >
+          {ctaLabel}
+        </Button>
+      </Box>
+    </Box>
+  );
+}
+
 export function ReportAccordionView({
   sections,
   isGenerating,
+  isDownloading,
   hasBirthData,
   hasContent,
   sectionKeys,
@@ -33,37 +90,19 @@ export function ReportAccordionView({
   const theme = useTheme();
 
   if (isGenerating && !hasContent) {
-    const percent = jobProgress != null ? Math.round(jobProgress * 100) : null;
-
     return (
-      <Box sx={styles.generatingBox()(theme)}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          {config.copy.generatingTitle}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {config.copy.generatingSubtitle}
-        </Typography>
-        <Box sx={{ mt: 1 }}>
-          <LinearProgress
-            variant={percent != null ? 'determinate' : 'indeterminate'}
-            value={percent ?? undefined}
-          />
-          {percent != null && (
-            <Typography variant="caption" sx={{ mt: 0.5, display: 'block' }}>
-              {percent}% complete
-            </Typography>
-          )}
-        </Box>
-        <Box sx={{ mt: 1.5 }}>
-          <Button size="small" variant="outlined" onClick={onGoToAI}>
-            {config.copy.generatingCta}
-          </Button>
-        </Box>
-      </Box>
+      <ReportLoadingPanel
+        variant="generate"
+        title={config.copy.generatingTitle}
+        subtitle={config.copy.generatingSubtitle}
+        ctaLabel={config.copy.generatingCta}
+        jobProgress={jobProgress}
+        onGoToAI={onGoToAI}
+      />
     );
   }
 
-  if (!hasBirthData && !isGenerating) {
+  if (!hasBirthData && !isGenerating && !isDownloading) {
     return <Box sx={styles.noBirthDataBox()(theme)}>{config.copy.noBirthData}</Box>;
   }
 
@@ -71,6 +110,18 @@ export function ReportAccordionView({
 
   return (
     <Box sx={styles.container()(theme)}>
+      {isDownloading && (
+        <Box sx={{ mb: 2 }}>
+          <ReportLoadingPanel
+            variant="download"
+            title={config.copy.downloadingTitle}
+            subtitle={config.copy.downloadingSubtitle}
+            ctaLabel={config.copy.downloadingCta}
+            jobProgress={null}
+            onGoToAI={onGoToAI}
+          />
+        </Box>
+      )}
       {sectionKeys.map((key) => {
         const isOpen = !!openSections[key];
 

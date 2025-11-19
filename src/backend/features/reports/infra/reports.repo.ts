@@ -55,20 +55,36 @@ export function makeReportsRepo() {
 
     // === Long-running report jobs ===
 
-    async createJob(userId: string, personName: string, birthData: any): Promise<ReportJob> {
-      const totalSteps = 1 + 9; // 1 for prepare context, 9 sections
+    async createJob(
+      userId: string,
+      personName: string,
+      birthData: any,
+      overrides?: Partial<{
+        status: ReportJob['status'];
+        currentStep: number;
+        totalSteps: number;
+        progress: number;
+        errorMessage: string | null;
+        partialContent: Partial<ReportContent> | null;
+        meta: ReportJobMeta | null;
+        reportId: string | null;
+      }>,
+    ): Promise<ReportJob> {
+      const totalSteps = overrides?.totalSteps ?? 1 + 9; // 1 for prepare context, 9 sections
 
       const job = await prisma.reportJob.create({
         data: {
           userId,
           personName,
           birthData,
-          status: 'pending',
-          currentStep: 0,
+          status: overrides?.status ?? 'pending',
+          currentStep: overrides?.currentStep ?? 0,
           totalSteps,
-          progress: 0,
-          partialContent: {},
-          meta: {},
+          progress: overrides?.progress ?? 0,
+          errorMessage: overrides?.errorMessage ?? null,
+          partialContent: overrides?.partialContent ?? {},
+          meta: overrides?.meta ?? {},
+          reportId: overrides?.reportId ?? null,
         },
       });
 

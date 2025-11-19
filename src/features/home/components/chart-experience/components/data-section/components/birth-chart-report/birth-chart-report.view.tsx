@@ -72,6 +72,7 @@ export function BirthChartReportView({
       <ReportAccordionContainer
         sections={sections}
         isGenerating={isGenerating}
+        isDownloading={isDownloading}
         hasBirthData={!!birthData}
         hasContent={hasSections}
         jobProgress={jobProgress}
