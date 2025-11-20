@@ -1,8 +1,9 @@
-import type { ChartData } from '@/features/home/types/chart.types';
+import type { ChartData, BirthChartData } from '@/features/home/types/chart.types';
 import type { ChartData as WheelChartData } from '@/shared/components/astro-chart/types';
 
 export interface ChartSectionContainerProps {
   chartData: ChartData;
+  birthData: BirthChartData;
   isExpanded: boolean;
   isDragging: boolean;
   splitPosition?: number;
@@ -10,6 +11,7 @@ export interface ChartSectionContainerProps {
 
 export interface ChartSectionViewProps {
   wheelData: WheelChartData;
+  birthData: BirthChartData;
   isExpanded: boolean;
   isDragging: boolean;
   splitPosition?: number;

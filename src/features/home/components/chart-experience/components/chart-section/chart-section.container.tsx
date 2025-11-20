@@ -3,7 +3,6 @@
 import { ChartSectionView } from './chart-section.view';
 import type { ChartSectionContainerProps } from './chart-section.types';
 import type { ChartData as WheelChartData } from '@/shared/components/astro-chart/types';
-import type { ChartData as HomeChartData } from '@/features/home/types/chart.types';
 
 export function ChartSectionContainer(props: ChartSectionContainerProps) {
   if (!props.chartData) return null;
@@ -24,6 +23,7 @@ export function ChartSectionContainer(props: ChartSectionContainerProps) {
   return (
     <ChartSectionView
       wheelData={wheelData}
+      birthData={props.birthData}
       isExpanded={props.isExpanded}
       isDragging={props.isDragging}
       splitPosition={props.splitPosition}

@@ -30,6 +30,7 @@ export const styles = {
     alignItems: 'flex-start',
     justifyContent: 'center',
     overflow: 'hidden',
+    position: 'relative',
   }),
   chartInner: () => (theme: Theme) => ({
     display: 'flex',

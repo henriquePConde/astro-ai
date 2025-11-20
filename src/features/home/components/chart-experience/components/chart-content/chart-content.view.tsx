@@ -41,6 +41,7 @@ export function ChartContentView({
       >
         <ChartSectionContainer
           chartData={chartData}
+          birthData={birthData}
           isExpanded={isExpanded}
           isDragging={isDragging}
           splitPosition={splitPosition}
