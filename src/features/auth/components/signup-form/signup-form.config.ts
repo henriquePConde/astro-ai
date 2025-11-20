@@ -18,8 +18,8 @@ export const SIGNUP_FORM_CONFIG = {
       },
     },
     button: {
-      loading: 'Creating account...',
-      default: 'Create account',
+      loading: 'Sending confirmation email...',
+      default: 'Send confirmation email',
     },
     googleButton: {
       default: 'Continue with Google',
