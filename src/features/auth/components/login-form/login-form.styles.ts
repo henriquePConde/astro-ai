@@ -76,12 +76,14 @@ export const styles = {
     letterSpacing: '0.5px',
   }),
   link: () => (theme: Theme) => ({
-    color: theme.palette.primary.main,
+    color: '#ffffff',
     textDecoration: 'none',
     fontWeight: 500,
     transition: 'all 0.3s ease',
+    opacity: 0.95,
     '&:hover': {
-      color: theme.palette.primary.light,
+      color: '#ffffff',
+      opacity: 1,
       textDecoration: 'underline',
     },
   }),

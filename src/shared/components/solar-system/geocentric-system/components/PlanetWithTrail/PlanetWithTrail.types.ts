@@ -18,9 +18,6 @@ export interface PlanetWithTrailViewProps {
   texture: THREE.Texture;
   size: number;
   distance: number;
-  name: string;
-  visible: boolean;
-  onPointerOver: (e: any) => void;
   material: {
     metalness: number;
     roughness: number;
@@ -48,7 +45,6 @@ export interface PlanetWithTrailViewProps {
     side: THREE.Side;
     depthWrite: boolean;
   };
-  tooltipStyles: React.CSSProperties;
   ringRotation: [number, number, number];
   sphereSegments: number;
 }

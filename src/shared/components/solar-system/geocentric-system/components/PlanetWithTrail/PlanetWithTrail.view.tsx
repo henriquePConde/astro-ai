@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Html } from '@react-three/drei';
 import type { PlanetWithTrailViewProps } from './PlanetWithTrail.types';
 
 export function PlanetWithTrailView({
@@ -12,14 +11,10 @@ export function PlanetWithTrailView({
   texture,
   size,
   distance,
-  name,
-  visible,
-  onPointerOver,
   material,
   ringGeometry,
   ringMaterial,
   trailMaterial,
-  tooltipStyles,
   ringRotation,
   sphereSegments,
 }: PlanetWithTrailViewProps) {
@@ -51,7 +46,7 @@ export function PlanetWithTrailView({
       </mesh>
 
       {/* Planet */}
-      <mesh ref={planetRef} onPointerOver={onPointerOver}>
+      <mesh ref={planetRef}>
         <sphereGeometry args={[size, sphereSegments, sphereSegments]} />
         <meshPhysicalMaterial
           map={texture}
@@ -67,11 +62,6 @@ export function PlanetWithTrailView({
           sheenColor={material.sheenColor}
           envMapIntensity={material.envMapIntensity}
         />
-        {visible && (
-          <Html center>
-            <div style={tooltipStyles}>{name}</div>
-          </Html>
-        )}
       </mesh>
     </>
   );

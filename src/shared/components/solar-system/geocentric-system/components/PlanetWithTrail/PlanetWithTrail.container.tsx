@@ -1,13 +1,12 @@
 'use client';
 
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { usePlanetTrail } from './hooks/usePlanetTrail';
 import { PlanetWithTrailView } from './PlanetWithTrail.view';
 import type { PlanetWithTrailProps } from './PlanetWithTrail.types';
 import { PLANET_WITH_TRAIL_CONFIG } from './PlanetWithTrail.config';
-import { styles } from './PlanetWithTrail.styles';
 
 export function PlanetWithTrailContainer({
   name,
@@ -23,8 +22,6 @@ export function PlanetWithTrailContainer({
     `${PLANET_WITH_TRAIL_CONFIG.texturePath}/${textureFile}`,
   );
   const trailMeshRef = usePlanetTrail(distance, speed, angleRef);
-  const [visible, setVisible] = useState(false);
-  const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const ringTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
@@ -77,20 +74,6 @@ export function PlanetWithTrailContainer({
     planetRef.current.rotation.y += delta * getRotationSpeed(name);
   });
 
-  const showTooltip = () => {
-    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
-    setVisible(true);
-    hoverTimeout.current = setTimeout(
-      () => setVisible(false),
-      PLANET_WITH_TRAIL_CONFIG.tooltip.timeout,
-    );
-  };
-
-  const handlePointerOver = (e: any) => {
-    e.stopPropagation();
-    showTooltip();
-  };
-
   return (
     <PlanetWithTrailView
       planetRef={planetRef}
@@ -102,9 +85,6 @@ export function PlanetWithTrailContainer({
       texture={texture}
       size={size}
       distance={distance}
-      name={name}
-      visible={visible}
-      onPointerOver={handlePointerOver}
       material={PLANET_WITH_TRAIL_CONFIG.material}
       ringGeometry={{
         innerRadius: distance + PLANET_WITH_TRAIL_CONFIG.ring.geometry.innerRadiusOffset,
@@ -113,7 +93,6 @@ export function PlanetWithTrailContainer({
       }}
       ringMaterial={PLANET_WITH_TRAIL_CONFIG.ring.material}
       trailMaterial={PLANET_WITH_TRAIL_CONFIG.trail.material}
-      tooltipStyles={styles.tooltip()}
       ringRotation={PLANET_WITH_TRAIL_CONFIG.ring.rotation}
       sphereSegments={PLANET_WITH_TRAIL_CONFIG.geometry.sphereSegments}
     />
