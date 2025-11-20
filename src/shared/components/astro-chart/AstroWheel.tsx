@@ -446,6 +446,48 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
       // === Aspects ===
       const aspectGroup = g.append('g').attr('class', 'aspects');
 
+      // Orb configuration: [planets, sun/moon/angles]
+      const ASPECT_ORBS = {
+        Conjunction: { planets: 7, major: 9 },
+        Opposition: { planets: 7, major: 9 },
+        Square: { planets: 6, major: 7.5 },
+        Trine: { planets: 6, major: 7.5 },
+        Sextile: { planets: 4, major: 5 },
+      } as const;
+
+      const ASPECT_DEGREES = {
+        Conjunction: 0,
+        Opposition: 180,
+        Square: 90,
+        Trine: 120,
+        Sextile: 60,
+      } as const;
+
+      // Check if a planet is a major body (Sun, Moon, or Angle - ASC/MC)
+      const isMajorBody = (planetName: string): boolean => {
+        const nameLower = planetName.toLowerCase();
+        return (
+          nameLower === 'sun' ||
+          nameLower === 'moon' ||
+          nameLower === 'ascendant' ||
+          nameLower === 'mc' ||
+          nameLower === 'asc'
+        );
+      };
+
+      // Get the appropriate orb for an aspect based on whether planets are major bodies
+      const getAspectOrb = (
+        aspectName: keyof typeof ASPECT_ORBS,
+        planet1Name: string,
+        planet2Name: string,
+      ): number => {
+        const isMajor1 = isMajorBody(planet1Name);
+        const isMajor2 = isMajorBody(planet2Name);
+        const hasMajorBody = isMajor1 || isMajor2;
+
+        return hasMajorBody ? ASPECT_ORBS[aspectName].major : ASPECT_ORBS[aspectName].planets;
+      };
+
       for (let i = 0; i < planetPositions.length; i++) {
         for (let j = i + 1; j < planetPositions.length; j++) {
           const p1 = planetPositions[i]!;
@@ -453,26 +495,34 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
 
           const angle = Math.abs(parseFloat(p1.position) - parseFloat(p2.position));
           const minor = angle > 180 ? 360 - angle : angle;
-          const orb = 8;
 
           let aspectType: string | null = null;
           let color: string | null = null;
 
-          if (Math.abs(minor - 0) <= orb || Math.abs(minor - 360) <= orb) {
-            aspectType = 'Conjunction';
-            color = '#5C5C5C';
-          } else if (Math.abs(minor - 60) <= orb) {
-            aspectType = 'Sextile';
-            color = '#6A89CC';
-          } else if (Math.abs(minor - 90) <= orb) {
-            aspectType = 'Square';
-            color = '#E74C3C';
-          } else if (Math.abs(minor - 120) <= orb) {
-            aspectType = 'Trine';
-            color = '#27AE60';
-          } else if (Math.abs(minor - 180) <= orb) {
-            aspectType = 'Opposition';
-            color = '#E74C3C';
+          // Check each aspect type with appropriate orb
+          for (const [aspectName, degree] of Object.entries(ASPECT_DEGREES)) {
+            const orb = getAspectOrb(aspectName as keyof typeof ASPECT_ORBS, p1.name, p2.name);
+            const angleDiff = Math.abs(minor - degree);
+
+            if (angleDiff <= orb || (degree === 0 && Math.abs(minor - 360) <= orb)) {
+              if (aspectName === 'Conjunction') {
+                aspectType = 'Conjunction';
+                color = '#5C5C5C';
+              } else if (aspectName === 'Sextile') {
+                aspectType = 'Sextile';
+                color = '#6A89CC';
+              } else if (aspectName === 'Square') {
+                aspectType = 'Square';
+                color = '#E74C3C';
+              } else if (aspectName === 'Trine') {
+                aspectType = 'Trine';
+                color = '#27AE60';
+              } else if (aspectName === 'Opposition') {
+                aspectType = 'Opposition';
+                color = '#E74C3C';
+              }
+              break;
+            }
           }
 
           if (aspectType && color) {
