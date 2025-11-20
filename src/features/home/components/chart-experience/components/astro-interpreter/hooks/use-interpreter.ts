@@ -25,6 +25,15 @@ export function useInterpreter(chartData: WheelChartData | null) {
       const trimmed = input.trim();
       if (!trimmed) return;
 
+      // Check if there's an enhanced message stored (from sign click)
+      let messageToSend = trimmed;
+      if (typeof window !== 'undefined' && (window as any).__lastSignEnhancedMessage) {
+        messageToSend = (window as any).__lastSignEnhancedMessage;
+        // Clear it after use
+        delete (window as any).__lastSignEnhancedMessage;
+      }
+
+      // Use the simple message for display, but send enhanced message to AI
       const userMessage = { role: 'user' as const, content: trimmed };
 
       // optimistic append user message
@@ -43,7 +52,7 @@ export function useInterpreter(chartData: WheelChartData | null) {
         const baseHistory = [...messages, userMessage];
 
         await interpretMutation.mutateAsync({
-          message: trimmed,
+          message: messageToSend,
           context,
           chatHistory: baseHistory,
           onChunk: (chunk) => {

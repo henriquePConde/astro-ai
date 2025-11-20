@@ -283,27 +283,54 @@ const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
         if (!enabled) return;
         // Switch to AI Interpreter tab if not already on it
         switchToAITabIfNeeded();
-        const { signName, houseSentence } = buildSignContextSummary(index);
+        const { signName, rulerSentence, aspectsSentence } = buildSignContextSummary(index);
 
-        // Build prompt that specifically mentions only the house the sign rules (unless intercepted)
-        let baseQuestion = `Tell me about the meaning of ${signName} in my chart`;
+        // Simple user-facing message (what they see in the input)
+        const userMessage = `Tell me about the meaning of ${signName} in my chart`;
+
+        // Enhanced message with instructions for AI (sent behind the scenes)
+        let enhancedMessage = userMessage;
+        const additionalInstructions: string[] = [];
 
         if (signContext?.signInfo[index]) {
           const info = signContext.signInfo[index];
           if (info.isIntercepted) {
-            // For intercepted signs, mention that it's intercepted
-            baseQuestion = `Tell me about the meaning of ${signName} in my chart. Note that ${signName} is intercepted in this chart.`;
+            additionalInstructions.push(`Note that ${signName} is intercepted in this chart.`);
           } else if (info.rulingHouses.length > 0) {
-            // For non-intercepted signs, specify to only mention the house(s) it rules
             const houseList =
               info.rulingHouses.length === 1
                 ? `house ${info.rulingHouses[0]}`
                 : `houses ${info.rulingHouses.join(' and ')}`;
-            baseQuestion = `Tell me about the meaning of ${signName} in my chart. Please focus specifically on ${houseList} that ${signName} rules. Do not mention other houses even if parts of ${signName} may extend into them - only discuss the house(s) that ${signName} actually rules.`;
+            additionalInstructions.push(
+              `Please focus specifically on ${houseList} that ${signName} rules. Do not mention other houses even if parts of ${signName} may extend into them - only discuss the house(s) that ${signName} actually rules.`,
+            );
           }
         }
 
-        setAIInput(baseQuestion);
+        // Add ruler planet information if available
+        if (rulerSentence) {
+          additionalInstructions.push(
+            `Also discuss the position of the planet that rules ${signName}: ${rulerSentence}`,
+          );
+        }
+
+        // Add aspects information if available
+        if (aspectsSentence) {
+          additionalInstructions.push(aspectsSentence);
+        }
+
+        // Combine all instructions
+        if (additionalInstructions.length > 0) {
+          enhancedMessage = `${userMessage} ${additionalInstructions.join(' ')}`;
+        }
+
+        // Store enhanced message in a module-level variable for use in handleSubmit
+        if (typeof window !== 'undefined') {
+          (window as any).__lastSignEnhancedMessage = enhancedMessage;
+        }
+
+        // Set the simple message in the input (what user sees)
+        setAIInput(userMessage);
       },
 
       onAspectClick: (aspect, evt) => {
