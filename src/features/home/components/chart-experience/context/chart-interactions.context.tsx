@@ -283,8 +283,26 @@ const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
         if (!enabled) return;
         // Switch to AI Interpreter tab if not already on it
         switchToAITabIfNeeded();
-        const { signName } = buildSignContextSummary(index);
-        const baseQuestion = `Tell me about the meaning of ${signName} in my chart`;
+        const { signName, houseSentence } = buildSignContextSummary(index);
+
+        // Build prompt that specifically mentions only the house the sign rules (unless intercepted)
+        let baseQuestion = `Tell me about the meaning of ${signName} in my chart`;
+
+        if (signContext?.signInfo[index]) {
+          const info = signContext.signInfo[index];
+          if (info.isIntercepted) {
+            // For intercepted signs, mention that it's intercepted
+            baseQuestion = `Tell me about the meaning of ${signName} in my chart. Note that ${signName} is intercepted in this chart.`;
+          } else if (info.rulingHouses.length > 0) {
+            // For non-intercepted signs, specify to only mention the house(s) it rules
+            const houseList =
+              info.rulingHouses.length === 1
+                ? `house ${info.rulingHouses[0]}`
+                : `houses ${info.rulingHouses.join(' and ')}`;
+            baseQuestion = `Tell me about the meaning of ${signName} in my chart. Please focus specifically on ${houseList} that ${signName} rules. Do not mention other houses even if parts of ${signName} may extend into them - only discuss the house(s) that ${signName} actually rules.`;
+          }
+        }
+
         setAIInput(baseQuestion);
       },
 
