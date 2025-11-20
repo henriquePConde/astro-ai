@@ -7,6 +7,8 @@ export const BIRTH_CHART_REPORT_CONFIG = {
       regenerate: 'Regenerate report',
       generating: 'Generating…',
       downloadPdf: 'Download PDF',
+      tooltipLimitReached: (timeRemaining: string) =>
+        `You have reached the limit of report generations. Try again in ${timeRemaining}!`,
     },
   },
   ui: {

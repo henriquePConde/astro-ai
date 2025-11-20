@@ -14,6 +14,7 @@ import {
 } from './components';
 import { DateFields } from './components/date-fields/DateFields';
 import { TimeFields } from './components/time-fields/TimeFields';
+import { useTimeUntilReset } from '@/shared/hooks/use-time-until-reset';
 
 export function BirthDataFormView({
   control,
@@ -38,9 +39,13 @@ export function BirthDataFormView({
   onCityClose,
   cityOpen,
   cityLoading,
+  isLoading,
   config,
 }: BirthDataFormViewProps) {
   const { errors, isSubmitting, isValid } = formState;
+  const isButtonLoading = isLoading || isSubmitting;
+  const isChartLimitReached = usage ? usage.charts.used >= usage.charts.limit : false;
+  const timeRemaining = useTimeUntilReset(usage?.charts.firstGenerationAt);
 
   return (
     <form onSubmit={handleSubmit} autoComplete="off">
@@ -49,9 +54,41 @@ export function BirthDataFormView({
         {usage && <FormUsage usage={usage} config={config} />}
 
         <Box sx={styles.grid()}>
-          <PersonalInfoFields control={control} errors={errors} config={config} />
-          <DateFields control={control} errors={errors} watch={watch} setValue={setValue} />
-          <TimeFields control={control} errors={errors} watch={watch} setValue={setValue} />
+          <PersonalInfoFields
+            control={control}
+            errors={errors}
+            config={config}
+            disabled={isChartLimitReached}
+            tooltipMessage={
+              isChartLimitReached
+                ? config.copy.button.tooltipLimitReached(timeRemaining)
+                : undefined
+            }
+          />
+          <DateFields
+            control={control}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            disabled={isChartLimitReached}
+            tooltipMessage={
+              isChartLimitReached
+                ? config.copy.button.tooltipLimitReached(timeRemaining)
+                : undefined
+            }
+          />
+          <TimeFields
+            control={control}
+            errors={errors}
+            watch={watch}
+            setValue={setValue}
+            disabled={isChartLimitReached}
+            tooltipMessage={
+              isChartLimitReached
+                ? config.copy.button.tooltipLimitReached(timeRemaining)
+                : undefined
+            }
+          />
           <LocationFields
             control={control}
             errors={errors}
@@ -72,10 +109,16 @@ export function BirthDataFormView({
             onCityClose={onCityClose}
             cityOpen={cityOpen}
             cityLoading={cityLoading}
+            disabled={isChartLimitReached}
+            tooltipMessage={
+              isChartLimitReached
+                ? config.copy.button.tooltipLimitReached(timeRemaining)
+                : undefined
+            }
           />
         </Box>
         <FormSubmitButton
-          isSubmitting={isSubmitting}
+          isSubmitting={isButtonLoading}
           isChartLimitReached={usage ? usage.charts.used >= usage.charts.limit : false}
           isValid={isValid}
           config={config}

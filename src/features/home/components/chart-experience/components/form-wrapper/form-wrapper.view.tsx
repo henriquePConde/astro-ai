@@ -5,12 +5,12 @@ import { BirthDataFormContainer } from '@/features/birth-data';
 import { styles } from './form-wrapper.styles';
 import type { FormWrapperViewProps } from './form-wrapper.types';
 
-export function FormWrapperView({ onFormSubmit }: FormWrapperViewProps) {
+export function FormWrapperView({ onFormSubmit, isLoading }: FormWrapperViewProps) {
   const theme = useTheme();
 
   return (
     <Box sx={styles.container()(theme)}>
-      <BirthDataFormContainer onSubmit={onFormSubmit} />
+      <BirthDataFormContainer onSubmit={onFormSubmit} isLoading={isLoading} />
     </Box>
   );
 }

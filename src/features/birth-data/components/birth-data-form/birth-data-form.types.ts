@@ -1,4 +1,10 @@
-import type { Control, FormState, UseFormWatch, UseFormSetValue } from 'react-hook-form';
+import type {
+  Control,
+  FormState,
+  UseFormWatch,
+  UseFormSetValue,
+  UseFormGetValues,
+} from 'react-hook-form';
 import type { BirthDataFormValues } from './birth-data-form.schema';
 import type { BIRTH_DATA_FORM_CONFIG } from './birth-data-form.config';
 import type { DailyUsage } from '@/features/reports/services/reports.service';
@@ -26,9 +32,11 @@ export interface BirthDataFormViewProps {
   onCityClose: () => void;
   cityOpen: boolean;
   cityLoading?: boolean;
+  isLoading?: boolean;
   config: typeof BIRTH_DATA_FORM_CONFIG;
 }
 
 export interface BirthDataFormContainerProps {
   onSubmit?: (v: BirthDataFormValues) => void;
+  isLoading?: boolean;
 }

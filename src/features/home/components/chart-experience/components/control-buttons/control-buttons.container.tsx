@@ -3,7 +3,12 @@
 import { CONTROL_BUTTONS_CONFIG } from './control-buttons.config';
 import { ControlButtonsContainerProps } from './control-buttons.types';
 import { ControlButtonsView } from './control-buttons.view';
+import { useDailyUsage } from '@/features/reports/services/reports.queries';
 
 export function ControlButtonsContainer({ onNewChart }: ControlButtonsContainerProps) {
-  return <ControlButtonsView onNewChart={onNewChart} config={CONTROL_BUTTONS_CONFIG} />;
+  const { data: usage } = useDailyUsage();
+
+  return (
+    <ControlButtonsView onNewChart={onNewChart} config={CONTROL_BUTTONS_CONFIG} usage={usage} />
+  );
 }

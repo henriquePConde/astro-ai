@@ -8,7 +8,7 @@ import { useDailyUsage } from '../../../reports/services/reports.queries';
 import { BIRTH_DATA_FORM_CONFIG } from './birth-data-form.config';
 import type { BirthDataFormContainerProps } from './birth-data-form.types';
 
-export function BirthDataFormContainer({ onSubmit }: BirthDataFormContainerProps) {
+export function BirthDataFormContainer({ onSubmit, isLoading }: BirthDataFormContainerProps) {
   const { form, handleSubmit } = useBirthDataForm(onSubmit);
   const autocompleteState = useBirthDataAutocomplete({ watch: form.watch });
   const { data: usage } = useDailyUsage();
@@ -21,6 +21,7 @@ export function BirthDataFormContainer({ onSubmit }: BirthDataFormContainerProps
       watch={form.watch}
       setValue={form.setValue}
       usage={usage ?? undefined}
+      isLoading={isLoading}
       {...autocompleteState}
       config={BIRTH_DATA_FORM_CONFIG}
     />

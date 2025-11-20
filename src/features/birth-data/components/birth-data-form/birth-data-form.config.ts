@@ -39,6 +39,8 @@ export const BIRTH_DATA_FORM_CONFIG = {
     },
     button: {
       continue: 'Continue',
+      tooltipLimitReached: (timeRemaining: string) =>
+        `You have reached the limit of chart generations. Try again in ${timeRemaining}!`,
     },
   },
   fields: {

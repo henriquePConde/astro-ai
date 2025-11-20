@@ -41,7 +41,7 @@ export function ChartApplicationView({
           chartData={chartData}
         >
           {!chartData ? (
-            <FormWrapperView onFormSubmit={onFormSubmit} />
+            <FormWrapperView onFormSubmit={onFormSubmit} isLoading={loading} />
           ) : (
             <>
               <LoadingOrErrorView loading={loading} error={error} />

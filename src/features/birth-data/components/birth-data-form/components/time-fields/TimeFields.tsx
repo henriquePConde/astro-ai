@@ -11,6 +11,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Tooltip,
 } from '@mui/material';
 import {
   Controller,
@@ -29,9 +30,18 @@ type TimeFieldsProps = {
   errors: FieldErrors<BirthDataFormValues>;
   watch: UseFormWatch<BirthDataFormValues>;
   setValue: UseFormSetValue<BirthDataFormValues>;
+  disabled?: boolean;
+  tooltipMessage?: string;
 };
 
-export function TimeFields({ control, errors, watch, setValue }: TimeFieldsProps) {
+export function TimeFields({
+  control,
+  errors,
+  watch,
+  setValue,
+  disabled = false,
+  tooltipMessage,
+}: TimeFieldsProps) {
   const timeSystem = watch('timeSystem') ?? '24h';
   const amPm = watch('amPm') ?? 'AM';
   const hour = watch(BIRTH_DATA_FORM_CONFIG.fields.hour.name);
@@ -101,7 +111,7 @@ export function TimeFields({ control, errors, watch, setValue }: TimeFieldsProps
   );
   const minuteOptions = React.useMemo(() => Array.from({ length: 60 }, (_, i) => i), []);
 
-  return (
+  const fields = (
     <Box sx={styles.group()}>
       {/* Row 1: time system toggle */}
       <Stack direction="row" spacing={2} alignItems="center">
@@ -117,6 +127,7 @@ export function TimeFields({ control, errors, watch, setValue }: TimeFieldsProps
                 handleTimeSystemChange(e, val);
               }}
               aria-label="Time System"
+              disabled={disabled}
             >
               <ToggleButton value="24h" aria-label="24-hour">
                 24h
@@ -154,6 +165,7 @@ export function TimeFields({ control, errors, watch, setValue }: TimeFieldsProps
                 value={currentValue ?? null}
                 onChange={(_, val) => field.onChange(val ?? undefined)}
                 freeSolo
+                disabled={disabled}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -200,6 +212,7 @@ export function TimeFields({ control, errors, watch, setValue }: TimeFieldsProps
                 value={currentValue ?? null}
                 onChange={(_, val) => field.onChange(val ?? undefined)}
                 freeSolo
+                disabled={disabled}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -240,6 +253,7 @@ export function TimeFields({ control, errors, watch, setValue }: TimeFieldsProps
                   label="AM/PM"
                   value={field.value ?? 'AM'}
                   onChange={(e) => field.onChange(e.target.value)}
+                  disabled={disabled}
                 >
                   <MenuItem value="AM">AM</MenuItem>
                   <MenuItem value="PM">PM</MenuItem>
@@ -251,4 +265,23 @@ export function TimeFields({ control, errors, watch, setValue }: TimeFieldsProps
       </Stack>
     </Box>
   );
+
+  if (disabled && tooltipMessage) {
+    return (
+      <Tooltip
+        title={tooltipMessage}
+        slotProps={{
+          tooltip: {
+            sx: {
+              fontSize: '0.95rem',
+            },
+          },
+        }}
+      >
+        <span>{fields}</span>
+      </Tooltip>
+    );
+  }
+
+  return fields;
 }

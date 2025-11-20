@@ -2,6 +2,9 @@ import {
   countChartsByUserToday,
   countReportsByUserToday,
   countMessagesByUserToday,
+  getChartsByUserLast24Hours,
+  getReportsByUserLast24Hours,
+  getMessagesByUserLast24Hours,
 } from '../infra/limits.repo';
 import {
   DAILY_CHART_LIMIT,
@@ -24,7 +27,7 @@ function isBypassed(userId: string): boolean {
 }
 
 /**
- * Checks if user has exceeded daily chart limit.
+ * Checks if user has exceeded daily chart limit (24-hour rolling window).
  * Users in REPORT_LIMIT_BYPASS_USER_IDS are exempt.
  */
 export async function checkDailyChartLimit(userId: string): Promise<void> {
@@ -32,16 +35,16 @@ export async function checkDailyChartLimit(userId: string): Promise<void> {
     return;
   }
 
-  const used = await countChartsByUserToday(userId);
-  if (hasExceededLimit(used, DAILY_CHART_LIMIT)) {
+  const { count } = await getChartsByUserLast24Hours(userId);
+  if (hasExceededLimit(count, DAILY_CHART_LIMIT)) {
     throw forbidden(
-      `Você já gerou ${DAILY_CHART_LIMIT} mapa${DAILY_CHART_LIMIT > 1 ? 's' : ''} hoje. Tente novamente amanhã!`,
+      `You have already generated ${DAILY_CHART_LIMIT} chart${DAILY_CHART_LIMIT > 1 ? 's' : ''} in the last 24 hours. Try again later!`,
     );
   }
 }
 
 /**
- * Checks if user has exceeded daily report limit.
+ * Checks if user has exceeded daily report limit (24-hour rolling window).
  * Users in REPORT_LIMIT_BYPASS_USER_IDS are exempt.
  */
 export async function checkDailyLimit(userId: string): Promise<void> {
@@ -49,16 +52,16 @@ export async function checkDailyLimit(userId: string): Promise<void> {
     return;
   }
 
-  const used = await countReportsByUserToday(userId);
-  if (hasExceededLimit(used, DAILY_REPORT_LIMIT)) {
+  const { count } = await getReportsByUserLast24Hours(userId);
+  if (hasExceededLimit(count, DAILY_REPORT_LIMIT)) {
     throw forbidden(
-      `Você já gerou ${DAILY_REPORT_LIMIT} relatório${DAILY_REPORT_LIMIT > 1 ? 's' : ''} hoje. Tente novamente amanhã!`,
+      `You have already generated ${DAILY_REPORT_LIMIT} report${DAILY_REPORT_LIMIT > 1 ? 's' : ''} in the last 24 hours. Try again later!`,
     );
   }
 }
 
 /**
- * Checks if user has exceeded daily message limit.
+ * Checks if user has exceeded daily message limit (24-hour rolling window).
  * Users in REPORT_LIMIT_BYPASS_USER_IDS are exempt.
  */
 export async function checkDailyMessageLimit(userId: string): Promise<void> {
@@ -66,16 +69,16 @@ export async function checkDailyMessageLimit(userId: string): Promise<void> {
     return;
   }
 
-  const used = await countMessagesByUserToday(userId);
-  if (hasExceededLimit(used, DAILY_MESSAGE_LIMIT)) {
+  const { count } = await getMessagesByUserLast24Hours(userId);
+  if (hasExceededLimit(count, DAILY_MESSAGE_LIMIT)) {
     throw forbidden(
-      `Você já enviou ${DAILY_MESSAGE_LIMIT} mensagens no interpretador hoje. Tente novamente amanhã!`,
+      `You have already sent ${DAILY_MESSAGE_LIMIT} message${DAILY_MESSAGE_LIMIT > 1 ? 's' : ''} in the interpreter in the last 24 hours. Try again later!`,
     );
   }
 }
 
 /**
- * Gets current daily usage for a user.
+ * Gets current daily usage for a user (24-hour rolling window).
  * For bypassed users, we fake `used: 0` so UI never blocks.
  */
 export async function getDailyUsage(userId: string): Promise<DailyUsage> {
@@ -87,15 +90,27 @@ export async function getDailyUsage(userId: string): Promise<DailyUsage> {
     };
   }
 
-  const [chartsUsed, reportsUsed, messagesUsed] = await Promise.all([
-    countChartsByUserToday(userId),
-    countReportsByUserToday(userId),
-    countMessagesByUserToday(userId),
+  const [chartsData, reportsData, messagesData] = await Promise.all([
+    getChartsByUserLast24Hours(userId),
+    getReportsByUserLast24Hours(userId),
+    getMessagesByUserLast24Hours(userId),
   ]);
 
   return {
-    charts: { used: chartsUsed, limit: DAILY_CHART_LIMIT },
-    reports: { used: reportsUsed, limit: DAILY_REPORT_LIMIT },
-    messages: { used: messagesUsed, limit: DAILY_MESSAGE_LIMIT },
+    charts: {
+      used: chartsData.count,
+      limit: DAILY_CHART_LIMIT,
+      firstGenerationAt: chartsData.firstGenerationAt?.toISOString(),
+    },
+    reports: {
+      used: reportsData.count,
+      limit: DAILY_REPORT_LIMIT,
+      firstGenerationAt: reportsData.firstGenerationAt?.toISOString(),
+    },
+    messages: {
+      used: messagesData.count,
+      limit: DAILY_MESSAGE_LIMIT,
+      firstGenerationAt: messagesData.firstGenerationAt?.toISOString(),
+    },
   };
 }

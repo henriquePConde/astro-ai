@@ -41,28 +41,6 @@ export const styles = {
     gap: 2,
   }),
 
-  generateButton: (enabled: boolean) => (theme: Theme) => ({
-    px: 3,
-    py: 1.25,
-    borderRadius: 999,
-    border: 'none',
-    cursor: enabled ? 'pointer' : 'default',
-    fontWeight: 600,
-    fontSize: 13,
-    textTransform: 'uppercase',
-    color: '#ffffff',
-    background: 'linear-gradient(90deg, #8B5CF6 0%, #EC4899 50%, #6366F1 100%)',
-    opacity: enabled ? 1 : 0.5,
-    boxShadow: enabled ? '0 0 24px rgba(79,70,229,0.6)' : '0 0 12px rgba(15,23,42,1)',
-    transition: 'all 0.2s ease',
-    '&:hover': enabled
-      ? {
-          boxShadow: '0 0 32px rgba(79,70,229,0.8)',
-          transform: 'translateY(-1px)',
-        }
-      : undefined,
-  }),
-
   error: () => (theme: Theme) => ({
     color: theme.palette.error.light,
     fontSize: 12,
@@ -79,6 +57,28 @@ export const styles = {
   }),
 
   downloadSpinnerOverlay: () => (theme: Theme) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  }),
+
+  generateButton: () => (theme: Theme) => ({
+    position: 'relative',
+  }),
+
+  generateContentWrapper: () => (theme: Theme) => ({
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }),
+
+  generateSpinnerOverlay: () => (theme: Theme) => ({
     position: 'absolute',
     top: 0,
     left: 0,

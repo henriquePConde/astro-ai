@@ -5,6 +5,7 @@
 export type UsageInfo = {
   used: number;
   limit: number;
+  firstGenerationAt?: string; // ISO timestamp of first generation in the last 24 hours
 };
 
 export type DailyUsage = {

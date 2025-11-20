@@ -75,9 +75,9 @@ export async function getReportJob(jobId: string): Promise<ReportJob> {
 }
 
 export type DailyUsage = {
-  charts: { used: number; limit: number };
-  reports: { used: number; limit: number };
-  messages: { used: number; limit: number };
+  charts: { used: number; limit: number; firstGenerationAt?: string };
+  reports: { used: number; limit: number; firstGenerationAt?: string };
+  messages: { used: number; limit: number; firstGenerationAt?: string };
 };
 
 export async function getDailyUsage(): Promise<DailyUsage> {

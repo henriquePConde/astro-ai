@@ -8,7 +8,7 @@ import {
   type UseFormSetValue,
   type UseFormWatch,
 } from 'react-hook-form';
-import { Autocomplete, Box, Stack, TextField } from '@mui/material';
+import { Autocomplete, Box, Stack, TextField, Tooltip } from '@mui/material';
 import type { BirthDataFormValues } from '../../birth-data-form.schema';
 import { BIRTH_DATA_FORM_CONFIG } from '../../birth-data-form.config';
 import { styles } from '../../birth-data-form.styles';
@@ -34,9 +34,18 @@ type DateFieldsProps = {
   errors: FieldErrors<BirthDataFormValues>;
   watch: UseFormWatch<BirthDataFormValues>;
   setValue: UseFormSetValue<BirthDataFormValues>;
+  disabled?: boolean;
+  tooltipMessage?: string;
 };
 
-export function DateFields({ control, errors, watch, setValue }: DateFieldsProps) {
+export function DateFields({
+  control,
+  errors,
+  watch,
+  setValue,
+  disabled = false,
+  tooltipMessage,
+}: DateFieldsProps) {
   const year = watch(BIRTH_DATA_FORM_CONFIG.fields.year.name);
   const month = watch(BIRTH_DATA_FORM_CONFIG.fields.month.name);
   const maxDays = useMemo(() => getDaysInMonth(year, month), [year, month]);
@@ -53,7 +62,7 @@ export function DateFields({ control, errors, watch, setValue }: DateFieldsProps
     }
   }, [day, maxDays, setValue]);
 
-  return (
+  const fields = (
     <Box sx={styles.group()}>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Box sx={{ flex: 1, minWidth: { xs: '100%', sm: 120 } }}>
@@ -70,6 +79,7 @@ export function DateFields({ control, errors, watch, setValue }: DateFieldsProps
                 fullWidth
                 autoComplete="off"
                 required
+                disabled={disabled}
                 inputProps={{ min: 1900, max: currentYear }}
                 sx={{
                   '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
@@ -100,7 +110,7 @@ export function DateFields({ control, errors, watch, setValue }: DateFieldsProps
                 getOptionLabel={(opt) => opt.label}
                 value={MONTHS.find((m) => m.value === field.value) ?? null}
                 onChange={(_, opt) => field.onChange(opt?.value)}
-                disabled={typeof year !== 'number' || isNaN(year)}
+                disabled={disabled || typeof year !== 'number' || isNaN(year)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -137,7 +147,7 @@ export function DateFields({ control, errors, watch, setValue }: DateFieldsProps
                   value={currentValue ?? null}
                   onChange={(_, val) => field.onChange(val ?? undefined)}
                   freeSolo
-                  disabled={typeof month !== 'number' || isNaN(month)}
+                  disabled={disabled || typeof month !== 'number' || isNaN(month)}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -171,4 +181,23 @@ export function DateFields({ control, errors, watch, setValue }: DateFieldsProps
       </Stack>
     </Box>
   );
+
+  if (disabled && tooltipMessage) {
+    return (
+      <Tooltip
+        title={tooltipMessage}
+        slotProps={{
+          tooltip: {
+            sx: {
+              fontSize: '0.95rem',
+            },
+          },
+        }}
+      >
+        <span>{fields}</span>
+      </Tooltip>
+    );
+  }
+
+  return fields;
 }

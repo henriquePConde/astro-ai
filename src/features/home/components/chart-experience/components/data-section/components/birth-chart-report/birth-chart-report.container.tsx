@@ -31,10 +31,9 @@ export function BirthChartReportContainer({
   const { data: usage } = useDailyUsage();
 
   const generateButtonText = useMemo(() => {
-    if (isGenerating) return BIRTH_CHART_REPORT_CONFIG.copy.button.generating;
     if (hasSections) return BIRTH_CHART_REPORT_CONFIG.copy.button.regenerate;
     return BIRTH_CHART_REPORT_CONFIG.copy.button.generate;
-  }, [isGenerating, hasSections]);
+  }, [hasSections]);
 
   return (
     <BirthChartReportView

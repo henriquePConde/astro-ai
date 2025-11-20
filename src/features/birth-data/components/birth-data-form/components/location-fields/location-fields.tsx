@@ -1,6 +1,6 @@
 import React from 'react';
 import { Controller } from 'react-hook-form';
-import { TextField, Autocomplete, CircularProgress, Box } from '@mui/material';
+import { TextField, Autocomplete, CircularProgress, Box, Tooltip } from '@mui/material';
 import { styles } from '../../birth-data-form.styles';
 import type { Control, FieldErrors } from 'react-hook-form';
 import { useWatch } from 'react-hook-form';
@@ -27,6 +27,8 @@ interface LocationFieldsProps {
   onCityClose: () => void;
   cityOpen: boolean;
   cityLoading?: boolean;
+  disabled?: boolean;
+  tooltipMessage?: string;
 }
 
 export function LocationFields({
@@ -49,13 +51,16 @@ export function LocationFields({
   onCityClose,
   cityOpen,
   cityLoading,
+  disabled = false,
+  tooltipMessage,
 }: LocationFieldsProps) {
   const nationValue = useWatch({
     control,
     name: config.fields.nation.name,
   }) as string | undefined;
-  const isCityDisabled = !nationValue || nationValue.trim().length === 0;
-  return (
+  const isCityDisabled = disabled || !nationValue || nationValue.trim().length === 0;
+
+  const fields = (
     <Box sx={styles.group()}>
       <Controller
         name={config.fields.nation.name}
@@ -78,6 +83,7 @@ export function LocationFields({
                 field.onChange(value);
                 onNationChange(value);
               }}
+              disabled={disabled}
               filterOptions={(x) => x}
               getOptionLabel={(option) => (typeof option === 'string' ? option : String(option))}
               renderInput={(params) => (
@@ -156,4 +162,23 @@ export function LocationFields({
       />
     </Box>
   );
+
+  if (disabled && tooltipMessage) {
+    return (
+      <Tooltip
+        title={tooltipMessage}
+        slotProps={{
+          tooltip: {
+            sx: {
+              fontSize: '0.95rem',
+            },
+          },
+        }}
+      >
+        <span>{fields}</span>
+      </Tooltip>
+    );
+  }
+
+  return fields;
 }

@@ -17,7 +17,7 @@ export function FormUsage({ usage, config }: FormUsageProps) {
   return (
     <Box sx={styles.usage()}>
       <Typography variant="body2" color="text.secondary">
-        {formatUsageText(usage.charts.used, usage.charts.limit, 'Charts')}
+        {formatUsageText(usage.charts.used, usage.charts.limit, 'Charts generation daily limit')}
       </Typography>
     </Box>
   );

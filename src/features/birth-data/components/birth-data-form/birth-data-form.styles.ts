@@ -84,6 +84,25 @@ export const styles = {
     justifyContent: 'flex-end',
     marginTop: theme.spacing(2),
   }),
+  submitButton: () => () => ({
+    position: 'relative' as const,
+  }),
+  submitContentWrapper: () => () => ({
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }),
+  submitSpinnerOverlay: () => () => ({
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none' as const,
+  }),
   usage: () => () => ({
     color: '#555',
     fontWeight: 500,

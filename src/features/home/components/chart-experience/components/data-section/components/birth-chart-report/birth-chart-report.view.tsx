@@ -1,9 +1,19 @@
 'use client';
 
-import { Box, Button, Typography, Alert, Stack, useTheme, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  Alert,
+  Stack,
+  useTheme,
+  CircularProgress,
+  Tooltip,
+} from '@mui/material';
 import { styles } from './birth-chart-report.styles';
 import type { BirthChartReportViewProps } from './birth-chart-report.types';
 import { ReportAccordionContainer } from '../report-accordion/report-accordion.container';
+import { useTimeUntilReset } from '@/shared/hooks/use-time-until-reset';
 
 export function BirthChartReportView({
   birthData,
@@ -22,6 +32,7 @@ export function BirthChartReportView({
 }: BirthChartReportViewProps) {
   const theme = useTheme();
   const isReportLimitReached = usage ? usage.reports.used >= usage.reports.limit : false;
+  const timeRemaining = useTimeUntilReset(usage?.reports.firstGenerationAt);
 
   return (
     <Box sx={styles.container(config.ui.container.maxWidth)(theme)}>
@@ -39,13 +50,56 @@ export function BirthChartReportView({
         </Box>
 
         <Stack direction="row" spacing={1.5}>
-          <Button
-            variant={config.ui.button.generate.variant}
-            onClick={handleGenerateClick}
-            disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
-          >
-            {generateButtonText}
-          </Button>
+          {isReportLimitReached ? (
+            <Tooltip
+              title={config.copy.button.tooltipLimitReached(timeRemaining)}
+              slotProps={{
+                tooltip: {
+                  sx: {
+                    fontSize: '0.95rem',
+                  },
+                },
+              }}
+            >
+              <span>
+                <Button
+                  variant={config.ui.button.generate.variant}
+                  onClick={handleGenerateClick}
+                  disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
+                  sx={styles.generateButton()(theme)}
+                >
+                  <Box sx={styles.generateContentWrapper()(theme)}>
+                    <Box sx={{ visibility: isGenerating ? 'hidden' : 'visible' }}>
+                      {generateButtonText}
+                    </Box>
+                  </Box>
+                  {isGenerating && (
+                    <Box sx={styles.generateSpinnerOverlay()(theme)}>
+                      <CircularProgress size={20} />
+                    </Box>
+                  )}
+                </Button>
+              </span>
+            </Tooltip>
+          ) : (
+            <Button
+              variant={config.ui.button.generate.variant}
+              onClick={handleGenerateClick}
+              disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
+              sx={styles.generateButton()(theme)}
+            >
+              <Box sx={styles.generateContentWrapper()(theme)}>
+                <Box sx={{ visibility: isGenerating ? 'hidden' : 'visible' }}>
+                  {generateButtonText}
+                </Box>
+              </Box>
+              {isGenerating && (
+                <Box sx={styles.generateSpinnerOverlay()(theme)}>
+                  <CircularProgress size={20} />
+                </Box>
+              )}
+            </Button>
+          )}
 
           <Button
             variant={config.ui.button.download.variant}
