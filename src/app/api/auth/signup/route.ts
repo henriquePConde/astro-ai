@@ -27,6 +27,21 @@ export async function POST(req: NextRequest) {
     });
 
     if (authError) {
+      // Check if the error indicates user already exists
+      const errorMessage = authError.message.toLowerCase();
+      const isUserExistsError =
+        errorMessage.includes('user already registered') ||
+        errorMessage.includes('already registered') ||
+        errorMessage.includes('email already exists') ||
+        errorMessage.includes('user already exists');
+
+      if (isUserExistsError) {
+        return NextResponse.json(
+          { error: 'User already exists', code: 'USER_EXISTS' },
+          { status: 400 },
+        );
+      }
+
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 

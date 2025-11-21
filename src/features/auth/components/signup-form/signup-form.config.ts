@@ -74,6 +74,7 @@ export const SIGNUP_FORM_CONFIG = {
   messages: {
     error: {
       signupFailed: 'Signup failed',
+      userAlreadyExists: 'User already exists',
     },
     success: {
       signupSuccess: 'Account created. Redirecting…',

@@ -99,6 +99,34 @@ export async function syncServerSession(
   }
 }
 
+/**
+ * Check if a user exists by email.
+ * Returns true if user exists, false otherwise.
+ */
+export async function checkUserExists(email: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/auth/check-user?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      // If the endpoint fails, return false to allow signup attempt
+      // The signup endpoint will catch the error if user actually exists
+      console.error('[checkUserExists] Failed to check user existence:', response.statusText);
+      return false;
+    }
+
+    const data = await response.json();
+    return data.exists === true;
+  } catch (error) {
+    // On error, return false to allow signup attempt
+    // The signup endpoint will catch the error if user actually exists
+    console.error('[checkUserExists] Error checking user existence:', error);
+    return false;
+  }
+}
+
 export async function signUp(email: string, password: string) {
   // Call server-side signup endpoint which handles both Supabase Auth and Prisma user creation
   const response = await fetch('/api/auth/signup', {

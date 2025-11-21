@@ -9,6 +9,7 @@ import {
   exchangeCodeForSession,
   syncServerSession,
   ensureUser,
+  checkUserExists,
 } from './auth.service';
 import { authKeys } from './auth.keys';
 
@@ -48,6 +49,16 @@ export function useSignInPasswordMutation() {
       }
       queryClient.invalidateQueries({ queryKey: authKeys.user() });
     },
+  });
+}
+
+/**
+ * Mutation hook for checking if a user exists by email.
+ * Defined in services layer for reusability and separation of concerns.
+ */
+export function useCheckUserExistsMutation() {
+  return useMutation({
+    mutationFn: (email: string) => checkUserExists(email),
   });
 }
 
