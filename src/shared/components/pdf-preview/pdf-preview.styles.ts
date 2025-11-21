@@ -48,6 +48,9 @@ export const GLOBAL_STYLES = `
       color: #444;
       font-family: 'Playfair Display', serif;
     }
+    .pdf-preview-container .markdown {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
     .nextjs-static-indicator-toast-wrapper {
       display: none !important;
       opacity: 0 !important;
@@ -86,6 +89,9 @@ export const GLOBAL_STYLES = `
     background: white !important;
     color: #444;
     font-family: 'Playfair Display', serif;
+  }
+  .pdf-preview-container .markdown {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   }
 `;
 

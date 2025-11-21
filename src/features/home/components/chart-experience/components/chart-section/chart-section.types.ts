@@ -11,6 +11,7 @@ export interface ChartSectionContainerProps {
 
 export interface ChartSectionViewProps {
   wheelData: WheelChartData;
+  chartData: ChartData;
   birthData: BirthChartData;
   isExpanded: boolean;
   isDragging: boolean;

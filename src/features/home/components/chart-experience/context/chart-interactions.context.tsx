@@ -343,7 +343,15 @@ const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
         setAIInput(message);
       },
     }),
-    [enabled, showTooltip, hideTooltip, setAIInput, switchToAITabIfNeeded, buildSignContextSummary],
+    [
+      enabled,
+      showTooltip,
+      hideTooltip,
+      setAIInput,
+      switchToAITabIfNeeded,
+      buildSignContextSummary,
+      signContext,
+    ],
   );
 
   return (

@@ -23,6 +23,7 @@ export function ChartSectionContainer(props: ChartSectionContainerProps) {
   return (
     <ChartSectionView
       wheelData={wheelData}
+      chartData={props.chartData}
       birthData={props.birthData}
       isExpanded={props.isExpanded}
       isDragging={props.isDragging}
