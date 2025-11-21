@@ -89,4 +89,14 @@ export const styles = {
     justifyContent: 'center',
     pointerEvents: 'none',
   }),
+
+  stickyHeader: () => (theme: Theme) => ({
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(2, 3),
+    borderRadius: theme.spacing(1.5),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  }),
 };

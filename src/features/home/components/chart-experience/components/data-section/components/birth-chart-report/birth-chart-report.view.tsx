@@ -36,92 +36,98 @@ export function BirthChartReportView({
 
   return (
     <Box sx={styles.container(config.ui.container.maxWidth)(theme)}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-        <Box>
-          <Typography variant="h6">{config.copy.title}</Typography>
-          <Typography variant="body2" color="text.secondary">
-            {config.copy.description}
-          </Typography>
-          {usage && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Reports: {usage.reports.used}/{usage.reports.limit} used today
+      <Box sx={styles.stickyHeader()(theme)}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+          <Box>
+            <Typography variant="h6">{config.copy.title}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {config.copy.description}
             </Typography>
-          )}
-        </Box>
+            {usage && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Reports: {usage.reports.used}/{usage.reports.limit} used today
+              </Typography>
+            )}
+          </Box>
 
-        <Stack direction="row" spacing={1.5}>
-          {isReportLimitReached ? (
-            <Tooltip
-              title={config.copy.button.tooltipLimitReached(timeRemaining)}
-              slotProps={{
-                tooltip: {
-                  sx: {
-                    fontSize: '0.95rem',
+          <Stack direction="row" spacing={1.5}>
+            {isReportLimitReached ? (
+              <Tooltip
+                title={config.copy.button.tooltipLimitReached(timeRemaining)}
+                slotProps={{
+                  tooltip: {
+                    sx: {
+                      fontSize: '0.95rem',
+                    },
                   },
-                },
-              }}
-            >
-              <span>
-                <Button
-                  variant={config.ui.button.generate.variant}
-                  onClick={handleGenerateClick}
-                  disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
-                  sx={styles.generateButton()(theme)}
-                >
-                  <Box sx={styles.generateContentWrapper()(theme)}>
-                    <Box sx={{ visibility: isGenerating ? 'hidden' : 'visible' }}>
-                      {generateButtonText}
+                }}
+              >
+                <span>
+                  <Button
+                    variant={config.ui.button.generate.variant}
+                    onClick={handleGenerateClick}
+                    disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
+                    sx={styles.generateButton()(theme)}
+                  >
+                    <Box sx={styles.generateContentWrapper()(theme)}>
+                      <Box sx={{ visibility: isGenerating ? 'hidden' : 'visible' }}>
+                        {generateButtonText}
+                      </Box>
                     </Box>
+                    {isGenerating && (
+                      <Box sx={styles.generateSpinnerOverlay()(theme)}>
+                        <CircularProgress size={20} />
+                      </Box>
+                    )}
+                  </Button>
+                </span>
+              </Tooltip>
+            ) : (
+              <Button
+                variant={config.ui.button.generate.variant}
+                onClick={handleGenerateClick}
+                disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
+                sx={styles.generateButton()(theme)}
+              >
+                <Box sx={styles.generateContentWrapper()(theme)}>
+                  <Box sx={{ visibility: isGenerating ? 'hidden' : 'visible' }}>
+                    {generateButtonText}
                   </Box>
-                  {isGenerating && (
-                    <Box sx={styles.generateSpinnerOverlay()(theme)}>
-                      <CircularProgress size={20} />
-                    </Box>
-                  )}
-                </Button>
-              </span>
-            </Tooltip>
-          ) : (
+                </Box>
+                {isGenerating && (
+                  <Box sx={styles.generateSpinnerOverlay()(theme)}>
+                    <CircularProgress size={20} />
+                  </Box>
+                )}
+              </Button>
+            )}
+
             <Button
-              variant={config.ui.button.generate.variant}
-              onClick={handleGenerateClick}
-              disabled={!birthData || isGenerating || isDownloading || isReportLimitReached}
-              sx={styles.generateButton()(theme)}
+              variant={config.ui.button.download.variant}
+              onClick={handleDownloadClick}
+              disabled={!hasSections || isGenerating || isDownloading}
+              sx={styles.downloadButton()(theme)}
             >
-              <Box sx={styles.generateContentWrapper()(theme)}>
-                <Box sx={{ visibility: isGenerating ? 'hidden' : 'visible' }}>
-                  {generateButtonText}
+              <Box sx={styles.downloadContentWrapper()(theme)}>
+                <Box sx={{ visibility: isDownloading ? 'hidden' : 'visible' }}>
+                  {config.copy.button.downloadPdf}
                 </Box>
               </Box>
-              {isGenerating && (
-                <Box sx={styles.generateSpinnerOverlay()(theme)}>
+              {isDownloading && (
+                <Box sx={styles.downloadSpinnerOverlay()(theme)}>
                   <CircularProgress size={20} />
                 </Box>
               )}
             </Button>
-          )}
-
-          <Button
-            variant={config.ui.button.download.variant}
-            onClick={handleDownloadClick}
-            disabled={!hasSections || isGenerating || isDownloading}
-            sx={styles.downloadButton()(theme)}
-          >
-            <Box sx={styles.downloadContentWrapper()(theme)}>
-              <Box sx={{ visibility: isDownloading ? 'hidden' : 'visible' }}>
-                {config.copy.button.downloadPdf}
-              </Box>
-            </Box>
-            {isDownloading && (
-              <Box sx={styles.downloadSpinnerOverlay()(theme)}>
-                <CircularProgress size={20} />
-              </Box>
-            )}
-          </Button>
+          </Stack>
         </Stack>
-      </Stack>
 
-      {error && <Alert severity={config.ui.alert.severity}>{error}</Alert>}
+        {error && (
+          <Alert severity={config.ui.alert.severity} sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+      </Box>
 
       <ReportAccordionContainer
         sections={sections}
