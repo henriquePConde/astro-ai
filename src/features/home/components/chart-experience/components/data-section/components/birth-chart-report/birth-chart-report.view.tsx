@@ -14,6 +14,7 @@ import { styles } from './birth-chart-report.styles';
 import type { BirthChartReportViewProps } from './birth-chart-report.types';
 import { ReportAccordionContainer } from '../report-accordion/report-accordion.container';
 import { useTimeUntilReset } from '@/shared/hooks/use-time-until-reset';
+import { useUsageColor } from '@/shared/hooks/use-usage-color';
 
 export function BirthChartReportView({
   birthData,
@@ -33,6 +34,7 @@ export function BirthChartReportView({
   const theme = useTheme();
   const isReportLimitReached = usage ? usage.reports.used >= usage.reports.limit : false;
   const timeRemaining = useTimeUntilReset(usage?.reports.firstGenerationAt);
+  const getReportsUsageColor = useUsageColor(usage?.reports.used ?? 0, usage?.reports.limit ?? 0);
 
   return (
     <Box sx={styles.container(config.ui.container.maxWidth)(theme)}>
@@ -44,7 +46,7 @@ export function BirthChartReportView({
               {config.copy.description}
             </Typography>
             {usage && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              <Typography variant="body2" sx={{ mt: 0.5, color: getReportsUsageColor }}>
                 Reports: {usage.reports.used}/{usage.reports.limit} used today
               </Typography>
             )}

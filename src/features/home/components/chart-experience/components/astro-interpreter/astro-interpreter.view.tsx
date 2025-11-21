@@ -7,6 +7,7 @@ import { MessageList } from './components/message-list/message-list';
 import { InputForm } from './components/input-form';
 import { styles } from './astro-interpreter.styles';
 import { SuggestedQuestions } from './components/suggested-questions/suggested-questions';
+import { useUsageColor } from '@/shared/hooks/use-usage-color';
 import type { AstroInterpreterViewProps } from './astro-interpreter.types';
 
 export function AstroInterpreterView({
@@ -26,6 +27,11 @@ export function AstroInterpreterView({
   const canToggleSuggestions = !isMessageLimitReached && suggestedQuestions.length > 0;
   const showSuggestionsPanel = canToggleSuggestions && suggestionsVisible;
 
+  const getMessagesUsageColor = useUsageColor(
+    usage?.messages.used ?? 0,
+    usage?.messages.limit ?? 0,
+  );
+
   return (
     <Box sx={styles.container()}>
       {usage && (
@@ -39,7 +45,7 @@ export function AstroInterpreterView({
             gap: 1,
           }}
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ color: getMessagesUsageColor }}>
             Messages: {usage.messages.used}/{usage.messages.limit} used today
           </Typography>
           {canToggleSuggestions && (
