@@ -24,20 +24,20 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
 
       content = (
         <>
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
           <Typography sx={styles.contentText()(theme)}>
             {tooltip.symbol} {tooltip.name}
           </Typography>
           {signLabel && (
-            <Typography>
+            <Typography sx={styles.contentText()(theme)}>
               {config.copy.in} {signLabel}
             </Typography>
           )}
           {tooltip.house != null && (
-            <Typography>
+            <Typography sx={styles.contentText()(theme)}>
               {config.copy.house} {tooltip.house}
             </Typography>
           )}
-          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
       break;
@@ -45,10 +45,10 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
     case config.kinds.house:
       content = (
         <>
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
           <Typography sx={styles.contentText()(theme)}>
             {config.copy.house} {tooltip.number}
           </Typography>
-          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
       break;
@@ -57,12 +57,16 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
       const name = ZODIAC_SIGNS[idx] ?? `${config.copy.sign} ${idx + 1}`;
       content = (
         <>
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
           <Typography sx={styles.contentText()(theme)}>
             {zodiacSymbols[idx]} {name}
           </Typography>
-          {tooltip.houseSummary && <Typography>{tooltip.houseSummary}</Typography>}
-          {tooltip.rulerSummary && <Typography>{tooltip.rulerSummary}</Typography>}
-          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
+          {tooltip.houseSummary && (
+            <Typography sx={styles.contentText()(theme)}>{tooltip.houseSummary}</Typography>
+          )}
+          {tooltip.rulerSummary && (
+            <Typography sx={styles.contentText()(theme)}>{tooltip.rulerSummary}</Typography>
+          )}
         </>
       );
       break;
@@ -70,14 +74,14 @@ export function ChartTooltipOverlayView({ tooltip, config }: ChartTooltipOverlay
     case config.kinds.aspect:
       content = (
         <>
+          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
           <Typography sx={styles.contentText()(theme)}>{tooltip.type}</Typography>
           {(tooltip.p1 || tooltip.p2) && (
-            <Typography>
+            <Typography sx={styles.contentText()(theme)}>
               {tooltip.p1}
               {tooltip.p2 && `${config.copy.separator}${tooltip.p2}`}
             </Typography>
           )}
-          <Typography sx={styles.clickHint()(theme)}>{config.copy.clickToAsk}</Typography>
         </>
       );
       break;

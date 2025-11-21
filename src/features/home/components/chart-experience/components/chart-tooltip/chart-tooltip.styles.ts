@@ -19,15 +19,17 @@ export const styles = {
   }),
 
   contentText: () => (theme: Theme) => ({
-    fontWeight: 600,
+    fontWeight: 400,
+    opacity: 0.8,
+    fontSize: 11,
   }),
 
   clickHint: () => (theme: Theme) => ({
-    marginTop: theme.spacing(0.75),
-    paddingTop: theme.spacing(0.75),
-    borderTop: `1px solid ${theme.cosmic.colors.glassBorder}`,
-    fontSize: 11,
-    opacity: 0.7,
-    fontStyle: 'italic',
+    marginBottom: theme.spacing(0.75),
+    paddingBottom: theme.spacing(0.75),
+    borderBottom: `1px solid ${theme.cosmic.colors.glassBorder}`,
+    fontSize: 12,
+    fontWeight: 600,
+    opacity: 1,
   }),
 };
