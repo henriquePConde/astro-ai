@@ -28,16 +28,23 @@ export function useSignupFormActions(): UseSignupFormActionsReturn {
     async (values: SignupFormValues) => {
       clearMessages();
       try {
-        await signUpMutation.mutateAsync({
+        const result = await signUpMutation.mutateAsync({
           email: values.email,
           password: values.password,
         });
-        setSuccessMessage(SIGNUP_FORM_CONFIG.messages.success.signupSuccess);
-        router.replace(AUTH_ROUTES.HOME);
+        // Only redirect if the mutation was successful and there's no error in the response
+        if (result && !result.error) {
+          setSuccessMessage(SIGNUP_FORM_CONFIG.messages.success.signupSuccess);
+          router.replace(AUTH_ROUTES.HOME);
+        } else {
+          const errorMessage = result?.error || SIGNUP_FORM_CONFIG.messages.error.signupFailed;
+          setError(errorMessage);
+        }
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : SIGNUP_FORM_CONFIG.messages.error.signupFailed;
         setError(errorMessage);
+        // Explicitly prevent redirect on error
       }
     },
     [signUpMutation, router, setError, setSuccessMessage, clearMessages],
