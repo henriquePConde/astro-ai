@@ -6,7 +6,7 @@ import { createServerClient } from '@supabase/ssr';
  * Auth-enforcing middleware for protected routes.
  * - For API routes: returns 401 if no session
  * - For app routes: redirects to /login?next=... if no session
- * - Public routes: /api/health, /api/auth/sync, /api/auth/signout, /api/auth/signup, /api/reports/[id], /api/pdf/validate-token
+ * - Public routes: /api/health, /api/auth/sync, /api/auth/signout, /api/auth/signup, /api/auth/check-user, /api/auth/callback, /api/auth/ensure-user, /api/reports/[id], /api/pdf/validate-token
  */
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
@@ -18,6 +18,7 @@ export async function middleware(req: NextRequest) {
     '/api/auth/signout',
     '/api/auth/signup',
     '/api/auth/callback',
+    '/api/auth/check-user',
     '/api/auth/ensure-user',
     '/api/pdf/validate-token',
   ];
