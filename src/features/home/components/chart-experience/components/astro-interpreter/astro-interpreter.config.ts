@@ -7,6 +7,8 @@ export const ASTRO_INTERPRETER_CONFIG = {
       subtitle:
         'Click a question to prefill the chat. You can edit it before sending to tailor it to your situation.',
     },
+    tooltipLimitReached: (timeRemaining: string) =>
+      `You have reached the limit of messages. Try again in ${timeRemaining}!`,
   },
   suggestedQuestions: [
     'What are the main strengths and challenges shown in my birth chart?',

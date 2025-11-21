@@ -46,6 +46,7 @@ export function AstroInterpreterContainer({ chartData }: AstroInterpreterContain
       onSuggestedQuestionClick={handleSuggestedQuestionClick}
       suggestionsTitle={ASTRO_INTERPRETER_CONFIG.copy.suggestions.title}
       suggestionsSubtitle={ASTRO_INTERPRETER_CONFIG.copy.suggestions.subtitle}
+      tooltipLimitReached={ASTRO_INTERPRETER_CONFIG.copy.tooltipLimitReached}
     />
   );
 }

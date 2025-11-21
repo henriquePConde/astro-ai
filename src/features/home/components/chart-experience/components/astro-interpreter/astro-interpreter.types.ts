@@ -16,4 +16,5 @@ export interface AstroInterpreterViewProps {
   onSuggestedQuestionClick: (question: string) => void;
   suggestionsTitle: string;
   suggestionsSubtitle?: string;
+  tooltipLimitReached: (timeRemaining: string) => string;
 }

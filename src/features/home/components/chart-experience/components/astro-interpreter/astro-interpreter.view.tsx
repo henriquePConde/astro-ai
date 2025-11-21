@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, Tooltip, IconButton } from '@mui/material';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
+import InfoIcon from '@mui/icons-material/Info';
 import { MessageList } from './components/message-list/message-list';
 import { InputForm } from './components/input-form';
 import { styles } from './astro-interpreter.styles';
 import { SuggestedQuestions } from './components/suggested-questions/suggested-questions';
 import { useUsageColor } from '@/shared/hooks/use-usage-color';
+import { useTimeUntilReset } from '@/shared/hooks/use-time-until-reset';
 import type { AstroInterpreterViewProps } from './astro-interpreter.types';
 
 export function AstroInterpreterView({
@@ -21,8 +23,10 @@ export function AstroInterpreterView({
   onSuggestedQuestionClick,
   suggestionsTitle,
   suggestionsSubtitle,
+  tooltipLimitReached,
 }: AstroInterpreterViewProps) {
   const isMessageLimitReached = usage ? usage.messages.used >= usage.messages.limit : false;
+  const timeRemaining = useTimeUntilReset(usage?.messages.firstGenerationAt);
   const [suggestionsVisible, setSuggestionsVisible] = useState(true);
   const canToggleSuggestions = !isMessageLimitReached && suggestedQuestions.length > 0;
   const showSuggestionsPanel = canToggleSuggestions && suggestionsVisible;
@@ -45,9 +49,27 @@ export function AstroInterpreterView({
             gap: 1,
           }}
         >
-          <Typography variant="body2" sx={{ color: getMessagesUsageColor }}>
-            Messages: {usage.messages.used}/{usage.messages.limit} used today
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="body2" sx={{ color: getMessagesUsageColor }}>
+              Messages: {usage.messages.used}/{usage.messages.limit} used today
+            </Typography>
+            {isMessageLimitReached && (
+              <Tooltip
+                title={tooltipLimitReached(timeRemaining)}
+                slotProps={{
+                  tooltip: {
+                    sx: {
+                      fontSize: '0.95rem',
+                    },
+                  },
+                }}
+              >
+                <IconButton size="small" sx={{ p: 0.25 }}>
+                  <InfoIcon fontSize="small" sx={{ color: getMessagesUsageColor }} />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
           {canToggleSuggestions && (
             <>
               {showSuggestionsPanel ? (

@@ -9,7 +9,9 @@ import {
   useTheme,
   CircularProgress,
   Tooltip,
+  IconButton,
 } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import { styles } from './birth-chart-report.styles';
 import type { BirthChartReportViewProps } from './birth-chart-report.types';
 import { ReportAccordionContainer } from '../report-accordion/report-accordion.container';
@@ -46,9 +48,27 @@ export function BirthChartReportView({
               {config.copy.description}
             </Typography>
             {usage && (
-              <Typography variant="body2" sx={{ mt: 0.5, color: getReportsUsageColor }}>
-                Reports: {usage.reports.used}/{usage.reports.limit} used today
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                <Typography variant="body2" sx={{ color: getReportsUsageColor }}>
+                  Reports: {usage.reports.used}/{usage.reports.limit} used today
+                </Typography>
+                {isReportLimitReached && (
+                  <Tooltip
+                    title={config.copy.button.tooltipLimitReached(timeRemaining)}
+                    slotProps={{
+                      tooltip: {
+                        sx: {
+                          fontSize: '0.95rem',
+                        },
+                      },
+                    }}
+                  >
+                    <IconButton size="small" sx={{ p: 0.25 }}>
+                      <InfoIcon fontSize="small" sx={{ color: getReportsUsageColor }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
             )}
           </Box>
 
