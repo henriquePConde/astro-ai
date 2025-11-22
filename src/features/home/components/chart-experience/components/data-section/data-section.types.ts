@@ -9,6 +9,13 @@ export interface DataSectionContainerProps {
   isDragging: boolean;
   splitPosition: number;
   birthData: BirthChartData | null;
+  initialReport?: {
+    id: string;
+    content: Record<string, string>;
+    createdAt: Date;
+  };
+  initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  chartId?: string;
 }
 
 export interface DataSectionViewProps {
@@ -29,4 +36,6 @@ export interface DataSectionViewProps {
   onGenerateReport: () => void;
   onDownloadPdf: () => void;
   jobProgress: number | null;
+  initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  chartId?: string;
 }

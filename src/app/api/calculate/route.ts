@@ -14,6 +14,7 @@ import { unauthorized } from '@/backend/core/errors/http-errors';
 import { checkDailyChartLimit } from '@/backend/features/limits';
 import { prisma } from '@/backend/core/db/prisma';
 import { getOrCreateCurrentUser } from '@/backend/features/users';
+import { getPlanetColor } from '@/shared/config/planet-colors';
 
 // Force Node.js runtime (swisseph requires Node)
 export const runtime = 'nodejs';
@@ -41,18 +42,6 @@ function transformChartData(rawData: any) {
     neptune: '♆',
     pluto: '♇',
   };
-  const PLANET_COLORS: Record<string, string> = {
-    sun: '#FFB266',
-    moon: '#CCCCCC',
-    mercury: '#A5A5A5',
-    venus: '#90EE90',
-    mars: '#FF4500',
-    jupiter: '#DEB887',
-    saturn: '#4682B4',
-    uranus: '#40E0D0',
-    neptune: '#9370DB',
-    pluto: '#8B4513',
-  };
 
   // planets: keep only known ones with finite longitude
   const planets = Object.entries(rawData.planets || {})
@@ -66,7 +55,7 @@ function transformChartData(rawData: any) {
         symbol: PLANET_SYMBOLS[name],
         degree: deg,
         sign: Math.floor(deg / 30),
-        color: PLANET_COLORS[name],
+        color: getPlanetColor(name),
       };
     })
     // validate via Zod to ensure no NaNs/Infinities sneak through

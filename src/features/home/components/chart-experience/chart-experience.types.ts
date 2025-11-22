@@ -23,4 +23,11 @@ export interface ChartExperienceProps {
     introFinished: boolean;
   };
   onNewChart: () => void;
+  initialReport?: {
+    id: string;
+    content: Record<string, string>;
+    createdAt: Date;
+  };
+  initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  chartId?: string;
 }

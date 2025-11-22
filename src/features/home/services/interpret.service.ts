@@ -8,6 +8,7 @@ export interface InterpretChartPayload {
   message: string;
   context: any;
   chatHistory: ChatMessage[];
+  chartId?: string;
 }
 
 /**
@@ -51,13 +52,16 @@ export async function interpretChart(
   payload: InterpretChartPayload,
   onChunk?: (chunk: string) => void,
 ): Promise<string> {
-  const { message, context, chatHistory } = payload;
+  const { message, context, chatHistory, chartId } = payload;
 
-  const body = {
+  const body: any = {
     message,
     context,
     chatHistory,
   };
+  if (chartId) {
+    body.chartId = chartId;
+  }
 
   // Prepare request headers using axios client's auth mechanism
   // This ensures we get the same auth headers as other axios requests

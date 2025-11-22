@@ -15,6 +15,7 @@ export function ChartSectionContainer(props: ChartSectionContainerProps) {
       position: p.position,
       absolutePosition: p.absolutePosition,
       sign: p.sign,
+      color: p.color, // Pass color property from chart data
     })),
     houses: props.chartData.houses,
     aspects: props.chartData.aspects,

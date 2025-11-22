@@ -57,16 +57,3 @@ export interface PlanetInfo {
   signInfo: SignInfo;
   symbol?: string;
 }
-
-export const planetColors: Record<string, string> = {
-  Sun: '#ffd6e6',
-  Moon: '#e6ccff',
-  Mercury: '#ccf2ff',
-  Venus: '#ffe6cc',
-  Mars: '#ffccf2',
-  Jupiter: '#ffd6e6',
-  Saturn: '#e6ccff',
-  Uranus: '#ccf2ff',
-  Neptune: '#ffe6cc',
-  Pluto: '#ffccf2',
-};

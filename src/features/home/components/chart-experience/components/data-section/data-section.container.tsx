@@ -15,6 +15,9 @@ export function DataSectionContainer({
   isDragging,
   splitPosition,
   birthData,
+  initialReport,
+  initialMessages,
+  chartId,
 }: DataSectionContainerProps) {
   // Try to get tab state from context, fallback to local state if not available
   const tabsContext = useDataSectionTabsContext();
@@ -30,7 +33,7 @@ export function DataSectionContainer({
     generateError,
     downloadError,
     jobProgress,
-  } = useBirthChartReportActions(birthData, chartData);
+  } = useBirthChartReportActions(birthData, chartData, initialReport);
 
   const { sections, hasSections } = useBirthChartReportSections(reportData);
 
@@ -53,6 +56,8 @@ export function DataSectionContainer({
       onGenerateReport={generateReport}
       onDownloadPdf={downloadPdf}
       jobProgress={jobProgress}
+      initialMessages={initialMessages}
+      chartId={chartId}
     />
   );
 }

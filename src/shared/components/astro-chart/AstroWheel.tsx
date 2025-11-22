@@ -3,7 +3,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import * as d3 from 'd3';
 import type { ChartData, ChartDimensions, PlanetInfo } from './types';
-import { planetColors } from './types';
+import { getPlanetColor } from '@/shared/config/planet-colors';
 import { calculatePlanetPositions, getAdjustedPlanetPositions } from './utils/planetUtils';
 import { getSignInfo } from './utils/signUtils';
 import { useOptionalChartInteractions } from '@/features/home/components/chart-experience/context/chart-interactions.context';
@@ -624,7 +624,9 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
           .attr('class', 'planet-group')
           .attr('transform', `translate(${x},${y})`);
 
-        const color = (planetColors as any)[planet.name] || '#ffffff';
+        // Get color from original planet data if available, otherwise fallback to shared palette
+        const originalPlanet = data.planets.find((p) => p.name === planet.name);
+        const color = originalPlanet?.color || getPlanetColor(planet.name);
 
         // Draw SVG icon for the planet
         renderPlanetIcon(group, planet.name, planetIconSize, color);

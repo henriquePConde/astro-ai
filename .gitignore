@@ -55,5 +55,7 @@ test-results/
 supabase/.temp/
 
 
-
-
+# Documentation
+documentation/
+txts/*
+scripts/*

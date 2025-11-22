@@ -28,6 +28,9 @@ export function ChartApplicationView({
   onDragStart,
   onDrag,
   onDragEnd,
+  initialReport,
+  initialMessages,
+  chartId,
 }: ChartApplicationViewProps) {
   const { activeTab, setActiveTab } = useDataSectionTabs(DEFAULT_DATA_SECTION_TAB);
 
@@ -38,9 +41,9 @@ export function ChartApplicationView({
           currentSection={currentSection}
           introFinished={introFinished}
           isDragging={isDragging}
-          chartData={chartData}
+          chartData={transformedChartData ?? chartData}
         >
-          {!chartData ? (
+          {!transformedChartData ? (
             <FormWrapperView onFormSubmit={onFormSubmit} isLoading={loading} />
           ) : (
             <>
@@ -56,6 +59,9 @@ export function ChartApplicationView({
                 onDrag={onDrag}
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
+                initialReport={initialReport}
+                initialMessages={initialMessages}
+                chartId={chartId}
               />
             </>
           )}

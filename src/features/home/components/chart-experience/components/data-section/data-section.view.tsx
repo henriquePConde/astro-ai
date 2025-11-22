@@ -24,6 +24,8 @@ export function DataSectionView({
   onGenerateReport,
   onDownloadPdf,
   jobProgress,
+  initialMessages,
+  chartId,
 }: DataSectionViewProps) {
   const theme = useTheme();
   if (!chartData) return null;
@@ -40,6 +42,8 @@ export function DataSectionView({
         >
           <AstroInterpreter
             chartData={chartData}
+            initialMessages={initialMessages}
+            chartId={chartId}
             key={
               birthData
                 ? `${birthData.year}-${birthData.month}-${birthData.day}-${birthData.hour}-${birthData.minute}-${birthData.city}-${birthData.nation}`

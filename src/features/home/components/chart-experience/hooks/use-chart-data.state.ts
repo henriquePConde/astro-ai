@@ -16,10 +16,15 @@ export interface UseChartDataReturn {
   handleFormSubmit: (data: BirthChartData) => Promise<void>;
 }
 
-export function useChartData(): UseChartDataReturn {
+export function useChartData(
+  initialChartData?: ChartData | null,
+  initialBirthData?: BirthChartData | null,
+): UseChartDataReturn {
   const [chartData, setChartData] = useState<ApiChartData | null>(null);
-  const [transformedChartData, setTransformedChartData] = useState<ChartData | null>(null);
-  const [birthData, setBirthData] = useState<BirthChartData | null>(null);
+  const [transformedChartData, setTransformedChartData] = useState<ChartData | null>(
+    initialChartData || null,
+  );
+  const [birthData, setBirthData] = useState<BirthChartData | null>(initialBirthData || null);
   const calcChart = useCalcChart();
 
   const handleNewChart = () => {

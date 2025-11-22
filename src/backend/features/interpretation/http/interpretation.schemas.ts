@@ -57,6 +57,7 @@ export const interpretBody = z.object({
   message: z.string().min(1, 'Message cannot be empty'),
   context: chartContextDto,
   chatHistory: z.array(messageDto).default([]),
+  chartId: z.string().uuid().optional(),
 });
 
 export type InterpretBody = z.infer<typeof interpretBody>;

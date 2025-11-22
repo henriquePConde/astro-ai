@@ -61,11 +61,12 @@ model ReportJob {
 }
 
 model Chart {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  birthData Json     @map("birth_data")
-  createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String             @id @default(uuid()) @db.Uuid
+  userId    String             @map("user_id") @db.Uuid
+  birthData Json               @map("birth_data")
+  createdAt DateTime           @default(now()) @map("created_at")
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  InterpretMessage[]
 
   @@index([userId])
   @@index([createdAt])
@@ -75,11 +76,16 @@ model Chart {
 model InterpretMessage {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String   @map("user_id") @db.Uuid
+  chartId   String?  @map("chart_id") @db.Uuid
   message   String
+  /// "user" for user prompt, "assistant" for AI reply
+  role      String   @default("user")
   createdAt DateTime @default(now()) @map("created_at")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chart     Chart?   @relation(fields: [chartId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([chartId])
   @@index([createdAt])
   @@map("interpret_messages")
 }

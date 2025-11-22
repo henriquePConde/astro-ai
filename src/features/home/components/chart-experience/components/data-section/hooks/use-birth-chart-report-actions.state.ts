@@ -27,9 +27,26 @@ export interface UseBirthChartReportActionsReturn {
 export function useBirthChartReportActions(
   birthData: BirthChartData | null,
   chartData: any,
+  initialReport?: {
+    id: string;
+    content: Record<string, string>;
+    createdAt: Date;
+  },
 ): UseBirthChartReportActionsReturn {
   const [jobId, setJobId] = useState<string | null>(null);
-  const [reportData, setReportData] = useState<BirthChartReportResponse | undefined>(undefined);
+  const [reportData, setReportData] = useState<BirthChartReportResponse | undefined>(
+    initialReport
+      ? {
+          id: initialReport.id,
+          userId: '',
+          personName: '',
+          birthData: {},
+          content: initialReport.content,
+          createdAt: initialReport.createdAt,
+          updatedAt: initialReport.createdAt,
+        }
+      : undefined,
+  );
   const [isReportLoading, setIsReportLoading] = useState(false);
 
   const {

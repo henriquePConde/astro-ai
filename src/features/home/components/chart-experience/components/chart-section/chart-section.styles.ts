@@ -16,12 +16,13 @@ export const styles = {
         transition: isDragging ? 'none' : 'all 300ms',
       };
 
-      if (isExpanded && splitPosition) {
-        return { ...baseStyles, width: `${splitPosition}%` };
-      } else if (!isExpanded) {
-        return { ...baseStyles, width: { xs: '100%', lg: '50%' } };
+      if (isExpanded) {
+        // When expanded, use splitPosition if provided, otherwise default to 50%
+        const width = splitPosition ?? 50;
+        return { ...baseStyles, width: `${width}%` };
       } else {
-        return baseStyles;
+        // When not expanded, use responsive width
+        return { ...baseStyles, width: { xs: '100%', lg: '50%' } };
       }
     },
   chartWrapper: () => (theme: Theme) => ({

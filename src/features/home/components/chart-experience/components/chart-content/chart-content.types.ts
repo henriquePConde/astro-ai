@@ -11,4 +11,11 @@ export interface ChartContentProps {
   onDragStart: () => void;
   onDrag: (e: React.MouseEvent) => void;
   onDragEnd: () => void;
+  initialReport?: {
+    id: string;
+    content: Record<string, string>;
+    createdAt: Date;
+  };
+  initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  chartId?: string;
 }

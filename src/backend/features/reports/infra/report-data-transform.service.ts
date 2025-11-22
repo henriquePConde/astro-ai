@@ -1,4 +1,5 @@
 import type { ChartData } from '@/backend/features/calculate/domain/calculate.entities';
+import { getPlanetColor } from '@/shared/config/planet-colors';
 
 const SIGN_ELEMENTS: Record<number, string> = {
   0: 'fire', // Aries
@@ -156,7 +157,7 @@ export function toSimpleChartData(rawData: ChartData) {
       symbol: PLANET_SYMBOLS[name],
       degree: data.longitude,
       sign: Math.floor(data.longitude / 30),
-      color: '#000000', // Color can be added if needed
+      color: getPlanetColor(name),
     }));
 
   const houses = {

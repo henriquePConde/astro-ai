@@ -8,7 +8,11 @@ import { useDailyUsage } from '@/features/reports/services/reports.queries';
 import type { AstroInterpreterContainerProps } from './astro-interpreter.types';
 import { ASTRO_INTERPRETER_CONFIG } from './astro-interpreter.config';
 
-export function AstroInterpreterContainer({ chartData }: AstroInterpreterContainerProps) {
+export function AstroInterpreterContainer({
+  chartData,
+  initialMessages,
+  chartId,
+}: AstroInterpreterContainerProps) {
   // Normalize to the wheel-style ChartData the AstroWheel & utils expect.
   const wheelData: WheelChartData = useMemo(
     () => ({
@@ -25,7 +29,11 @@ export function AstroInterpreterContainer({ chartData }: AstroInterpreterContain
     [chartData],
   );
 
-  const { input, setInput, isLoading, messages, handleSubmit } = useInterpreter(wheelData);
+  const { input, setInput, isLoading, messages, handleSubmit } = useInterpreter(
+    wheelData,
+    initialMessages,
+    chartId,
+  );
   const handleSuggestedQuestionClick = useCallback(
     (question: string) => {
       setInput(question);

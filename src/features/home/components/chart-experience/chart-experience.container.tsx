@@ -9,14 +9,28 @@ export interface ChartExperienceContainerProps {
   currentSection: number;
   introFinished: boolean;
   onNewChart?: () => void;
+  initialChartData?: any;
+  initialBirthData?: any;
+  initialReport?: {
+    id: string;
+    content: Record<string, string>;
+    createdAt: Date;
+  };
+  initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  chartId?: string;
 }
 
 export function ChartExperienceContainer({
   currentSection,
   introFinished,
   onNewChart,
+  initialChartData,
+  initialBirthData,
+  initialReport,
+  initialMessages,
+  chartId,
 }: ChartExperienceContainerProps) {
-  const chart = useChartData();
+  const chart = useChartData(initialChartData, initialBirthData);
   const layout = useLayoutControls();
   const { props } = useChartExperienceProps({
     chart,
@@ -24,6 +38,9 @@ export function ChartExperienceContainer({
     currentSection,
     introFinished,
     onNewChart,
+    initialReport,
+    initialMessages,
+    chartId,
   });
 
   return <ChartExperienceView {...props} />;

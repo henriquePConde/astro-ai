@@ -28,24 +28,42 @@ export async function POST(req: NextRequest) {
     // Check rate limit before processing
     await checkDailyMessageLimit(user.id);
 
-    // Track message in database
-    await prisma.interpretMessage.create({
-      data: {
-        userId: user.id,
-        message: input.message,
-      },
-    });
-
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          // 1) Persist the user message immediately
+          await prisma.interpretMessage.create({
+            data: {
+              userId: user.id,
+              message: input.message,
+              chartId: input.chartId || null,
+              role: 'user',
+            },
+          });
+
+          // 2) Stream the assistant reply while accumulating it so we can persist it too
+          let fullReply = '';
           for await (const chunk of interpretChartUseCase(
             input.message,
             input.context,
             input.chatHistory,
           )) {
+            fullReply += chunk;
             controller.enqueue(new TextEncoder().encode(chunk));
           }
+
+          // 3) Persist the assistant reply once streaming is complete
+          if (fullReply.trim().length > 0) {
+            await prisma.interpretMessage.create({
+              data: {
+                userId: user.id,
+                message: fullReply,
+                chartId: input.chartId || null,
+                role: 'assistant',
+              },
+            });
+          }
+
           controller.close();
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';

@@ -1,7 +1,6 @@
 import type { ChartData as ApiChartData } from '@/features/chart/services/chart.service';
 import type { ChartData, Planet, Houses } from '../types/chart.types';
 
-
 /**
  * Transforms API chart data format to ChartData format expected by ChartApplication
  */
@@ -30,16 +29,22 @@ export function transformApiChartDataToChartData(apiData: ApiChartData): ChartDa
 
   // Transform planets
   // API now returns: { name, symbol, degree, sign (number 0-11), color }
-  const planets: Planet[] = apiData.planets.map((planet) => {
-    return {
-      name: planet.name,
-      symbol: planet.symbol, // Backend provides symbol
-      position: planet.degree, // Backend uses 'degree' instead of 'position'
-      absolutePosition: planet.degree,
-      sign: planet.sign, // Backend returns number (0-11) directly
-      color: planet.color, // Backend provides color
-    };
-  });
+  // Filter out North Node (case-insensitive)
+  const planets: Planet[] = apiData.planets
+    .filter((planet) => {
+      const name = planet.name?.toLowerCase() || '';
+      return name !== 'north node' && name !== 'northnode';
+    })
+    .map((planet) => {
+      return {
+        name: planet.name,
+        symbol: planet.symbol, // Backend provides symbol
+        position: planet.degree, // Backend uses 'degree' instead of 'position'
+        absolutePosition: planet.degree,
+        sign: planet.sign, // Backend returns number (0-11) directly
+        color: planet.color, // Backend provides color
+      };
+    });
 
   // Transform houses
   const housesData = apiData.houses as Record<string, number>;
@@ -76,4 +81,3 @@ export function transformApiChartDataToChartData(apiData: ApiChartData): ChartDa
     aspects,
   };
 }
-

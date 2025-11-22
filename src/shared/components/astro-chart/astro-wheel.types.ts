@@ -68,16 +68,3 @@ export interface AstroWheelProps extends Partial<AstroWheelInteractionHandlers> 
   width?: number;
   height?: number;
 }
-
-export const planetColors: Record<string, string> = {
-  Sun: '#FDB813',
-  Moon: '#FFFFFF',
-  Mercury: '#B0BEC5',
-  Venus: '#F48FB1',
-  Mars: '#FF5252',
-  Jupiter: '#FFB74D',
-  Saturn: '#90A4AE',
-  Uranus: '#81D4FA',
-  Neptune: '#9575CD',
-  Pluto: '#CE93D8',
-};

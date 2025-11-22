@@ -5,6 +5,7 @@ import {
 } from '@/backend/features/calculate/http/calculate.schemas';
 import { calculateSolarReturn } from '@/backend/features/calculate';
 import { handleError } from '@/backend/core/errors/error-handler';
+import { getPlanetColor } from '@/shared/config/planet-colors';
 
 // Transform helper for HTTP response (HTTP boundary concern)
 function transformChartData(rawData: any) {
@@ -20,18 +21,6 @@ function transformChartData(rawData: any) {
     neptune: '♆',
     pluto: '♇',
   };
-  const PLANET_COLORS: Record<string, string> = {
-    sun: '#FFB266',
-    moon: '#CCCCCC',
-    mercury: '#A5A5A5',
-    venus: '#90EE90',
-    mars: '#FF4500',
-    jupiter: '#DEB887',
-    saturn: '#4682B4',
-    uranus: '#40E0D0',
-    neptune: '#9370DB',
-    pluto: '#8B4513',
-  };
 
   const planets = Object.entries(rawData.planets)
     .filter(([name]) => name in PLANET_SYMBOLS)
@@ -40,7 +29,7 @@ function transformChartData(rawData: any) {
       symbol: PLANET_SYMBOLS[name],
       degree: data.longitude,
       sign: Math.floor(data.longitude / 30),
-      color: PLANET_COLORS[name],
+      color: getPlanetColor(name),
     }));
 
   const houses = {

@@ -6,7 +6,15 @@ import { defaultBirthData } from '../../constants/default-birth-data';
 import { styles } from './chart-experience.styles';
 import type { ChartExperienceProps } from './chart-experience.types';
 
-export function ChartExperienceView({ chart, layout, section, onNewChart }: ChartExperienceProps) {
+export function ChartExperienceView({
+  chart,
+  layout,
+  section,
+  onNewChart,
+  initialReport,
+  initialMessages,
+  chartId,
+}: ChartExperienceProps) {
   const { chartData, transformedChartData, birthData, loading, error, handleFormSubmit } = chart;
 
   return (
@@ -28,6 +36,9 @@ export function ChartExperienceView({ chart, layout, section, onNewChart }: Char
         onDragStart={layout.handleDragStart}
         onDrag={layout.handleDrag}
         onDragEnd={layout.handleDragEnd}
+        initialReport={initialReport}
+        initialMessages={initialMessages}
+        chartId={chartId}
       />
     </Box>
   );

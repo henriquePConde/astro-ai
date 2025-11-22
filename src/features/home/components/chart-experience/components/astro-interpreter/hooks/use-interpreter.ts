@@ -12,8 +12,13 @@ import { buildInterpretationContext } from '../utils/contextBuilder';
 import { useInterpretChartMutation } from '@/features/home/services/interpret.mutations';
 import { useAIInput } from './use-ai-input.state';
 
-export function useInterpreter(chartData: WheelChartData | null) {
-  const { messages, isLoading, addMessage, setMessages, setIsLoading } = useAstroChat();
+export function useInterpreter(
+  chartData: WheelChartData | null,
+  initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>,
+  chartId?: string,
+) {
+  const { messages, isLoading, addMessage, setMessages, setIsLoading } =
+    useAstroChat(initialMessages);
   const { aiInput: input, setAIInput } = useAIInput();
   const interpretMutation = useInterpretChartMutation();
 
@@ -55,6 +60,7 @@ export function useInterpreter(chartData: WheelChartData | null) {
           message: messageToSend,
           context,
           chatHistory: baseHistory,
+          chartId,
           onChunk: (chunk) => {
             accumulated += chunk;
             const aiMessage = { role: 'assistant' as const, content: accumulated };
@@ -95,6 +101,7 @@ export function useInterpreter(chartData: WheelChartData | null) {
       setIsLoading,
       setAIInput,
       interpretMutation,
+      chartId,
     ],
   );
 

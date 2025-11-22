@@ -20,6 +20,9 @@ export function ChartContentView({
   onDrag,
   onDragStart,
   onDragEnd,
+  initialReport,
+  initialMessages,
+  chartId,
 }: ChartContentProps) {
   const theme = useTheme();
   if (!chartData) return null;
@@ -61,6 +64,9 @@ export function ChartContentView({
           isDragging={isDragging}
           splitPosition={splitPosition}
           birthData={birthData}
+          initialReport={initialReport}
+          initialMessages={initialMessages}
+          chartId={chartId}
         />
       </Box>
     </Box>

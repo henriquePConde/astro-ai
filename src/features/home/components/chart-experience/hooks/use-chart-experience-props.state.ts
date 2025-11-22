@@ -11,6 +11,13 @@ export interface UseChartExperiencePropsParams {
   currentSection: number;
   introFinished: boolean;
   onNewChart?: () => void;
+  initialReport?: {
+    id: string;
+    content: Record<string, string>;
+    createdAt: Date;
+  };
+  initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  chartId?: string;
 }
 
 export interface UseChartExperiencePropsReturn {
@@ -27,10 +34,16 @@ export function useChartExperienceProps({
   currentSection,
   introFinished,
   onNewChart,
+  initialReport,
+  initialMessages,
+  chartId,
 }: UseChartExperiencePropsParams): UseChartExperiencePropsReturn {
   const handleNewChart = useCallback(() => {
     chart.handleNewChart();
-  }, [chart]);
+    if (onNewChart) {
+      onNewChart();
+    }
+  }, [chart, onNewChart]);
 
   const props: ChartExperienceProps = useMemo(
     () => ({
@@ -41,7 +54,7 @@ export function useChartExperienceProps({
         error: chart.error,
         loading: chart.loading,
         handleFormSubmit: chart.handleFormSubmit,
-        handleNewChart: chart.handleNewChart,
+        handleNewChart: handleNewChart,
       },
       layout: {
         isDragging: layout.isDragging,
@@ -55,8 +68,20 @@ export function useChartExperienceProps({
         introFinished,
       },
       onNewChart: handleNewChart,
+      initialReport,
+      initialMessages,
+      chartId,
     }),
-    [chart, layout, currentSection, introFinished, handleNewChart],
+    [
+      chart,
+      layout,
+      currentSection,
+      introFinished,
+      handleNewChart,
+      initialReport,
+      initialMessages,
+      chartId,
+    ],
   );
 
   return { props };
