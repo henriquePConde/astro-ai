@@ -16,6 +16,7 @@ export function ChartContentView({
   splitPosition,
   birthData,
   onNewChart,
+  newChartLoading = false,
   onToggleExpand,
   onDrag,
   onDragStart,
@@ -32,7 +33,7 @@ export function ChartContentView({
       {/* Header row: left = interactions switch, right = control buttons */}
       <Box sx={styles.header()(theme)}>
         <ChartInteractionsSwitcher />
-        <ControlButtonsContainer onNewChart={onNewChart} />
+        <ControlButtonsContainer onNewChart={onNewChart} loading={newChartLoading} />
       </Box>
 
       {/* Main layout: chart / resizer / data section */}

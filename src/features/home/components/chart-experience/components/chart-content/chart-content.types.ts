@@ -7,6 +7,7 @@ export interface ChartContentProps {
   splitPosition: number;
   birthData: BirthChartData;
   onNewChart: () => void;
+  newChartLoading?: boolean;
   onToggleExpand: () => void;
   onDragStart: () => void;
   onDrag: (e: React.MouseEvent) => void;

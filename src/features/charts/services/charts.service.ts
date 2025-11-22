@@ -28,3 +28,7 @@ export async function getChartById(id: string): Promise<ChartDetailResponse> {
   const res = await client.get(`/api/charts/${id}`);
   return chartDetailDto.parse(res.data);
 }
+
+export async function deleteChartById(id: string): Promise<void> {
+  await client.delete(`/api/charts/${id}`);
+}

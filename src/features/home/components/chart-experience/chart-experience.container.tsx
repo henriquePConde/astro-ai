@@ -9,6 +9,8 @@ export interface ChartExperienceContainerProps {
   currentSection: number;
   introFinished: boolean;
   onNewChart?: () => void;
+  resetOnNewChart?: boolean;
+  isNewChartLoading?: boolean;
   initialChartData?: any;
   initialBirthData?: any;
   initialReport?: {
@@ -24,6 +26,8 @@ export function ChartExperienceContainer({
   currentSection,
   introFinished,
   onNewChart,
+  resetOnNewChart,
+  isNewChartLoading,
   initialChartData,
   initialBirthData,
   initialReport,
@@ -38,6 +42,8 @@ export function ChartExperienceContainer({
     currentSection,
     introFinished,
     onNewChart,
+    resetOnNewChart,
+    isNewChartLoading,
     initialReport,
     initialMessages,
     chartId,

@@ -1,4 +1,4 @@
-export { listCharts, getChartById } from './application/charts.use-cases';
+export { listCharts, getChartById, deleteChart } from './application/charts.use-cases';
 export { listChartsQuery } from './http/charts.schemas';
 export type {
   ListChartsQuery,

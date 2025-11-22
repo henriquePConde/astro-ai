@@ -3,10 +3,12 @@ import type { DailyUsage } from '@/features/reports/services/reports.service';
 
 export interface ControlButtonsProps {
   onNewChart: () => void;
+  loading?: boolean;
   config: typeof CONTROL_BUTTONS_CONFIG;
   usage?: DailyUsage;
 }
 
 export interface ControlButtonsContainerProps {
   onNewChart: () => void;
+  loading?: boolean;
 }

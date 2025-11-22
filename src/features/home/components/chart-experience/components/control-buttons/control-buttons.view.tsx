@@ -1,26 +1,31 @@
 'use client';
 
-import { Box, Button, Tooltip, useTheme } from '@mui/material';
+import { Box, Button, CircularProgress, Tooltip, useTheme } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { styles } from './control-buttons.styles';
 import type { ControlButtonsProps } from './control-buttons.types';
 import { useTimeUntilReset } from '@/shared/hooks/use-time-until-reset';
 
-export function ControlButtonsView({ onNewChart, config, usage }: ControlButtonsProps) {
+export function ControlButtonsView({ onNewChart, loading, config, usage }: ControlButtonsProps) {
   const theme = useTheme();
   const isChartLimitReached = usage ? usage.charts.used >= usage.charts.limit : false;
   const timeRemaining = useTimeUntilReset(usage?.charts.firstGenerationAt);
 
+  const handleClick = () => {
+    if (!onNewChart || isChartLimitReached || loading) return;
+    onNewChart();
+  };
+
   const button = (
     <Button
       variant={config.ui.button.variant}
-      onClick={onNewChart}
-      startIcon={<RefreshIcon />}
-      disabled={isChartLimitReached}
+      onClick={handleClick}
+      startIcon={!loading && <RefreshIcon />}
+      disabled={isChartLimitReached || loading}
       sx={styles.newChartButton()(theme)}
     >
-      {config.copy.newChart}
+      {loading ? <CircularProgress size={18} color="inherit" /> : config.copy.newChart}
     </Button>
   );
 

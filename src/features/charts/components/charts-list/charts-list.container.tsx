@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useCharts } from '@/features/charts/services/charts.queries';
+import { useDeleteChart } from '@/features/charts/services/charts.mutations';
 import { ChartsListView } from './charts-list.view';
 import { CHARTS_LIST_CONFIG } from './charts-list.config';
 import { useChartsFilters } from './hooks/use-charts-filters.state';
@@ -22,6 +23,13 @@ export function ChartsListContainer() {
     router.push(`/charts/${chartId}`);
   };
 
+  const deleteMutation = useDeleteChart();
+
+  const handleDeleteChart = async (chartId: string) => {
+    // Let the view handle confirmation; this just executes the mutation.
+    await deleteMutation.mutateAsync(chartId);
+  };
+
   return (
     <ChartsListView
       charts={data?.items ?? []}
@@ -35,6 +43,8 @@ export function ChartsListContainer() {
       onSortChange={setSort}
       onPageChange={setPage}
       onGoToChart={handleGoToChart}
+      onDeleteChart={handleDeleteChart}
+      isDeleting={deleteMutation.isPending}
       config={CHARTS_LIST_CONFIG}
     />
   );

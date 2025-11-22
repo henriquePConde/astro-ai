@@ -22,6 +22,7 @@ export interface ChartExperienceProps {
     currentSection: number;
     introFinished: boolean;
   };
+  newChartLoading?: boolean;
   onNewChart: () => void;
   initialReport?: {
     id: string;

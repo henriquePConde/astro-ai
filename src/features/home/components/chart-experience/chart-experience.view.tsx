@@ -11,6 +11,7 @@ export function ChartExperienceView({
   layout,
   section,
   onNewChart,
+  newChartLoading,
   initialReport,
   initialMessages,
   chartId,
@@ -32,6 +33,7 @@ export function ChartExperienceView({
         birthData={birthData ?? defaultBirthData}
         onFormSubmit={handleFormSubmit}
         onNewChart={onNewChart}
+        newChartLoading={newChartLoading ?? false}
         onToggleExpand={() => {}}
         onDragStart={layout.handleDragStart}
         onDrag={layout.handleDrag}

@@ -1,21 +1,16 @@
 import { useState, useCallback } from 'react';
-
-export type SortBy = 'name' | 'birthdate' | 'createdAt';
-export type SortOrder = 'asc' | 'desc';
-
-export interface ChartsFilters {
-  page: number;
-  pageSize: number;
-  search: string;
-  sortBy: SortBy;
-  sortOrder: SortOrder;
-}
+import type {
+  ChartsFilters,
+  SortBy,
+  SortOrder,
+  UseChartsFiltersResult,
+} from '../charts-list.types';
 
 /**
  * UI state hook for charts list filters.
  * Component-level hook for local UI state only (no I/O).
  */
-export function useChartsFilters(initialPageSize: number = 20) {
+export function useChartsFilters(initialPageSize: number = 20): UseChartsFiltersResult {
   const [filters, setFilters] = useState<ChartsFilters>({
     page: 1,
     pageSize: initialPageSize,

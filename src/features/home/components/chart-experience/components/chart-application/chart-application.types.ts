@@ -40,6 +40,7 @@ export interface ChartApplicationViewProps {
   birthData: BirthChartData;
   onFormSubmit: (data: any) => Promise<void>;
   onNewChart: () => void;
+  newChartLoading?: boolean;
   onToggleExpand: () => void;
   onDragStart: () => void;
   onDrag: (e: React.MouseEvent) => void;

@@ -120,5 +120,17 @@ export function makeChartsRepo() {
       });
       return messages;
     },
+
+    async deleteById(id: string, userId: string) {
+      // Use deleteMany with both id and userId to enforce ownership at the DB level.
+      // The Chart -> InterpretMessage relation is configured with onDelete: Cascade,
+      // so related interpreter messages for this chart will be removed automatically.
+      await prisma.chart.deleteMany({
+        where: {
+          id,
+          userId,
+        },
+      });
+    },
   };
 }

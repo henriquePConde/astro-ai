@@ -83,3 +83,14 @@ export async function getChartById(id: string, userId: string) {
     })),
   });
 }
+
+export async function deleteChart(id: string, userId: string) {
+  const repo = makeChartsRepo();
+  const chart = await repo.findById(id, userId);
+
+  if (!chart) {
+    throw notFound('Chart not found');
+  }
+
+  await repo.deleteById(id, userId);
+}

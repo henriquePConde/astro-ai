@@ -11,6 +11,14 @@ export interface UseChartExperiencePropsParams {
   currentSection: number;
   introFinished: boolean;
   onNewChart?: () => void;
+  /**
+   * When true (default), clicking \"New chart\" resets the local chart state
+   * in addition to calling the optional onNewChart callback.
+   * When false, only onNewChart is called (used in chart detail page so we don't
+   * flash the empty form before navigating away).
+   */
+  resetOnNewChart?: boolean;
+  isNewChartLoading?: boolean;
   initialReport?: {
     id: string;
     content: Record<string, string>;
@@ -34,16 +42,20 @@ export function useChartExperienceProps({
   currentSection,
   introFinished,
   onNewChart,
+  resetOnNewChart = true,
+  isNewChartLoading = false,
   initialReport,
   initialMessages,
   chartId,
 }: UseChartExperiencePropsParams): UseChartExperiencePropsReturn {
   const handleNewChart = useCallback(() => {
-    chart.handleNewChart();
+    if (resetOnNewChart) {
+      chart.handleNewChart();
+    }
     if (onNewChart) {
       onNewChart();
     }
-  }, [chart, onNewChart]);
+  }, [chart, onNewChart, resetOnNewChart]);
 
   const props: ChartExperienceProps = useMemo(
     () => ({
@@ -67,6 +79,7 @@ export function useChartExperienceProps({
         currentSection,
         introFinished,
       },
+      newChartLoading: isNewChartLoading,
       onNewChart: handleNewChart,
       initialReport,
       initialMessages,
@@ -78,6 +91,7 @@ export function useChartExperienceProps({
       currentSection,
       introFinished,
       handleNewChart,
+      isNewChartLoading,
       initialReport,
       initialMessages,
       chartId,

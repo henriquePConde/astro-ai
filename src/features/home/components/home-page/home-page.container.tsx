@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { AppHeaderContainer } from '@/shared/components/app-header/app-header.container';
 import { GeocentricSystem } from '@/shared/components/solar-system/geocentric-system';
 import { IntroSection } from '../intro-section';
@@ -8,6 +9,7 @@ import { useIntroSectionState } from '../intro-section/hooks/use-intro-section-s
 import { useSectionControls } from '../intro-section/hooks/use-section-controls';
 import { useHomePageHandlers } from './hooks/use-home-page-handlers.state';
 import { useProtectedRoute } from './hooks/use-protected-route.state';
+import { useHomeStartSection } from './hooks/use-home-start-section.state';
 import { HomePageView } from './home-page.view';
 
 export function HomePageContainer() {
@@ -22,6 +24,16 @@ export function HomePageContainer() {
     setScrolling,
     setCurrentSection,
   } = useIntroSectionState();
+
+  const { startAtForm } = useHomeStartSection();
+
+  // If we arrive on the home page in \"start at form\" mode (e.g. from the chart detail page),
+  // immediately skip the intro and show the birth chart form section.
+  useEffect(() => {
+    if (startAtForm) {
+      handleSkipIntro();
+    }
+  }, [startAtForm, handleSkipIntro]);
 
   useSectionControls({
     introFinished,

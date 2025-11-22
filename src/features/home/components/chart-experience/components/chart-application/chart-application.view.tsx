@@ -24,6 +24,7 @@ export function ChartApplicationView({
   birthData,
   onFormSubmit,
   onNewChart,
+  newChartLoading = false,
   onToggleExpand,
   onDragStart,
   onDrag,
@@ -55,6 +56,7 @@ export function ChartApplicationView({
                 splitPosition={splitPosition}
                 birthData={birthData}
                 onNewChart={onNewChart}
+                newChartLoading={newChartLoading}
                 onToggleExpand={onToggleExpand}
                 onDrag={onDrag}
                 onDragStart={onDragStart}

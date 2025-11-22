@@ -10,6 +10,7 @@ export const styles = {
   newChartButton: () => (theme: Theme) => ({
     borderRadius: 999,
     paddingInline: theme.spacing(2.5),
+    minWidth: 140,
     textTransform: 'none',
     fontWeight: 500,
     boxShadow: '0 10px 40px rgba(0,0,0,0.4)',

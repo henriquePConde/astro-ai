@@ -1,27 +1,25 @@
 'use client';
 
+import * as React from 'react';
 import {
   Box,
   Typography,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  Paper,
-  Avatar,
   Button,
-  Pagination,
   CircularProgress,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 // Using native Date formatting instead of date-fns
-import type { ChartsListViewProps } from './charts-list.types';
+import type { ChartsListViewProps, SortBy } from './charts-list.types';
 import { styles } from './charts-list.styles';
-import { getInitials } from '@/shared/utils/get-initials';
+import { DataTableView } from '@/shared/components/data-table/data-table.view';
+import { useChartsListTable } from './hooks/use-charts-list-table.state';
+import type { DataTableSortOrder } from '@/shared/components/data-table/data-table.types';
 
 export function ChartsListView({
   charts,
@@ -35,12 +33,36 @@ export function ChartsListView({
   onSortChange,
   onPageChange,
   onGoToChart,
+  onDeleteChart,
+  isDeleting,
   config,
 }: ChartsListViewProps) {
-  const handleSort = (field: 'name' | 'birthdate' | 'createdAt') => {
-    const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
-    onSortChange(field, newOrder);
-  };
+  const handleTableSortChange = React.useCallback(
+    (field: string, order: DataTableSortOrder) => {
+      onSortChange(field as SortBy, order);
+    },
+    [onSortChange],
+  );
+
+  const {
+    columns,
+    rows,
+    deleteDialogOpen,
+    isDeleting: isDeleteInProgress,
+    onCloseDeleteDialog,
+    onConfirmDelete,
+    tablePagination,
+  } = useChartsListTable({
+    charts,
+    sortBy,
+    sortOrder,
+    pagination,
+    config,
+    onGoToChart,
+    onDeleteChart,
+    isDeleting,
+    onPageChange,
+  });
 
   if (error) {
     return (
@@ -78,96 +100,56 @@ export function ChartsListView({
         </Box>
       ) : (
         <>
-          <TableContainer component={Paper} sx={styles.tableContainer()}>
-            <Table sx={styles.table()}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    <TableSortLabel
-                      active={sortBy === 'name'}
-                      direction={sortBy === 'name' ? sortOrder : 'asc'}
-                      onClick={() => handleSort('name')}
-                      sx={styles.sortableHeader()}
-                    >
-                      {config.copy.columns.name}
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell>
-                    <TableSortLabel
-                      active={sortBy === 'birthdate'}
-                      direction={sortBy === 'birthdate' ? sortOrder : 'asc'}
-                      onClick={() => handleSort('birthdate')}
-                      sx={styles.sortableHeader()}
-                    >
-                      {config.copy.columns.birthdate}
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell>
-                    <TableSortLabel
-                      active={sortBy === 'createdAt'}
-                      direction={sortBy === 'createdAt' ? sortOrder : 'asc'}
-                      onClick={() => handleSort('createdAt')}
-                      sx={styles.sortableHeader()}
-                    >
-                      {config.copy.columns.createdAt}
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell>{config.copy.columns.actions}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {charts.map((chart) => {
-                  const initials = getInitials({ name: chart.name });
-                  const birthdateStr = `${chart.birthdate.year}-${String(chart.birthdate.month).padStart(2, '0')}-${String(chart.birthdate.day).padStart(2, '0')}`;
-                  const createdAtDate = new Date(chart.createdAt);
-                  const createdAtStr = createdAtDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  });
-
-                  return (
-                    <TableRow key={chart.id} hover>
-                      <TableCell>
-                        <Box sx={styles.nameCell()}>
-                          <Avatar sx={styles.avatar(32)}>{initials}</Avatar>
-                          <Typography variant="body2">{chart.name}</Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{birthdateStr}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{createdAtStr}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => onGoToChart(chart.id)}
-                        >
-                          {config.copy.actions.goToChart}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {pagination.totalPages > 1 && (
-            <Box sx={styles.pagination()}>
-              <Pagination
-                count={pagination.totalPages}
-                page={pagination.page}
-                onChange={(_, page) => onPageChange(page)}
-                color="primary"
-              />
-            </Box>
-          )}
+          <DataTableView
+            rows={rows}
+            columns={columns}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortChange={handleTableSortChange}
+            getRowId={(chart) => chart.id as string}
+            pagination={{
+              page: tablePagination.page,
+              totalPages: tablePagination.totalPages,
+              onPageChange: tablePagination.onPageChange,
+            }}
+          />
         </>
       )}
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={onCloseDeleteDialog}
+        aria-labelledby="delete-chart-dialog-title"
+      >
+        <DialogTitle id="delete-chart-dialog-title">
+          {config.copy.actions.deleteConfirmTitle}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>{config.copy.actions.deleteConfirmDescription}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="outlined"
+            sx={styles.deleteDialogCancelButton()}
+            onClick={onCloseDeleteDialog}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            sx={styles.deleteDialogConfirmButton()}
+            disabled={isDeleteInProgress}
+            onClick={onConfirmDelete}
+          >
+            {isDeleteInProgress ? (
+              <CircularProgress size={18} color="inherit" />
+            ) : (
+              config.copy.actions.deleteChart
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

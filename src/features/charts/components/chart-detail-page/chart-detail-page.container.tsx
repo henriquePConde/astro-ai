@@ -1,5 +1,6 @@
 'use client';
 
+import { useTransition } from 'react';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { AppHeaderContainer } from '@/shared/components/app-header/app-header.container';
@@ -34,6 +35,7 @@ export function ChartDetailPageContainer({
   error,
 }: ChartDetailPageContainerProps) {
   const router = useRouter();
+  const [isNewChartNavigating, startNewChartTransition] = useTransition();
 
   // Transform chart data if available
   let transformedChartData: ChartData | null = null;
@@ -59,8 +61,13 @@ export function ChartDetailPageContainer({
     })) ?? [];
 
   const handleNewChartFromDetail = () => {
-    // When viewing a saved chart, \"New chart\" takes the user back to the main chart experience.
-    router.push('/');
+    // When viewing a saved chart, \"New chart\" should bring the user back to the main
+    // chart experience with the birth chart form visible immediately (skip intro/scroll).
+    // We wrap the navigation in a transition so we can show a spinner while the RSC
+    // navigation request is pending.
+    startNewChartTransition(() => {
+      router.push('/?startSection=form');
+    });
   };
 
   // Handle loading and error states while maintaining layout
@@ -122,6 +129,8 @@ export function ChartDetailPageContainer({
         currentSection={CHARTS_DETAIL_SECTION_CONFIG.currentSection}
         introFinished={CHARTS_DETAIL_SECTION_CONFIG.introFinished}
         onNewChart={handleNewChartFromDetail}
+        resetOnNewChart={false}
+        isNewChartLoading={isNewChartNavigating}
         initialChartData={transformedChartData}
         initialBirthData={chart.birthData}
         initialReport={
