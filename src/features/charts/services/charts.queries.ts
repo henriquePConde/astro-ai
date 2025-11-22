@@ -1,5 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { listCharts, getChartById, type ChartsListFilters } from './charts.service';
+import {
+  listCharts,
+  getChartById,
+  type ChartsListFilters,
+  type ChartsListResponse,
+  type ChartDetailResponse,
+} from './charts.service';
 import { chartsKeys } from './charts.keys';
 
 /**
@@ -7,7 +13,7 @@ import { chartsKeys } from './charts.keys';
  * Defined in services layer for reusability and separation of concerns.
  */
 export function useCharts(filters: ChartsListFilters) {
-  return useQuery({
+  return useQuery<ChartsListResponse, Error>({
     queryKey: chartsKeys.list(filters),
     queryFn: () => listCharts(filters),
     staleTime: 30_000, // 30 seconds
@@ -19,10 +25,18 @@ export function useCharts(filters: ChartsListFilters) {
  * Defined in services layer for reusability and separation of concerns.
  */
 export function useChart(id: string) {
-  return useQuery({
+  return useQuery<ChartDetailResponse, Error>({
     queryKey: chartsKeys.detail(id),
     queryFn: () => getChartById(id),
     enabled: !!id,
-    staleTime: 60_000, // 1 minute
+    // Always fetch fresh data when navigating to a chart detail.
+    // Setting staleTime/gcTime to 0 ensures we don't reuse any cached
+    // response between navigations, so "Go to chart" always reflects
+    // the latest chat history and report from the backend.
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnReconnect: 'always',
+    refetchOnWindowFocus: 'always',
   });
 }

@@ -25,7 +25,11 @@ export async function listCharts(filters: ChartsListFilters): Promise<ChartsList
 }
 
 export async function getChartById(id: string): Promise<ChartDetailResponse> {
-  const res = await client.get(`/api/charts/${id}`);
+  // Add a cache-busting query param so we always hit the backend for the
+  // latest chart detail (including chat history), even if an intermediate
+  // layer or browser cache would otherwise serve a stale response.
+  const cacheBuster = Date.now();
+  const res = await client.get(`/api/charts/${id}?_=${cacheBuster}`);
   return chartDetailDto.parse(res.data);
 }
 

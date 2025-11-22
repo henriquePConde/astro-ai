@@ -76,7 +76,19 @@ export function ChartDetailPageContainer({
   if (isLoading) {
     chartExperienceContent = (
       <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}
+        sx={{
+          position: 'fixed',
+          top: '89px', // match layout below the global navigation header
+          left: 0,
+          right: 0,
+          height: 'calc(100vh - 89px)',
+          width: '100%',
+          bgcolor: 'rgba(13, 12, 34, 0.98)', // same purple overlay as loaded chart experience
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 50,
+        }}
       >
         <CircularProgress />
       </Box>
