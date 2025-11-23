@@ -44,8 +44,8 @@ export const styles = {
     width: '100%',
     height: {
       xs: 220,
-      sm: 260,
-      md: 400,
+      sm: 485,
+      md: 485,
     },
     minHeight: {
       xs: 200,

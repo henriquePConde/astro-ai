@@ -25,7 +25,24 @@ export const styles = {
     position: 'relative' as const,
     maxWidth: '72rem', // ~10% narrower than before
     width: '100%',
-    height: '495px', // ~10% shorter than previous 550px
+    height: '495px', // desktop/base height
+    // On tablets and mobiles we want a much taller intro area so the slides
+    // have more room to breathe and don't feel cramped.
+    [theme.breakpoints.down('md')]: {
+      height: '890px',
+      width: '50rem',
+      img: {
+        height: '485px',
+      },
+    },
+    [theme.breakpoints.down('sm')]: {
+      height: '760px',
+      width: '26rem',
+    },
+    [theme.breakpoints.down('xs')]: {
+      height: '620px',
+      width: '24rem',
+    },
   }),
   carousel: () => (theme: Theme) => ({
     position: 'relative' as const,
