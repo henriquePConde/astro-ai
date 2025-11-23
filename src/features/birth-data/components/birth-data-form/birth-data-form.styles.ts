@@ -40,6 +40,17 @@ export const styles = {
   content: () => (theme: Theme) => ({
     position: 'relative' as const,
     zIndex: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    maxHeight: 'calc(100vh - 180px)',
+    minHeight: 0,
+  }),
+  formBody: () => (theme: Theme) => ({
+    flex: 1,
+    minHeight: 0,
+    overflowY: 'auto',
+    paddingBottom: theme.spacing(1.5),
+    paddingRight: theme.spacing(1.5),
   }),
   header: () => (theme: Theme) => ({
     textAlign: 'center' as const,

@@ -53,76 +53,78 @@ export function BirthDataFormView({
         <FormHeader config={config} />
         {usage && <FormUsage usage={usage} config={config} />}
 
-        <Box sx={styles.grid()}>
-          <PersonalInfoFields
-            control={control}
-            errors={errors}
+        <Box sx={styles.formBody()}>
+          <Box sx={styles.grid()}>
+            <PersonalInfoFields
+              control={control}
+              errors={errors}
+              config={config}
+              disabled={isChartLimitReached}
+              tooltipMessage={
+                isChartLimitReached
+                  ? config.copy.button.tooltipLimitReached(timeRemaining)
+                  : undefined
+              }
+            />
+            <DateFields
+              control={control}
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              disabled={isChartLimitReached}
+              tooltipMessage={
+                isChartLimitReached
+                  ? config.copy.button.tooltipLimitReached(timeRemaining)
+                  : undefined
+              }
+            />
+            <TimeFields
+              control={control}
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              disabled={isChartLimitReached}
+              tooltipMessage={
+                isChartLimitReached
+                  ? config.copy.button.tooltipLimitReached(timeRemaining)
+                  : undefined
+              }
+            />
+            <LocationFields
+              control={control}
+              errors={errors}
+              config={config}
+              nationOptions={nationOptions}
+              nationInputValue={nationInputValue}
+              onNationInputChange={onNationInputChange}
+              onNationChange={onNationChange}
+              onNationOpen={onNationOpen}
+              onNationClose={onNationClose}
+              nationOpen={nationOpen}
+              nationLoading={nationLoading}
+              cityOptions={cityOptions}
+              cityInputValue={cityInputValue}
+              onCityInputChange={onCityInputChange}
+              onCityChange={onCityChange}
+              onCityOpen={onCityOpen}
+              onCityClose={onCityClose}
+              cityOpen={cityOpen}
+              cityLoading={cityLoading}
+              disabled={isChartLimitReached}
+              tooltipMessage={
+                isChartLimitReached
+                  ? config.copy.button.tooltipLimitReached(timeRemaining)
+                  : undefined
+              }
+            />
+          </Box>
+          <FormSubmitButton
+            isSubmitting={isButtonLoading}
+            isChartLimitReached={usage ? usage.charts.used >= usage.charts.limit : false}
+            isValid={isValid}
             config={config}
-            disabled={isChartLimitReached}
-            tooltipMessage={
-              isChartLimitReached
-                ? config.copy.button.tooltipLimitReached(timeRemaining)
-                : undefined
-            }
-          />
-          <DateFields
-            control={control}
-            errors={errors}
-            watch={watch}
-            setValue={setValue}
-            disabled={isChartLimitReached}
-            tooltipMessage={
-              isChartLimitReached
-                ? config.copy.button.tooltipLimitReached(timeRemaining)
-                : undefined
-            }
-          />
-          <TimeFields
-            control={control}
-            errors={errors}
-            watch={watch}
-            setValue={setValue}
-            disabled={isChartLimitReached}
-            tooltipMessage={
-              isChartLimitReached
-                ? config.copy.button.tooltipLimitReached(timeRemaining)
-                : undefined
-            }
-          />
-          <LocationFields
-            control={control}
-            errors={errors}
-            config={config}
-            nationOptions={nationOptions}
-            nationInputValue={nationInputValue}
-            onNationInputChange={onNationInputChange}
-            onNationChange={onNationChange}
-            onNationOpen={onNationOpen}
-            onNationClose={onNationClose}
-            nationOpen={nationOpen}
-            nationLoading={nationLoading}
-            cityOptions={cityOptions}
-            cityInputValue={cityInputValue}
-            onCityInputChange={onCityInputChange}
-            onCityChange={onCityChange}
-            onCityOpen={onCityOpen}
-            onCityClose={onCityClose}
-            cityOpen={cityOpen}
-            cityLoading={cityLoading}
-            disabled={isChartLimitReached}
-            tooltipMessage={
-              isChartLimitReached
-                ? config.copy.button.tooltipLimitReached(timeRemaining)
-                : undefined
-            }
           />
         </Box>
-        <FormSubmitButton
-          isSubmitting={isButtonLoading}
-          isChartLimitReached={usage ? usage.charts.used >= usage.charts.limit : false}
-          isValid={isValid}
-          config={config}
-        />
       </FormShell>
     </form>
   );

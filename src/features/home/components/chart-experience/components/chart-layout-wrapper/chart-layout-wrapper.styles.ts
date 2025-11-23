@@ -10,7 +10,7 @@ export const styles = {
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    px: 6,
+    px: { xs: 0, md: 6 },
     transition: 'opacity 1000ms',
     overflow: 'hidden',
     opacity: sectionVisible ? 1 : 0,
@@ -32,16 +32,21 @@ export const styles = {
           bgcolor: 'rgba(13, 12, 34, 0.98)',
         }
       : {
-          // Center the initial birth data form within the viewport,
-          // accounting for the navigation header height (~89px).
+          // Birth data form mode (no chart yet):
+          // center the form within the viewport below the header and
+          // let it use more horizontal space on smaller screens.
           minHeight: 'calc(100vh - 89px)',
           mt: '89px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          maxWidth: '90%',
+          maxWidth: {
+            xs: '100%', // full width on phones
+            sm: '100%', // also full width on small tablets
+            md: '90%',
+          },
           mx: 'auto',
-          px: { xs: 2, md: 4 },
+          px: { xs: 0.5, md: 4 },
           [`@media (min-width: 1536px)`]: {
             maxWidth: '80%',
           },
