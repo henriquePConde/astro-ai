@@ -55,6 +55,9 @@ export const styles = {
   slidesContainer: () => (theme: Theme) => ({
     position: 'relative' as const,
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
   }),
   skipButton: () => (theme: Theme) => ({
     position: 'absolute' as const,

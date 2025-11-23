@@ -5,6 +5,7 @@ import { IntroNavControls } from '../intro-nav-controls';
 import { IntroSlide } from '../intro-slide';
 import { IntroDots } from '../intro-dots';
 import { styles } from './intro-carousel.styles';
+import { useIsDesktop } from '@/shared/hooks/use-is-desktop';
 import type { IntroCarouselViewProps } from './intro-carousel.types';
 
 export function IntroCarouselView({
@@ -16,6 +17,7 @@ export function IntroCarouselView({
   visible,
   slides,
 }: IntroCarouselViewProps) {
+  const isDesktop = useIsDesktop();
   return (
     <Box sx={styles.root(visible)}>
       <Box sx={styles.container()}>
@@ -36,7 +38,9 @@ export function IntroCarouselView({
                 <IntroSlide key={index} {...slide} isActive={index === currentSlide} />
               ))}
             </Box>
-            <IntroDots count={slides.length} current={currentSlide} goTo={goToSlide} />
+            {isDesktop && (
+              <IntroDots count={slides.length} current={currentSlide} goTo={goToSlide} />
+            )}
           </Box>
         </Box>
       </Box>

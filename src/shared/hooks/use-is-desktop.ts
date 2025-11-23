@@ -6,12 +6,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 /**
  * Shared responsive hook that returns true when the viewport is considered "desktop".
  *
- * We treat desktop as MUI `lg` and above, which keeps tablets and phones
- * in the non-desktop bucket for tailored UX (e.g. skipping scroll prompts).
+ * We treat desktop as MUI `md` and above so tablets share the desktop
+ * experience, while only phones use the simplified mobile UX.
  */
 export function useIsDesktop(): boolean {
   const theme = useTheme();
 
   // Use `noSsr: true` to avoid hydration mismatches between server and client.
-  return useMediaQuery(theme.breakpoints.up('lg'), { noSsr: true });
+  return useMediaQuery(theme.breakpoints.up('md'), { noSsr: true });
 }
