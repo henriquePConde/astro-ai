@@ -5,8 +5,6 @@
 export const PROFILE_CONFIG = {
   copy: {
     menu: {
-      login: 'Log in',
-      signup: 'Sign up',
       myCharts: 'My charts',
       signOut: 'Sign out',
     },

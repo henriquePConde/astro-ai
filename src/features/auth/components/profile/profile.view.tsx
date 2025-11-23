@@ -1,8 +1,9 @@
 'use client';
 
-import { Avatar, Menu, MenuItem, CircularProgress, Box, Link } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 import type { ProfileViewProps } from './profile.types';
 import { styles } from './profile.styles';
+import { ProfileAvatarMenu } from './components/profile-avatar-menu';
 
 export function ProfileView({
   isLoading,
@@ -17,20 +18,6 @@ export function ProfileView({
   onMenuClose,
   onNavigateToCharts,
 }: ProfileViewProps) {
-  // During SSR or initial mount, show a neutral state to prevent hydration mismatch
-  if (!isMounted) {
-    return (
-      <Box sx={styles.root()}>
-        <Link href={routes.LOGIN} underline="hover">
-          {config.copy.menu.login}
-        </Link>
-        <Link href={routes.SIGNUP} underline="hover" sx={{ ml: 1.5 }}>
-          {config.copy.menu.signup}
-        </Link>
-      </Box>
-    );
-  }
-
   // Show loading only briefly during initial fetch
   if (isLoading) {
     return (
@@ -42,47 +29,17 @@ export function ProfileView({
 
   if (isAuthenticated) {
     return (
-      <Box sx={styles.root()}>
-        <Avatar
-          sx={styles.avatar(config.ui.avatar.size)}
-          onClick={onMenuOpen}
-          aria-label="User menu"
-          aria-controls={menuAnchorEl ? 'profile-menu' : undefined}
-          aria-haspopup="true"
-          aria-expanded={menuAnchorEl ? 'true' : undefined}
-        >
-          {userInitials}
-        </Avatar>
-        <Menu
-          id="profile-menu"
-          anchorEl={menuAnchorEl}
-          open={Boolean(menuAnchorEl)}
-          onClose={onMenuClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          sx={styles.menu()}
-        >
-          <MenuItem onClick={onNavigateToCharts}>{config.copy.menu.myCharts}</MenuItem>
-          <MenuItem onClick={onSignOut}>{config.copy.menu.signOut}</MenuItem>
-        </Menu>
-      </Box>
+      <ProfileAvatarMenu
+        userInitials={userInitials}
+        config={config}
+        menuAnchorEl={menuAnchorEl}
+        onMenuOpen={onMenuOpen}
+        onMenuClose={onMenuClose}
+        onNavigateToCharts={onNavigateToCharts}
+        onSignOut={onSignOut}
+      />
     );
   }
 
-  return (
-    <Box sx={styles.root()}>
-      <Link href={routes.LOGIN} underline="hover">
-        {config.copy.menu.login}
-      </Link>
-      <Link href={routes.SIGNUP} underline="hover" sx={{ ml: 1.5 }}>
-        {config.copy.menu.signup}
-      </Link>
-    </Box>
-  );
+  return null;
 }

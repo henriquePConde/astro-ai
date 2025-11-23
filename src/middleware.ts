@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest) {
   ];
 
   // Skip public pages
-  const publicPages = ['/auth/callback', '/login', '/signup'];
+  const publicPages = ['/', '/auth/callback', '/login', '/signup'];
 
   if (publicPages.includes(pathname)) {
     return NextResponse.next();
@@ -131,10 +131,14 @@ export async function middleware(req: NextRequest) {
  */
 export const config = {
   matcher: [
+    // Protect all app routes (excluding Next.js internals and favicon)
+    // '/((?!api|_next/static|_next/image|favicon.ico).*)',
     // Protect API routes except public endpoints
     '/api/:path*',
     // Protect app routes
     '/protected/:path*',
+    // Protect charts list and detail pages
+    '/charts/:path*',
     // PDF preview route (will be checked for public access above)
     '/pdf-preview/:path*',
   ],
