@@ -23,8 +23,8 @@ export async function middleware(req: NextRequest) {
     '/api/pdf/validate-token',
   ];
 
-  // Skip public pages
-  const publicPages = ['/', '/auth/callback', '/login', '/signup'];
+  // Skip public pages (home is protected, so it's NOT listed here)
+  const publicPages = ['/auth/callback', '/login', '/signup'];
 
   if (publicPages.includes(pathname)) {
     return NextResponse.next();
@@ -106,10 +106,14 @@ export async function middleware(req: NextRequest) {
       loginUrl.searchParams.set('next', req.nextUrl.pathname + req.nextUrl.search);
       return NextResponse.redirect(loginUrl);
     }
-  } catch {
-    // If Supabase throws, fall back to cookie check
+  } catch (error) {
+    // If Supabase throws, treat it as an invalid/expired session
+    // and clear any sb-* cookies so the user doesn't get stuck.
+    console.error('[middleware] Supabase getSession error, clearing sb-* cookies', error);
+
     const hasAccess = !!req.cookies.get('sb-access-token')?.value;
     const hasRefresh = !!req.cookies.get('sb-refresh-token')?.value;
+
     if (!hasAccess && !hasRefresh) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -119,6 +123,21 @@ export async function middleware(req: NextRequest) {
       loginUrl.searchParams.set('next', req.nextUrl.pathname + req.nextUrl.search);
       return NextResponse.redirect(loginUrl);
     }
+
+    // We have sb-* cookies but Supabase failed to hydrate the session.
+    // Clear the cookies proactively to avoid a broken state that only
+    // recovers when the user manually clears cookies.
+    res.cookies.set('sb-access-token', '', { maxAge: 0, path: '/' });
+    res.cookies.set('sb-refresh-token', '', { maxAge: 0, path: '/' });
+
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const loginUrl = req.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    loginUrl.searchParams.set('next', req.nextUrl.pathname + req.nextUrl.search);
+    return NextResponse.redirect(loginUrl);
   }
 
   return res;
@@ -131,11 +150,10 @@ export async function middleware(req: NextRequest) {
  */
 export const config = {
   matcher: [
-    // Protect all app routes (excluding Next.js internals and favicon)
-    // '/((?!api|_next/static|_next/image|favicon.ico).*)',
     // Protect API routes except public endpoints
     '/api/:path*',
     // Protect app routes
+    '/',
     '/protected/:path*',
     // Protect charts list and detail pages
     '/charts/:path*',
