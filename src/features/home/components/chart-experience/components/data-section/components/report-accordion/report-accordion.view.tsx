@@ -6,17 +6,7 @@ import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material
 import { styles } from './report-accordion.styles';
 import type { ReportAccordionViewProps } from './report-accordion.types';
 import { MarkdownRenderer } from '@/shared/components/markdown-renderer';
-
-function AccordionSection({ isOpen, children }: { isOpen: boolean; children: React.ReactNode }) {
-  const theme = useTheme();
-
-  return (
-    <Box sx={styles.accordionSection(isOpen)(theme)} aria-hidden={!isOpen}>
-      {/* inner box gets full width; padding-bottom is in sectionContent */}
-      <Box sx={{ width: '100%' }}>{children}</Box>
-    </Box>
-  );
-}
+import { AccordionSection } from '@/shared/components/accordion-section/accordion-section.view';
 
 type LoadingVariant = 'generate' | 'download';
 

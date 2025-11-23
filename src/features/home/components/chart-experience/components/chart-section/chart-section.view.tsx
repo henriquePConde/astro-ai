@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, useTheme } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import AstroWheel from '@/shared/components/astro-chart/AstroWheel';
 import { styles } from './chart-section.styles';
 import type { ChartSectionViewProps } from './chart-section.types';
@@ -17,13 +17,21 @@ export function ChartSectionView({
   splitPosition,
 }: ChartSectionViewProps) {
   const theme = useTheme();
+  const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
 
   return (
     <Box sx={styles.container(isExpanded, isDragging, splitPosition)(theme)}>
       <Box sx={styles.chartWrapper()(theme)}>
-        <BirthInfoBadgeContainer birthData={birthData} />
-        <BigThreeBadgeContainer chartData={chartData} />
-        <ChartInteractionsHintContainer />
+        {/* On desktop layout, render overlay badges on top of the chart.
+            On tablet/mobile (< 1200px), these are hidden here (they will
+            be surfaced in a different layout). */}
+        {isDesktopLayout && (
+          <>
+            <BirthInfoBadgeContainer birthData={birthData} />
+            <BigThreeBadgeContainer chartData={chartData} />
+            <ChartInteractionsHintContainer />
+          </>
+        )}
         <Box sx={styles.chartInner()(theme)}>
           <AstroWheel data={wheelData} width={800} height={1000} />
         </Box>
