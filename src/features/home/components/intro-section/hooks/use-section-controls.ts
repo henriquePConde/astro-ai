@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useIsDesktop } from '@/shared/hooks/use-is-desktop';
 
 interface UseSectionControlsProps {
   introFinished: boolean;
@@ -15,20 +16,13 @@ export function useSectionControls({
   setScrolling,
   setCurrentSection,
 }: UseSectionControlsProps) {
-  useEffect(() => {
-    console.log('[useSectionControls] Effect running:', {
-      introFinished,
-      currentSection,
-      scrolling,
-    });
+  const isDesktop = useIsDesktop();
 
-    if (!introFinished) {
-      console.log('[useSectionControls] Intro not finished, skipping scroll listener');
-      // Cleanup: remove listener if intro not finished
+  useEffect(() => {
+    if (!introFinished || !isDesktop) {
+      // Cleanup: remove listener if intro not finished or on non-desktop devices
       return;
     }
-
-    console.log('[useSectionControls] Setting up scroll listener');
 
     const handleWheel = (e: WheelEvent) => {
       if (scrolling) return;
@@ -45,12 +39,6 @@ export function useSectionControls({
         const direction = e.deltaY > 0 ? 1 : -1;
         // Only allow scrolling between sections 0 and 1 if not in section 2
         const newSection = Math.max(0, Math.min(prev + direction, 1));
-        console.log('[useSectionControls] Scroll detected:', {
-          prev,
-          direction,
-          newSection,
-          introFinished,
-        });
         return newSection;
       });
 
@@ -59,5 +47,5 @@ export function useSectionControls({
 
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [scrolling, introFinished, currentSection, setScrolling, setCurrentSection]);
+  }, [scrolling, introFinished, currentSection, setScrolling, setCurrentSection, isDesktop]);
 }
