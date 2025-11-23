@@ -1,7 +1,7 @@
 import type { BirthChartData } from '@/features/home/types/chart.types';
 import type { BirthChartReportSections } from '@/features/home/services/birth-chart-report.service';
 
-export type DataSectionTab = 'ai' | 'report';
+export type DataSectionTab = 'ai' | 'report' | 'chart';
 
 export interface DataSectionContainerProps {
   chartData: any; // use concrete ChartData when available

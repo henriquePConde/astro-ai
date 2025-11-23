@@ -19,7 +19,15 @@ export const styles = {
       if (isExpanded) {
         // When expanded, use splitPosition if provided, otherwise default to 50%
         const width = splitPosition ?? 50;
-        return { ...baseStyles, width: `${width}%` };
+        return {
+          ...baseStyles,
+          // On desktop (lg and up), use the split position;
+          // on tablet/mobile, always take full width.
+          width: {
+            xs: '100%',
+            lg: `${width}%`,
+          },
+        };
       } else {
         // When not expanded, use responsive width
         return { ...baseStyles, width: { xs: '100%', lg: '50%' } };

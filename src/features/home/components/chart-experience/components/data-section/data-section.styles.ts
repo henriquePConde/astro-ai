@@ -10,7 +10,10 @@ export const styles = {
       pl: 2,
       pr: 2,
       transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      width: { lg: `${100 - splitPosition}%` },
+      width: {
+        xs: '100%',
+        lg: `${100 - splitPosition}%`,
+      },
       overflow: 'hidden',
     }),
 

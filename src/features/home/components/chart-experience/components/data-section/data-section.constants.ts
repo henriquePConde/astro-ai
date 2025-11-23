@@ -6,6 +6,7 @@ import type { DataSectionTab } from './data-section.types';
 export const DATA_SECTION_TABS = {
   AI: 'ai' as const,
   REPORT: 'report' as const,
+  CHART: 'chart' as const,
 } as const;
 
 /**

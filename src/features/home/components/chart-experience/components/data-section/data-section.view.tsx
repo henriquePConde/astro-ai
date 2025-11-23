@@ -1,11 +1,12 @@
 'use client';
 
-import { Box, useTheme } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { styles } from './data-section.styles';
 import { AstroInterpreter } from '../astro-interpreter';
 import { BirthChartReportContainer } from './components/birth-chart-report/birth-chart-report.container';
 import { TabsSectionContainer } from './components/tabs-section/tabs-section.container';
 import { DATA_SECTION_TABS } from './data-section.constants';
+import { ChartSectionContainer } from '../chart-section/chart-section.container';
 import type { DataSectionViewProps } from './data-section.types';
 
 export function DataSectionView({
@@ -28,6 +29,7 @@ export function DataSectionView({
   chartId,
 }: DataSectionViewProps) {
   const theme = useTheme();
+  const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
   if (!chartData) return null;
 
   return (
@@ -70,6 +72,23 @@ export function DataSectionView({
             onGoToAI={() => onTabChange(DATA_SECTION_TABS.AI)}
           />
         </Box>
+
+        {/* Mobile/Tablet-only "Natal Chart" tab */}
+        {!isDesktopLayout && (
+          <Box
+            role="tabpanel"
+            aria-hidden={activeTab !== DATA_SECTION_TABS.CHART}
+            sx={styles.tabPanel(activeTab === DATA_SECTION_TABS.CHART)(theme)}
+          >
+            <ChartSectionContainer
+              chartData={chartData}
+              birthData={birthData ?? ({} as any)}
+              isExpanded={false}
+              isDragging={false}
+              splitPosition={50}
+            />
+          </Box>
+        )}
       </Box>
     </Box>
   );

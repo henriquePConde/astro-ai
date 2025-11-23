@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, useTheme } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { ControlButtonsContainer } from '../control-buttons/control-buttons.container';
 import { DraggableResizerView } from '../draggable-resizer/draggable-resizer.view';
 import { ChartSectionContainer } from '../chart-section/chart-section.container';
@@ -26,6 +26,8 @@ export function ChartContentView({
   chartId,
 }: ChartContentProps) {
   const theme = useTheme();
+  const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
+
   if (!chartData) return null;
 
   return (
@@ -43,15 +45,17 @@ export function ChartContentView({
         onMouseUp={isExpanded ? onDragEnd : undefined}
         onMouseLeave={isExpanded ? onDragEnd : undefined}
       >
-        <ChartSectionContainer
-          chartData={chartData}
-          birthData={birthData}
-          isExpanded={isExpanded}
-          isDragging={isDragging}
-          splitPosition={splitPosition}
-        />
+        {isDesktopLayout && (
+          <ChartSectionContainer
+            chartData={chartData}
+            birthData={birthData}
+            isExpanded={isExpanded}
+            isDragging={isDragging}
+            splitPosition={splitPosition}
+          />
+        )}
 
-        {isExpanded && (
+        {isExpanded && isDesktopLayout && (
           <DraggableResizerView
             splitPosition={splitPosition}
             isDragging={isDragging}

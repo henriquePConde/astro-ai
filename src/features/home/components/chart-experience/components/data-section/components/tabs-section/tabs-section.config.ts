@@ -5,6 +5,7 @@ export const TABS_SECTION_CONFIG = {
     tabs: {
       ai: 'AI Interpreter',
       report: 'Report',
+      chart: 'Natal Chart',
     },
   },
   ui: {
@@ -15,5 +16,6 @@ export const TABS_SECTION_CONFIG = {
   values: {
     ai: DATA_SECTION_TABS.AI,
     report: DATA_SECTION_TABS.REPORT,
+    chart: DATA_SECTION_TABS.CHART,
   },
 } as const;

@@ -1,5 +1,6 @@
 'use client';
 
+import { useMediaQuery, useTheme } from '@mui/material';
 import { ChartLayoutWrapperView } from '../chart-layout-wrapper/chart-layout-wrapper.view';
 import { FormWrapperView } from '../form-wrapper/form-wrapper.view';
 import { LoadingOrErrorView } from '../loading-or-error/loading-or-error.view';
@@ -9,7 +10,10 @@ import { ChartInteractionsProvider } from '../../context/chart-interactions.cont
 import { ChartTooltipOverlayContainer as ChartTooltipOverlay } from '../chart-tooltip/chart-tooltip.container';
 import { DataSectionTabsProvider } from '../data-section/context/data-section-tabs.context';
 import { useDataSectionTabs } from '../data-section/hooks/use-data-section-tabs.state';
-import { DEFAULT_DATA_SECTION_TAB } from '../data-section/data-section.constants';
+import {
+  DATA_SECTION_TABS,
+  DEFAULT_DATA_SECTION_TAB,
+} from '../data-section/data-section.constants';
 
 export function ChartApplicationView({
   chartData,
@@ -33,7 +37,10 @@ export function ChartApplicationView({
   initialMessages,
   chartId,
 }: ChartApplicationViewProps) {
-  const { activeTab, setActiveTab } = useDataSectionTabs(DEFAULT_DATA_SECTION_TAB);
+  const theme = useTheme();
+  const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
+  const initialTab = isDesktopLayout ? DEFAULT_DATA_SECTION_TAB : DATA_SECTION_TABS.CHART;
+  const { activeTab, setActiveTab } = useDataSectionTabs(initialTab);
 
   return (
     <DataSectionTabsProvider activeTab={activeTab} setActiveTab={setActiveTab}>
