@@ -23,11 +23,17 @@ export const styles = {
     ...(hasChartData
       ? {
           position: 'fixed',
-          // Header is ~89px high
-          top: '89px',
+          // Header height: 80px on mobile, ~89px on larger screens
+          top: {
+            xs: '80px',
+            md: '89px',
+          },
           left: 0,
           right: 0,
-          height: 'calc(100vh - 89px)',
+          height: {
+            xs: 'calc(100vh - 80px)',
+            md: 'calc(100vh - 89px)',
+          },
           zIndex: 50,
           bgcolor: 'rgba(13, 12, 34, 0.98)',
         }
@@ -35,8 +41,14 @@ export const styles = {
           // Birth data form mode (no chart yet):
           // center the form within the viewport below the header and
           // let it use more horizontal space on smaller screens.
-          minHeight: 'calc(100vh - 89px)',
-          mt: '89px',
+          minHeight: {
+            xs: 'calc(100vh - 80px)',
+            md: 'calc(100vh - 89px)',
+          },
+          mt: {
+            xs: '80px',
+            md: '89px',
+          },
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

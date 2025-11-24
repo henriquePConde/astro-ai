@@ -5,6 +5,10 @@ const forceLocalPuppeteer = process.env.PDF_FORCE_LOCAL === 'true';
 const isVercel = !!process.env.VERCEL;
 const useServerlessChromium = isVercel && !forceLocalPuppeteer;
 
+// Timeouts: be stricter on Vercel (to respect maxDuration) but more generous in local dev
+const NAVIGATION_TIMEOUT = isVercel ? 15000 : 45000; // page.goto / navigation
+const CONTENT_WAIT_TIMEOUT = isVercel ? 15000 : 45000; // waiting for React app to hydrate / data
+
 let chromium: any = null;
 let puppeteer: any;
 
@@ -101,16 +105,17 @@ export async function generatePdfFromReportId(
     try {
       const page = await browser.newPage();
 
-      // Reduced timeouts to fit within 60s maxDuration
-      // Total budget: ~55 seconds (leaving 5s buffer)
-      page.setDefaultNavigationTimeout(15000); // 15s for navigation
-      page.setDefaultTimeout(20000); // 20s default
+      // Timeouts tuned for serverless vs local:
+      // - On Vercel: stricter to fit within maxDuration
+      // - Local dev: more generous, as dev builds can be slower
+      page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT);
+      page.setDefaultTimeout(20000); // keep a reasonable default for selectors, etc.
 
       console.log(`Navigating to: ${puppeteerUrl}`);
 
       await page.goto(puppeteerUrl, {
         waitUntil: 'domcontentloaded',
-        timeout: 15000, // Reduced from 90s to 15s
+        timeout: NAVIGATION_TIMEOUT,
       });
 
       console.log('Page loaded (domcontentloaded), waiting for content...');
@@ -118,7 +123,7 @@ export async function generatePdfFromReportId(
       // Reduced pause
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Wait for container / ready flag with reduced timeout
+      // Wait for container / ready flag
       try {
         await page.waitForFunction(
           () => {
@@ -126,11 +131,11 @@ export async function generatePdfFromReportId(
             const isPageReady = !!document.querySelector('[data-pdf-ready="true"]');
             return hasContainer || isPageReady;
           },
-          { timeout: 15000, polling: 500 }, // Reduced from 90s to 15s, faster polling
+          { timeout: CONTENT_WAIT_TIMEOUT, polling: 500 },
         );
         console.log('PDF preview base container/ready marker found');
 
-        // Wait for content to be really loaded with reduced timeout
+        // Wait for content to be really loaded
         await page.waitForFunction(
           () => {
             const readyContainer = document.querySelector('[data-pdf-ready="true"]');
@@ -155,7 +160,7 @@ export async function generatePdfFromReportId(
             const containerText = pdfContainer.textContent || '';
             return containerText.length > 100;
           },
-          { timeout: 15000, polling: 1000 }, // Reduced from 90s to 15s
+          { timeout: CONTENT_WAIT_TIMEOUT, polling: 1000 },
         );
         console.log('PDF preview content loaded and ready');
       } catch (error) {

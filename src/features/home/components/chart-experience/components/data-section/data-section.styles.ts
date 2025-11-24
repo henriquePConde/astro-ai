@@ -1,4 +1,5 @@
 import type { Theme } from '@mui/material';
+import { scrollbarSx } from '@/shared/styles/scrollbar';
 
 export const styles = {
   container:
@@ -17,23 +18,34 @@ export const styles = {
       overflow: 'hidden',
     }),
 
-  content: () => (theme: Theme) => ({
-    flex: 1,
-    mt: 1,
-    overflowY: 'auto',
-    pr: 1,
-    pb: 2,
-    '&::-webkit-scrollbar': {
-      width: 6,
-    },
-    '&::-webkit-scrollbar-track': {
-      background: 'transparent',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      background: 'rgba(255,255,255,0.18)',
-      borderRadius: 999,
-    },
-  }),
+  content: () => (theme: Theme) => {
+    // `scrollbarSx` is typed as `SxProps`, which can technically include
+    // `null` and other shapes. In practice, our helper always returns a
+    // plain style object, so we cast to `any` for ergonomic access.
+    const baseScrollbar = scrollbarSx(theme) as any;
+
+    return {
+      flex: 1,
+      mt: 1,
+      overflowY: 'auto',
+      pr: 1,
+      pb: 2,
+      // Use the shared scrollbar styling for consistent color and look & feel
+      ...baseScrollbar,
+      // On mobile/tablet layout, make the scrollbar thicker and add extra right
+      // padding to create a more comfortable scroll "gutter" without changing
+      // the global scrollbar colors.
+      [theme.breakpoints.down('lg')]: {
+        pr: 3,
+        '&::-webkit-scrollbar': {
+          // Re-use the base scrollbar styles (when present) and then override
+          // the width to create a slightly thicker scrollbar on smaller screens.
+          ...(baseScrollbar?.['&::-webkit-scrollbar'] ?? {}),
+          width: theme.spacing(1.5),
+        },
+      },
+    };
+  },
 
   tabPanel: (isActive: boolean) => (theme: Theme) => ({
     display: isActive ? 'block' : 'none',

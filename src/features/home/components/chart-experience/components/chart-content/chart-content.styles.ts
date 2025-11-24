@@ -12,7 +12,10 @@ export const styles = {
   // Header row: interactions switch (left) + control buttons (right)
   header: () => (theme: Theme) => ({
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: {
+      xs: 'flex-end', // on mobile/tablet, only control buttons are visible → align them right
+      lg: 'space-between', // on desktop, keep switcher on the left and buttons on the right
+    },
     alignItems: 'center',
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1.5),

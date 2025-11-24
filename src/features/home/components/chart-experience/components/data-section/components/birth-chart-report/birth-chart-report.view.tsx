@@ -41,7 +41,12 @@ export function BirthChartReportView({
   return (
     <Box sx={styles.container(config.ui.container.maxWidth)(theme)}>
       <Box sx={styles.stickyHeader()(theme)}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          justifyContent="space-between"
+          spacing={2}
+        >
           <Box>
             <Typography variant="h6">{config.copy.title}</Typography>
             <Typography variant="body2" color="text.secondary">

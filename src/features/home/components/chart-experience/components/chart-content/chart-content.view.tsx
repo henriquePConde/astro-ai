@@ -32,9 +32,9 @@ export function ChartContentView({
 
   return (
     <Box sx={styles.wrapper()(theme)}>
-      {/* Header row: left = interactions switch, right = control buttons */}
+      {/* Header row: left = interactions switch (desktop only), right = control buttons */}
       <Box sx={styles.header()(theme)}>
-        <ChartInteractionsSwitcher />
+        {isDesktopLayout && <ChartInteractionsSwitcher />}
         <ControlButtonsContainer onNewChart={onNewChart} loading={newChartLoading} />
       </Box>
 

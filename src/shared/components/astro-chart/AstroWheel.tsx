@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import * as d3 from 'd3';
 import type { ChartData, ChartDimensions, PlanetInfo } from './types';
 import { getPlanetColor } from '@/shared/config/planet-colors';
@@ -22,6 +22,8 @@ interface AstroWheelProps {
 const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const interactions = useOptionalChartInteractions();
+  const [effectiveInitialScale, setEffectiveInitialScale] = useState(initialScale);
+  const [isDesktopViewport, setIsDesktopViewport] = useState<boolean | null>(null);
 
   const calculateDimensions = (w: number, h: number): ChartDimensions => {
     const size = Math.min(w, h);
@@ -33,6 +35,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
       radius: (size / 2) * 0.95,
     };
   };
+
+  // Only enable chart interactions (tooltips, highlights, click, etc.)
+  // on desktop viewports. On tablet/mobile, the wheel is read-only in terms
+  // of highlights/tooltips, but zoom/pan still work.
+  const desktopInteractions = isDesktopViewport ? interactions : null;
 
   const drawChart = useCallback(
     (
@@ -168,11 +175,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               // grey-ish intercepted color
               renderZodiacIcon(group, sign.signIndex, 28, '#666');
 
-              if (interactions) {
+              if (desktopInteractions) {
                 group
                   .style('cursor', 'pointer')
                   .on('mouseenter', function (event: any) {
-                    if (!interactions.enabled) return;
+                    if (!desktopInteractions?.enabled) return;
                     const sel = d3.select<SVGGElement, unknown>(this);
                     const originalTransform = sel.attr('transform') || '';
                     // Store original transform so we can restore it on mouseleave
@@ -180,23 +187,23 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                     sel.attr('transform', `${originalTransform} scale(1.18)`);
 
                     const nativeEvent = getNativeEvent(event) as MouseEvent;
-                    interactions.onSignHover(sign.signIndex, nativeEvent);
+                    desktopInteractions.onSignHover(sign.signIndex, nativeEvent);
                   })
                   .on('mouseleave', function () {
-                    if (!interactions.enabled) return;
+                    if (!desktopInteractions?.enabled) return;
                     const sel = d3.select<SVGGElement, unknown>(this);
                     const originalTransform = sel.attr('data-original-transform');
                     if (originalTransform) {
                       sel.attr('transform', originalTransform);
                     }
 
-                    interactions.onSignLeave();
+                    desktopInteractions.onSignLeave();
                   })
                   .on('click', function (event: any) {
-                    if (!interactions.enabled) return;
+                    if (!desktopInteractions?.enabled) return;
                     const nativeEvent = getNativeEvent(event) as MouseEvent;
                     try {
-                      interactions.onSignClick(sign.signIndex, nativeEvent);
+                      desktopInteractions.onSignClick(sign.signIndex, nativeEvent);
                     } catch (error) {
                       console.error('Error handling sign click:', error);
                     }
@@ -221,11 +228,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
             // bright color for normal sign
             renderZodiacIcon(group, sign.signIndex, 28, '#ffffff');
 
-            if (interactions) {
+            if (desktopInteractions) {
               group
                 .style('cursor', 'pointer')
                 .on('mouseenter', function (event: any) {
-                  if (!interactions.enabled) return;
+                  if (!desktopInteractions?.enabled) return;
                   const sel = d3.select<SVGGElement, unknown>(this);
                   const originalTransform = sel.attr('transform') || '';
                   // Store original transform so we can restore it on mouseleave
@@ -233,23 +240,23 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                   sel.attr('transform', `${originalTransform} scale(1.18)`);
 
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
-                  interactions.onSignHover(sign.signIndex, nativeEvent);
+                  desktopInteractions.onSignHover(sign.signIndex, nativeEvent);
                 })
                 .on('mouseleave', function () {
-                  if (!interactions.enabled) return;
+                  if (!desktopInteractions?.enabled) return;
                   const sel = d3.select<SVGGElement, unknown>(this);
                   const originalTransform = sel.attr('data-original-transform');
                   if (originalTransform) {
                     sel.attr('transform', originalTransform);
                   }
 
-                  interactions.onSignLeave();
+                  desktopInteractions.onSignLeave();
                 })
                 .on('click', function (event: any) {
-                  if (!interactions.enabled) return;
+                  if (!desktopInteractions?.enabled) return;
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
                   try {
-                    interactions.onSignClick(sign.signIndex, nativeEvent);
+                    desktopInteractions.onSignClick(sign.signIndex, nativeEvent);
                   } catch (error) {
                     console.error('Error handling sign click:', error);
                   }
@@ -292,13 +299,13 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
           .attr('stroke-opacity', isAscDesc ? 1 : isCardinal ? 0.8 : 0.6)
           .attr('stroke-dasharray', isCardinal ? 'none' : '3,2');
 
-        if (interactions) {
+        if (desktopInteractions) {
           line
             .style('cursor', 'pointer')
             .on('mouseenter', function (event: any) {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
               const nativeEvent = getNativeEvent(event) as MouseEvent;
-              interactions.onHouseHover(
+              desktopInteractions.onHouseHover(
                 {
                   number: index + 1,
                   degree: cusp,
@@ -307,14 +314,14 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               );
             })
             .on('mouseleave', function () {
-              if (!interactions.enabled) return;
-              interactions.onHouseLeave();
+              if (!desktopInteractions?.enabled) return;
+              desktopInteractions.onHouseLeave();
             })
             .on('click', function (event: any) {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
               const nativeEvent = getNativeEvent(event) as MouseEvent;
               try {
-                interactions.onHouseClick(
+                desktopInteractions.onHouseClick(
                   {
                     number: index + 1,
                     degree: cusp,
@@ -365,7 +372,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
       });
 
       // === House sector highlight overlays (hover only) ===
-      if (interactions) {
+      if (desktopInteractions) {
         for (let i = 0; i < 12; i++) {
           const startCusp = houseCusps[i];
           const endCusp = houseCusps[(i + 1) % 12];
@@ -407,10 +414,10 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
 
           sector
             .on('mouseenter', function (event: any) {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
               sector.attr('fill-opacity', 0.15).attr('stroke-opacity', 0.9);
               const nativeEvent = getNativeEvent(event) as MouseEvent;
-              interactions.onHouseHover(
+              desktopInteractions.onHouseHover(
                 {
                   number: houseNumber,
                   degree: startCusp,
@@ -419,15 +426,15 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               );
             })
             .on('mouseleave', function () {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
               sector.attr('fill-opacity', 0).attr('stroke-opacity', 0);
-              interactions.onHouseLeave();
+              desktopInteractions.onHouseLeave();
             })
             .on('click', function (event: any) {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
               const nativeEvent = getNativeEvent(event) as MouseEvent;
               try {
-                interactions.onHouseClick(
+                desktopInteractions.onHouseClick(
                   {
                     number: houseNumber,
                     degree: startCusp,
@@ -549,9 +556,9 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               .attr('stroke', color)
               .attr('stroke-width', 1)
               .attr('opacity', 0.6)
-              .style('pointer-events', interactions ? 'none' : 'auto');
+              .style('pointer-events', desktopInteractions ? 'none' : 'auto');
 
-            if (interactions) {
+            if (desktopInteractions) {
               const hit = aspectGroup
                 .append('line')
                 .attr('class', 'aspect-hit')
@@ -566,10 +573,10 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
 
               hit
                 .on('mouseenter', function (event: any) {
-                  if (!interactions.enabled) return;
+                  if (!desktopInteractions?.enabled) return;
                   line.attr('stroke-width', 2.5).attr('opacity', 1);
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
-                  interactions.onAspectHover(
+                  desktopInteractions.onAspectHover(
                     {
                       type: aspectType!,
                       p1: p1.name,
@@ -580,15 +587,15 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                   );
                 })
                 .on('mouseleave', function () {
-                  if (!interactions.enabled) return;
+                  if (!desktopInteractions?.enabled) return;
                   line.attr('stroke-width', 1).attr('opacity', 0.6);
-                  interactions.onAspectLeave();
+                  desktopInteractions.onAspectLeave();
                 })
                 .on('click', function (event: any) {
-                  if (!interactions.enabled) return;
+                  if (!desktopInteractions?.enabled) return;
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
                   try {
-                    interactions.onAspectClick(
+                    desktopInteractions.onAspectClick(
                       {
                         type: aspectType!,
                         p1: p1.name,
@@ -632,11 +639,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
         renderPlanetIcon(group, planet.name, planetIconSize, color);
 
         // Hover highlight + interactions
-        if (interactions) {
+        if (desktopInteractions) {
           group
             .style('cursor', 'pointer')
             .on('mouseenter', function (event: any) {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
 
               const sel = d3.select<SVGGElement, unknown>(this);
               const originalTransform = sel.attr('transform') || '';
@@ -652,7 +659,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               }
 
               try {
-                interactions.onPlanetHover(
+                desktopInteractions.onPlanetHover(
                   {
                     name: planet.name,
                     symbol: planet.symbol || planet.name,
@@ -668,7 +675,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               }
             })
             .on('mouseleave', function () {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
 
               const sel = d3.select<SVGGElement, unknown>(this);
               const originalTransform = sel.attr('data-original-transform');
@@ -676,10 +683,10 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                 sel.attr('transform', originalTransform);
               }
 
-              interactions.onPlanetLeave();
+              desktopInteractions.onPlanetLeave();
             })
             .on('click', function (event: any) {
-              if (!interactions.enabled) return;
+              if (!desktopInteractions?.enabled) return;
 
               let nativeEvent: MouseEvent;
               if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
@@ -689,7 +696,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               }
 
               try {
-                interactions.onPlanetClick(
+                desktopInteractions.onPlanetClick(
                   {
                     name: planet.name,
                     symbol: planet.symbol || planet.name,
@@ -707,8 +714,40 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
         }
       });
     },
-    [data, interactions],
+    [data, desktopInteractions],
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const updateScaleForViewport = () => {
+      const viewportWidth = window.innerWidth;
+
+      const isMobile = viewportWidth < 640;
+      const isTablet = viewportWidth >= 640 && viewportWidth < 1200;
+      const isDesktop = viewportWidth >= 1200;
+
+      setIsDesktopViewport(isDesktop);
+
+      // On mobile viewports, start even more zoomed out than the provided initialScale
+      if (isMobile) {
+        setEffectiveInitialScale(initialScale * 0.6);
+      } else if (isTablet) {
+        // Tablet view (between mobile breakpoint and desktop): make the wheel
+        // appear a bit larger than the base initialScale.
+        setEffectiveInitialScale(initialScale * 1.6);
+      } else {
+        setEffectiveInitialScale(initialScale);
+      }
+    };
+
+    updateScaleForViewport();
+    window.addEventListener('resize', updateScaleForViewport);
+
+    return () => {
+      window.removeEventListener('resize', updateScaleForViewport);
+    };
+  }, [initialScale]);
 
   useEffect(() => {
     if (!svgRef.current || !data) return;
@@ -729,11 +768,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
 
     const g = svg.append('g').attr('class', 'zoom-group');
 
-    const initialTransform = d3.zoomIdentity.scale(initialScale);
+    const initialTransform = d3.zoomIdentity.scale(effectiveInitialScale);
     g.attr('transform', initialTransform.toString());
 
     drawChart(g, dimensions, planetPositions);
-  }, [data, width, height, drawChart, initialScale]);
+  }, [data, width, height, drawChart, effectiveInitialScale]);
 
   useEffect(() => {
     // Only set up zoom once the chart (and its zoom group) has been rendered
@@ -743,19 +782,25 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
     const g = svg.select<SVGGElement>('.zoom-group');
     if (g.empty()) return;
 
+    // Allow zooming out at least as far as the current effectiveInitialScale,
+    // and a bit further (down to ~0.3) for flexibility.
+    const minScale = Math.min(0.3, effectiveInitialScale);
+
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
+      // Zoom / pan should work on all viewports; on desktop it still respects
+      // the interactions switcher, but on tablet/mobile it stays enabled.
       .filter(() => interactions?.enabled ?? true)
-      .scaleExtent([0.5, 5])
+      .scaleExtent([minScale, 5])
       .on('zoom', (event: any) => {
         g.attr('transform', event.transform);
       });
 
-    if (interactions?.enabled) {
+    if (interactions?.enabled ?? true) {
       svg.call(zoom);
 
       const currentTransformAttr = g.attr('transform');
-      const defaultTransform = d3.zoomIdentity.scale(initialScale);
+      const defaultTransform = d3.zoomIdentity.scale(effectiveInitialScale);
 
       let transformToUse = defaultTransform;
       if (currentTransformAttr) {
@@ -777,12 +822,12 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
       svg.on('.zoom', null);
       svg.on('dblclick.zoom', null);
     }
-  }, [data, interactions?.enabled, initialScale]);
+  }, [data, interactions?.enabled, effectiveInitialScale]);
 
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = d3.select(svgRef.current);
-    const enabled = interactions?.enabled ?? true;
+    const enabled = desktopInteractions?.enabled ?? false;
 
     svg
       .selectAll<SVGGElement, unknown>('.zodiac-sign')
@@ -808,13 +853,13 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
       .selectAll<SVGGElement, unknown>('.planet-group')
       .style('pointer-events', enabled ? 'all' : 'none')
       .style('cursor', enabled ? 'pointer' : 'default');
-  }, [interactions?.enabled]);
+  }, [desktopInteractions?.enabled]);
 
   if (!data) return null;
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
-      <svg ref={svgRef} className="w-full h-full max-w-[600px] max-h-[600px]" />
+    <div>
+      <svg ref={svgRef} />
     </div>
   );
 };
