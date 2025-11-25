@@ -17,6 +17,7 @@ interface AstroWheelProps {
   height?: number;
   initialScale?: number; // Default initial zoom scale (default: 0.7 for regular view, 1.0 for PDF)
   enableMobileInteractions?: boolean; // Enable mobile interactions (for mobile expand view)
+  enableZoomPan?: boolean; // Enable zoom/pan interactions (disabled for regular mobile view)
 }
 
 // Keep the canvas size the same, but use a slightly smaller default zoom scale
@@ -27,6 +28,7 @@ const AstroWheel = ({
   height = 800,
   initialScale = 0.6,
   enableMobileInteractions = false,
+  enableZoomPan,
 }: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const interactions = useOptionalChartInteractions();
@@ -55,6 +57,11 @@ const AstroWheel = ({
     : enableMobileInteractions && mobileInteractions
       ? mobileInteractions
       : null;
+
+  // Determine if zoom/pan should be enabled
+  // Default behavior: enabled on desktop, disabled on mobile unless explicitly enabled
+  const shouldEnableZoomPan =
+    enableZoomPan !== undefined ? enableZoomPan : (isDesktopViewport ?? false);
 
   const drawChart = useCallback(
     (
@@ -740,7 +747,7 @@ const AstroWheel = ({
         }
       });
     },
-    [data, desktopInteractions],
+    [data, desktopInteractions, activeInteractions],
   );
 
   useEffect(() => {
@@ -814,15 +821,14 @@ const AstroWheel = ({
 
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
-      // Zoom / pan should work on all viewports; on desktop it still respects
-      // the interactions switcher, but on tablet/mobile it stays enabled.
-      .filter(() => interactions?.enabled ?? true)
+      // Zoom / pan controlled by shouldEnableZoomPan flag
+      .filter(() => shouldEnableZoomPan)
       .scaleExtent([minScale, 5])
       .on('zoom', (event: any) => {
         g.attr('transform', event.transform);
       });
 
-    if (interactions?.enabled ?? true) {
+    if (shouldEnableZoomPan) {
       svg.call(zoom);
 
       const currentTransformAttr = g.attr('transform');
@@ -848,7 +854,7 @@ const AstroWheel = ({
       svg.on('.zoom', null);
       svg.on('dblclick.zoom', null);
     }
-  }, [data, interactions?.enabled, effectiveInitialScale]);
+  }, [data, shouldEnableZoomPan, effectiveInitialScale]);
 
   useEffect(() => {
     if (!svgRef.current) return;

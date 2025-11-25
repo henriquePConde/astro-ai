@@ -30,6 +30,7 @@ export function ChartSectionContainer(props: ChartSectionContainerProps) {
       isDragging={props.isDragging}
       splitPosition={props.splitPosition}
       enableMobileInteractions={props.enableMobileInteractions}
+      enableZoomPan={props.enableZoomPan}
     />
   );
 }

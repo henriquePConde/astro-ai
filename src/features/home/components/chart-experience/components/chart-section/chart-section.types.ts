@@ -8,6 +8,7 @@ export interface ChartSectionContainerProps {
   isDragging: boolean;
   splitPosition?: number;
   enableMobileInteractions?: boolean;
+  enableZoomPan?: boolean;
 }
 
 export interface ChartSectionViewProps {
@@ -18,4 +19,5 @@ export interface ChartSectionViewProps {
   isDragging: boolean;
   splitPosition?: number;
   enableMobileInteractions?: boolean;
+  enableZoomPan?: boolean;
 }

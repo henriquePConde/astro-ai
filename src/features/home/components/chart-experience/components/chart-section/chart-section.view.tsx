@@ -16,6 +16,7 @@ export function ChartSectionView({
   isDragging,
   splitPosition,
   enableMobileInteractions = false,
+  enableZoomPan,
 }: ChartSectionViewProps) {
   const theme = useTheme();
   const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
@@ -39,6 +40,7 @@ export function ChartSectionView({
             width={800}
             height={1000}
             enableMobileInteractions={enableMobileInteractions}
+            enableZoomPan={enableZoomPan}
           />
         </Box>
       </Box>

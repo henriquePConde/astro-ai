@@ -98,6 +98,7 @@ export function DataSectionView({
               isExpanded={false}
               isDragging={false}
               splitPosition={50}
+              enableZoomPan={false}
             />
           </Box>
         )}

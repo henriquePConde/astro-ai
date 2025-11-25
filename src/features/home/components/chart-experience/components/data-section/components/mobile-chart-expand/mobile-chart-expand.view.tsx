@@ -70,6 +70,7 @@ export function MobileChartExpandView({
             isDragging={false}
             splitPosition={50}
             enableMobileInteractions={true}
+            enableZoomPan={true}
           />
         </Box>
       </Box>
