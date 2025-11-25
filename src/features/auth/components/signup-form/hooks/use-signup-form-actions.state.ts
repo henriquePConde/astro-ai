@@ -22,7 +22,7 @@ export interface UseSignupFormActionsReturn {
  * Action hook that handles signup form submission with validation, error handling, and navigation.
  * Single responsibility: provide validated signup submission handler with proper error handling.
  */
-export function useSignupFormActions(): UseSignupFormActionsReturn {
+export function useSignupFormActions(nextPath?: string): UseSignupFormActionsReturn {
   const router = useRouter();
   const signUpMutation = useSignUpMutation();
   const checkUserExistsMutation = useCheckUserExistsMutation();
@@ -49,7 +49,13 @@ export function useSignupFormActions(): UseSignupFormActionsReturn {
         // Only redirect if the mutation was successful and there's no error in the response
         if (result && !result.error) {
           setSuccessMessage(SIGNUP_FORM_CONFIG.messages.success.signupSuccess);
-          router.replace(AUTH_ROUTES.HOME);
+
+          const target =
+            nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')
+              ? nextPath
+              : AUTH_ROUTES.HOME;
+
+          router.replace(target);
         } else {
           const errorMessage = result?.error || SIGNUP_FORM_CONFIG.messages.error.signupFailed;
           setError(errorMessage);
@@ -74,7 +80,15 @@ export function useSignupFormActions(): UseSignupFormActionsReturn {
         // Explicitly prevent redirect on error
       }
     },
-    [signUpMutation, checkUserExistsMutation, router, setError, setSuccessMessage, clearMessages],
+    [
+      signUpMutation,
+      checkUserExistsMutation,
+      nextPath,
+      router,
+      setError,
+      setSuccessMessage,
+      clearMessages,
+    ],
   );
 
   return {

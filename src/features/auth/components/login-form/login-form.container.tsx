@@ -8,13 +8,13 @@ import { useLoginFormError } from './hooks/use-login-form-error.state';
 import { useGoogleSignIn } from './hooks/use-google-sign-in.state';
 import { LoginFormView } from './login-form.view';
 
-export function LoginFormContainer() {
+export function LoginFormContainer({ nextPath }: { nextPath?: string }) {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
-  const { handleSubmit, isLoading, error } = useLoginFormActions();
+  const { handleSubmit, isLoading, error } = useLoginFormActions(nextPath);
   const { handleGoogleSignIn, isGoogleLoading, googleError } = useGoogleSignIn();
   const urlError = useUrlErrorCleanup(isAuthenticated);
 
-  useAuthRedirect(isAuthenticated);
+  useAuthRedirect(isAuthenticated, nextPath);
 
   const displayError = useLoginFormError({
     formError: error,

@@ -11,14 +11,14 @@ import { SIGNUP_FORM_CONFIG } from './signup-form.config';
 import { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
 import { SignupFormView } from './signup-form.view';
 
-export function SignupFormContainer() {
+export function SignupFormContainer({ nextPath }: { nextPath?: string }) {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
   const {
     handleSubmit: handleFormSubmit,
     isLoading,
     error,
     successMessage,
-  } = useSignupFormActions();
+  } = useSignupFormActions(nextPath);
   const googleSignInMutation = useSignInWithGoogleMutation();
 
   const {
@@ -34,7 +34,7 @@ export function SignupFormContainer() {
     },
   });
 
-  useAuthRedirect(isAuthenticated);
+  useAuthRedirect(isAuthenticated, nextPath);
 
   const handleGoogleSignIn = () => {
     googleSignInMutation.mutate(undefined);

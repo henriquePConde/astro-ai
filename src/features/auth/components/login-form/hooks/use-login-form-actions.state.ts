@@ -2,7 +2,10 @@
 
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSignInPasswordMutation } from '@/features/auth/services/auth.mutations';
+import {
+  useSignInPasswordMutation,
+  useSyncServerSessionMutation,
+} from '@/features/auth/services/auth.mutations';
 import { useAuthFormState } from './use-auth-form-state.state';
 import { AUTH_ROUTES } from '@/features/auth/constants/auth.constants';
 import { LOGIN_FORM_CONFIG } from '../login-form.config';
@@ -18,27 +21,47 @@ export interface UseLoginFormActionsReturn {
  * Action hook that handles login form submission with validation, error handling, and navigation.
  * Single responsibility: provide validated login submission handler with proper error handling.
  */
-export function useLoginFormActions(): UseLoginFormActionsReturn {
+export function useLoginFormActions(nextPath?: string): UseLoginFormActionsReturn {
   const router = useRouter();
   const signInPasswordMutation = useSignInPasswordMutation();
+  const syncServerSessionMutation = useSyncServerSessionMutation();
   const { error, setError, clearMessages } = useAuthFormState();
 
   const handleSubmit = useCallback(
     async (values: LoginFormValues) => {
       clearMessages();
       try {
-        await signInPasswordMutation.mutateAsync({
+        const data = await signInPasswordMutation.mutateAsync({
           email: values.email,
           password: values.password,
         });
-        router.replace(AUTH_ROUTES.HOME);
+
+        // Ensure server-side Supabase cookies are in sync before navigating
+        // so that middleware and SSR routes see the authenticated session.
+        const accessToken = data?.session?.access_token;
+        const refreshToken = data?.session?.refresh_token;
+
+        if (accessToken && refreshToken) {
+          await syncServerSessionMutation.mutateAsync({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+        }
+
+        // Honor the desired next path when provided, otherwise go to HOME.
+        const target =
+          nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')
+            ? nextPath
+            : AUTH_ROUTES.HOME;
+
+        router.replace(target);
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : LOGIN_FORM_CONFIG.messages.error.loginFailed;
         setError(errorMessage);
       }
     },
-    [signInPasswordMutation, router, setError, clearMessages],
+    [signInPasswordMutation, syncServerSessionMutation, nextPath, router, setError, clearMessages],
   );
 
   return {
