@@ -36,7 +36,6 @@ export const styles = {
       // padding to create a more comfortable scroll "gutter" without changing
       // the global scrollbar colors.
       [theme.breakpoints.down('lg')]: {
-        pr: 3,
         '&::-webkit-scrollbar': {
           // Re-use the base scrollbar styles (when present) and then override
           // the width to create a slightly thicker scrollbar on smaller screens.

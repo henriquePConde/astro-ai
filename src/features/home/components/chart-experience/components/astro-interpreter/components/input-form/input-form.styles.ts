@@ -3,10 +3,27 @@ import { Theme } from '@mui/material';
 export const styles = {
   form: () => (theme: Theme) => ({
     mt: 'auto',
+    // Fixed positioning for mobile and tablet
+    [theme.breakpoints.down('lg')]: {
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+      backgroundColor: 'rgba(5, 8, 30, 0.95)',
+      backdropFilter: 'blur(10px)',
+      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      padding: theme.spacing(2),
+      margin: 0,
+    },
   }),
   formContainer: () => (theme: Theme) => ({
     display: 'flex',
     gap: 1.5,
+    // Ensure proper spacing on mobile
+    [theme.breakpoints.down('lg')]: {
+      maxWidth: '100%',
+    },
   }),
   textFieldInput: () => (theme: Theme) => ({
     bgcolor: 'rgba(13,12,34,0.8)',

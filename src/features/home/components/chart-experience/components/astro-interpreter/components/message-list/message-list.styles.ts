@@ -8,7 +8,12 @@ export const styles = {
     flexDirection: 'column',
     gap: 1.5,
     mb: 1,
-    pr: 0.5,
+    pr: 0.5, // Keep padding-right for desktop scrollbar
+    // Remove right padding on mobile/tablet and add bottom padding for fixed input
+    [theme.breakpoints.down('lg')]: {
+      paddingRight: 0,
+      paddingBottom: theme.spacing(2),
+    },
     '&::-webkit-scrollbar': {
       width: 6,
     },

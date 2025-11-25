@@ -99,4 +99,50 @@ export const styles = {
     borderRadius: theme.spacing(1.5),
     borderBottom: `1px solid ${theme.palette.divider}`,
   }),
+
+  // Mobile accordion styles
+  mobileAccordion: () => (theme: Theme) => ({
+    width: '100%',
+    marginBottom: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
+    overflow: 'hidden',
+  }),
+
+  mobileAccordionHeader: () => (theme: Theme) => ({
+    width: '100%',
+    textAlign: 'left' as const,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.text.primary,
+    fontSize: 16,
+    fontWeight: 600,
+    cursor: 'pointer',
+    padding: theme.spacing(2),
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover,
+    },
+  }),
+
+  mobileAccordionContent: () => (theme: Theme) => ({
+    padding: theme.spacing(0, 2, 2, 2),
+  }),
+
+  mobileAccordionIcon: (isOpen: boolean) => ({
+    display: 'inline-block',
+    transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+    transition: 'transform 0.2s ease',
+  }),
+
+  mobileGenerateButton: () => (theme: Theme) => ({
+    position: 'relative',
+  }),
+
+  mobileDownloadButton: () => (theme: Theme) => ({
+    position: 'relative',
+  }),
 };

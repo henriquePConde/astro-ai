@@ -6,7 +6,11 @@ export const styles = {
     justifyContent: isUser ? 'flex-end' : 'flex-start',
   }),
   bubble: (isUser: boolean) => (theme: Theme) => ({
-    maxWidth: '80%',
+    maxWidth: {
+      xs: '100%', // Full width on mobile
+      sm: '100%', // Full width on tablet
+      lg: '80%', // 80% width on desktop
+    },
     borderRadius: 2,
     p: 2.25,
     backdropFilter: 'blur(10px)',
