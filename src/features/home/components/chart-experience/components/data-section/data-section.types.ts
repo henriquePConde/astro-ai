@@ -38,4 +38,8 @@ export interface DataSectionViewProps {
   jobProgress: number | null;
   initialMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
   chartId?: string;
+
+  isChartExpanded: boolean;
+  onExpandChart: () => void;
+  onCloseChart: () => void;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { DataSectionView } from './data-section.view';
 import type { DataSectionContainerProps } from './data-section.types';
 import { DEFAULT_DATA_SECTION_TAB } from './data-section.constants';
@@ -19,6 +20,8 @@ export function DataSectionContainer({
   initialMessages,
   chartId,
 }: DataSectionContainerProps) {
+  const [isChartExpanded, setIsChartExpanded] = useState(false);
+
   // Try to get tab state from context, fallback to local state if not available
   const tabsContext = useDataSectionTabsContext();
   const localTabs = useDataSectionTabs(DEFAULT_DATA_SECTION_TAB);
@@ -58,6 +61,9 @@ export function DataSectionContainer({
       jobProgress={jobProgress}
       initialMessages={initialMessages}
       chartId={chartId}
+      isChartExpanded={isChartExpanded}
+      onExpandChart={() => setIsChartExpanded(true)}
+      onCloseChart={() => setIsChartExpanded(false)}
     />
   );
 }

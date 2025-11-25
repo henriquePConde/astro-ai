@@ -21,18 +21,28 @@ import { AccordionSection } from '@/shared/components/accordion-section/accordio
  * Placed between the data section tabs and the chart section when
  * viewing the "Natal Chart" tab on small screens.
  */
-export function MobileChartSummaryView({ chartData, birthData }: MobileChartSummaryViewProps) {
+export function MobileChartSummaryView({
+  chartData,
+  birthData,
+  onExpandChart,
+}: MobileChartSummaryViewProps) {
   const theme = useTheme();
   const { setAIInput } = useAIInput();
   const tabsContext = useDataSectionTabsContext();
 
-  const [openSections, setOpenSections] = useState({
+  const [openSections, setOpenSections] = useState<{
+    birth: boolean;
+    astro: boolean;
+    controls: boolean;
+    expand: boolean;
+  }>({
     birth: false,
     astro: false,
     controls: true,
+    expand: false,
   });
 
-  const toggleSection = (key: 'birth' | 'astro' | 'controls') => {
+  const toggleSection = (key: 'birth' | 'astro' | 'controls' | 'expand') => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -151,30 +161,30 @@ export function MobileChartSummaryView({ chartData, birthData }: MobileChartSumm
         </Box>
       )}
 
-      {/* Chart Controls accordion (open by default) */}
-      <Box sx={styles.item()(theme)}>
-        <Box
-          component="button"
-          type="button"
-          onClick={() => toggleSection('controls')}
-          sx={styles.sectionHeader()(theme)}
-        >
-          <span>Chart Controls</span>
-          <span style={styles.icon(openSections.controls)}>{'>'}</span>
-        </Box>
-        <AccordionSection isOpen={openSections.controls}>
-          <Box sx={styles.sectionContent()(theme)}>
-            <Typography component="div" sx={styles.hintTitle()(theme)}>
-              {hintConfig.copy.title}
-            </Typography>
-            {hintConfig.copy.descriptionLines.map((line) => (
-              <Typography key={line} component="div" sx={styles.hintLine()(theme)}>
-                {line}
-              </Typography>
-            ))}
+      {/* Expand Chart accordion */}
+      {onExpandChart && (
+        <Box sx={styles.item()(theme)}>
+          <Box
+            component="button"
+            type="button"
+            onClick={() => toggleSection('expand')}
+            sx={styles.sectionHeader()(theme)}
+          >
+            <span>Expand chart</span>
+            <span style={styles.icon(openSections.expand)}>{'>'}</span>
           </Box>
-        </AccordionSection>
-      </Box>
+          <AccordionSection isOpen={openSections.expand}>
+            <Box sx={styles.sectionContent()(theme)}>
+              <Typography component="div" sx={styles.hintLine()(theme)}>
+                Click below to expand chart and enable chart interactions
+              </Typography>
+              <Button onClick={onExpandChart} variant="text" sx={styles.expandButton()(theme)}>
+                Expand Chart
+              </Button>
+            </Box>
+          </AccordionSection>
+        </Box>
+      )}
     </Box>
   );
 }

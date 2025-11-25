@@ -87,4 +87,21 @@ export const styles = {
     transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
     transition: 'transform 0.2s ease',
   }),
+  expandButton: () => (theme: Theme) => ({
+    marginTop: theme.spacing(0.5),
+    padding: theme.spacing(0.5, 1),
+    fontSize: 10,
+    fontWeight: 600,
+    textTransform: 'none',
+    borderRadius: theme.spacing(0.5),
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    color: theme.palette.common.white,
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+    },
+  }),
 };

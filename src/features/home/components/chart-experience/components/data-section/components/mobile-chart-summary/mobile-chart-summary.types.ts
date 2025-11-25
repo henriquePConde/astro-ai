@@ -3,4 +3,5 @@ import type { BirthChartData, ChartData } from '@/features/home/types/chart.type
 export interface MobileChartSummaryViewProps {
   chartData: ChartData;
   birthData: BirthChartData;
+  onExpandChart?: () => void;
 }

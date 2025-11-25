@@ -8,6 +8,7 @@ import { TabsSectionContainer } from './components/tabs-section/tabs-section.con
 import { DATA_SECTION_TABS } from './data-section.constants';
 import { ChartSectionContainer } from '../chart-section/chart-section.container';
 import { MobileChartSummaryView } from './components/mobile-chart-summary/mobile-chart-summary.view';
+import { MobileChartExpandContainer } from './components/mobile-chart-expand';
 import type { DataSectionViewProps } from './data-section.types';
 
 export function DataSectionView({
@@ -28,6 +29,9 @@ export function DataSectionView({
   jobProgress,
   initialMessages,
   chartId,
+  isChartExpanded,
+  onExpandChart,
+  onCloseChart,
 }: DataSectionViewProps) {
   const theme = useTheme();
   const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
@@ -81,7 +85,13 @@ export function DataSectionView({
             aria-hidden={activeTab !== DATA_SECTION_TABS.CHART}
             sx={styles.tabPanel(activeTab === DATA_SECTION_TABS.CHART)(theme)}
           >
-            {birthData && <MobileChartSummaryView chartData={chartData} birthData={birthData} />}
+            {birthData && (
+              <MobileChartSummaryView
+                chartData={chartData}
+                birthData={birthData}
+                onExpandChart={onExpandChart}
+              />
+            )}
             <ChartSectionContainer
               chartData={chartData}
               birthData={birthData ?? ({} as any)}
@@ -92,6 +102,16 @@ export function DataSectionView({
           </Box>
         )}
       </Box>
+
+      {/* Mobile Chart Expand Overlay */}
+      {!isDesktopLayout && birthData && (
+        <MobileChartExpandContainer
+          isExpanded={isChartExpanded}
+          onClose={onCloseChart}
+          chartData={chartData}
+          birthData={birthData}
+        />
+      )}
     </Box>
   );
 }
