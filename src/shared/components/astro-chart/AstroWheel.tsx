@@ -7,6 +7,7 @@ import { getPlanetColor } from '@/shared/config/planet-colors';
 import { calculatePlanetPositions, getAdjustedPlanetPositions } from './utils/planetUtils';
 import { getSignInfo } from './utils/signUtils';
 import { useOptionalChartInteractions } from '@/features/home/components/chart-experience/context/chart-interactions.context';
+import { useOptionalMobileChartInteractions } from '@/features/home/components/chart-experience/context/mobile-chart-interactions.context';
 import { renderZodiacIcon } from './utils/zodiac';
 import { renderPlanetIcon } from './utils/planetIconUtils';
 
@@ -15,13 +16,21 @@ interface AstroWheelProps {
   width?: number;
   height?: number;
   initialScale?: number; // Default initial zoom scale (default: 0.7 for regular view, 1.0 for PDF)
+  enableMobileInteractions?: boolean; // Enable mobile interactions (for mobile expand view)
 }
 
 // Keep the canvas size the same, but use a slightly smaller default zoom scale
 // so the wheel appears visually smaller without changing the SVG dimensions.
-const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: AstroWheelProps) => {
+const AstroWheel = ({
+  data,
+  width = 800,
+  height = 800,
+  initialScale = 0.6,
+  enableMobileInteractions = false,
+}: AstroWheelProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const interactions = useOptionalChartInteractions();
+  const mobileInteractions = useOptionalMobileChartInteractions();
   const [effectiveInitialScale, setEffectiveInitialScale] = useState(initialScale);
   const [isDesktopViewport, setIsDesktopViewport] = useState<boolean | null>(null);
 
@@ -36,10 +45,16 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
     };
   };
 
-  // Only enable chart interactions (tooltips, highlights, click, etc.)
-  // on desktop viewports. On tablet/mobile, the wheel is read-only in terms
-  // of highlights/tooltips, but zoom/pan still work.
+  // Determine which interactions to use based on viewport and mobile interactions flag
+  // Desktop: use desktop interactions
+  // Mobile with enableMobileInteractions: use mobile interactions (modal-based)
+  // Mobile without enableMobileInteractions: no interactions (read-only)
   const desktopInteractions = isDesktopViewport ? interactions : null;
+  const activeInteractions = isDesktopViewport
+    ? interactions
+    : enableMobileInteractions && mobileInteractions
+      ? mobileInteractions
+      : null;
 
   const drawChart = useCallback(
     (
@@ -175,10 +190,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               // grey-ish intercepted color
               renderZodiacIcon(group, sign.signIndex, 28, '#666');
 
-              if (desktopInteractions) {
+              if (activeInteractions) {
                 group
                   .style('cursor', 'pointer')
                   .on('mouseenter', function (event: any) {
+                    // Only show hover effects and tooltips on desktop
                     if (!desktopInteractions?.enabled) return;
                     const sel = d3.select<SVGGElement, unknown>(this);
                     const originalTransform = sel.attr('transform') || '';
@@ -190,6 +206,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                     desktopInteractions.onSignHover(sign.signIndex, nativeEvent);
                   })
                   .on('mouseleave', function () {
+                    // Only handle hover effects on desktop
                     if (!desktopInteractions?.enabled) return;
                     const sel = d3.select<SVGGElement, unknown>(this);
                     const originalTransform = sel.attr('data-original-transform');
@@ -200,10 +217,10 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                     desktopInteractions.onSignLeave();
                   })
                   .on('click', function (event: any) {
-                    if (!desktopInteractions?.enabled) return;
+                    // Use activeInteractions for clicks (works for both desktop and mobile)
                     const nativeEvent = getNativeEvent(event) as MouseEvent;
                     try {
-                      desktopInteractions.onSignClick(sign.signIndex, nativeEvent);
+                      activeInteractions.onSignClick(sign.signIndex, nativeEvent);
                     } catch (error) {
                       console.error('Error handling sign click:', error);
                     }
@@ -228,10 +245,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
             // bright color for normal sign
             renderZodiacIcon(group, sign.signIndex, 28, '#ffffff');
 
-            if (desktopInteractions) {
+            if (activeInteractions) {
               group
                 .style('cursor', 'pointer')
                 .on('mouseenter', function (event: any) {
+                  // Only show hover effects and tooltips on desktop
                   if (!desktopInteractions?.enabled) return;
                   const sel = d3.select<SVGGElement, unknown>(this);
                   const originalTransform = sel.attr('transform') || '';
@@ -243,6 +261,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                   desktopInteractions.onSignHover(sign.signIndex, nativeEvent);
                 })
                 .on('mouseleave', function () {
+                  // Only handle hover effects on desktop
                   if (!desktopInteractions?.enabled) return;
                   const sel = d3.select<SVGGElement, unknown>(this);
                   const originalTransform = sel.attr('data-original-transform');
@@ -253,10 +272,10 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                   desktopInteractions.onSignLeave();
                 })
                 .on('click', function (event: any) {
-                  if (!desktopInteractions?.enabled) return;
+                  // Use activeInteractions for clicks (works for both desktop and mobile)
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
                   try {
-                    desktopInteractions.onSignClick(sign.signIndex, nativeEvent);
+                    activeInteractions.onSignClick(sign.signIndex, nativeEvent);
                   } catch (error) {
                     console.error('Error handling sign click:', error);
                   }
@@ -299,10 +318,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
           .attr('stroke-opacity', isAscDesc ? 1 : isCardinal ? 0.8 : 0.6)
           .attr('stroke-dasharray', isCardinal ? 'none' : '3,2');
 
-        if (desktopInteractions) {
+        if (activeInteractions) {
           line
             .style('cursor', 'pointer')
             .on('mouseenter', function (event: any) {
+              // Only show hover effects and tooltips on desktop
               if (!desktopInteractions?.enabled) return;
               const nativeEvent = getNativeEvent(event) as MouseEvent;
               desktopInteractions.onHouseHover(
@@ -314,14 +334,15 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               );
             })
             .on('mouseleave', function () {
+              // Only handle hover effects on desktop
               if (!desktopInteractions?.enabled) return;
               desktopInteractions.onHouseLeave();
             })
             .on('click', function (event: any) {
-              if (!desktopInteractions?.enabled) return;
+              // Use activeInteractions for clicks (works for both desktop and mobile)
               const nativeEvent = getNativeEvent(event) as MouseEvent;
               try {
-                desktopInteractions.onHouseClick(
+                activeInteractions.onHouseClick(
                   {
                     number: index + 1,
                     degree: cusp,
@@ -371,8 +392,8 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
           .text((index + 1).toString());
       });
 
-      // === House sector highlight overlays (hover only) ===
-      if (desktopInteractions) {
+      // === House sector highlight overlays ===
+      if (activeInteractions) {
         for (let i = 0; i < 12; i++) {
           const startCusp = houseCusps[i];
           const endCusp = houseCusps[(i + 1) % 12];
@@ -414,6 +435,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
 
           sector
             .on('mouseenter', function (event: any) {
+              // Only show hover effects and tooltips on desktop
               if (!desktopInteractions?.enabled) return;
               sector.attr('fill-opacity', 0.15).attr('stroke-opacity', 0.9);
               const nativeEvent = getNativeEvent(event) as MouseEvent;
@@ -426,15 +448,16 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               );
             })
             .on('mouseleave', function () {
+              // Only handle hover effects on desktop
               if (!desktopInteractions?.enabled) return;
               sector.attr('fill-opacity', 0).attr('stroke-opacity', 0);
               desktopInteractions.onHouseLeave();
             })
             .on('click', function (event: any) {
-              if (!desktopInteractions?.enabled) return;
+              // Use activeInteractions for clicks (works for both desktop and mobile)
               const nativeEvent = getNativeEvent(event) as MouseEvent;
               try {
-                desktopInteractions.onHouseClick(
+                activeInteractions.onHouseClick(
                   {
                     number: houseNumber,
                     degree: startCusp,
@@ -558,7 +581,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               .attr('opacity', 0.6)
               .style('pointer-events', desktopInteractions ? 'none' : 'auto');
 
-            if (desktopInteractions) {
+            if (activeInteractions) {
               const hit = aspectGroup
                 .append('line')
                 .attr('class', 'aspect-hit')
@@ -573,6 +596,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
 
               hit
                 .on('mouseenter', function (event: any) {
+                  // Only show hover effects and tooltips on desktop
                   if (!desktopInteractions?.enabled) return;
                   line.attr('stroke-width', 2.5).attr('opacity', 1);
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
@@ -587,15 +611,16 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
                   );
                 })
                 .on('mouseleave', function () {
+                  // Only handle hover effects on desktop
                   if (!desktopInteractions?.enabled) return;
                   line.attr('stroke-width', 1).attr('opacity', 0.6);
                   desktopInteractions.onAspectLeave();
                 })
                 .on('click', function (event: any) {
-                  if (!desktopInteractions?.enabled) return;
+                  // Use activeInteractions for clicks (works for both desktop and mobile)
                   const nativeEvent = getNativeEvent(event) as MouseEvent;
                   try {
-                    desktopInteractions.onAspectClick(
+                    activeInteractions.onAspectClick(
                       {
                         type: aspectType!,
                         p1: p1.name,
@@ -639,10 +664,11 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
         renderPlanetIcon(group, planet.name, planetIconSize, color);
 
         // Hover highlight + interactions
-        if (desktopInteractions) {
+        if (activeInteractions) {
           group
             .style('cursor', 'pointer')
             .on('mouseenter', function (event: any) {
+              // Only show hover effects and tooltips on desktop
               if (!desktopInteractions?.enabled) return;
 
               const sel = d3.select<SVGGElement, unknown>(this);
@@ -675,6 +701,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               }
             })
             .on('mouseleave', function () {
+              // Only handle hover effects on desktop
               if (!desktopInteractions?.enabled) return;
 
               const sel = d3.select<SVGGElement, unknown>(this);
@@ -686,8 +713,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               desktopInteractions.onPlanetLeave();
             })
             .on('click', function (event: any) {
-              if (!desktopInteractions?.enabled) return;
-
+              // Use activeInteractions for clicks (works for both desktop and mobile)
               let nativeEvent: MouseEvent;
               if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
                 nativeEvent = event as MouseEvent;
@@ -696,7 +722,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
               }
 
               try {
-                desktopInteractions.onPlanetClick(
+                activeInteractions.onPlanetClick(
                   {
                     name: planet.name,
                     symbol: planet.symbol || planet.name,
@@ -827,7 +853,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = d3.select(svgRef.current);
-    const enabled = desktopInteractions?.enabled ?? false;
+    const enabled = activeInteractions !== null;
 
     svg
       .selectAll<SVGGElement, unknown>('.zodiac-sign')
@@ -853,7 +879,7 @@ const AstroWheel = ({ data, width = 800, height = 800, initialScale = 0.6 }: Ast
       .selectAll<SVGGElement, unknown>('.planet-group')
       .style('pointer-events', enabled ? 'all' : 'none')
       .style('cursor', enabled ? 'pointer' : 'default');
-  }, [desktopInteractions?.enabled]);
+  }, [activeInteractions]);
 
   if (!data) return null;
 

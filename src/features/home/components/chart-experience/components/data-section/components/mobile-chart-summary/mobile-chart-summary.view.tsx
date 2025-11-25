@@ -39,7 +39,7 @@ export function MobileChartSummaryView({
     birth: false,
     astro: false,
     controls: true,
-    expand: false,
+    expand: true,
   });
 
   const toggleSection = (key: 'birth' | 'astro' | 'controls' | 'expand') => {

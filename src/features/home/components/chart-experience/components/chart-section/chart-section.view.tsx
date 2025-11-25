@@ -15,6 +15,7 @@ export function ChartSectionView({
   isExpanded,
   isDragging,
   splitPosition,
+  enableMobileInteractions = false,
 }: ChartSectionViewProps) {
   const theme = useTheme();
   const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
@@ -33,7 +34,12 @@ export function ChartSectionView({
           </>
         )}
         <Box sx={styles.chartInner()(theme)}>
-          <AstroWheel data={wheelData} width={800} height={1000} />
+          <AstroWheel
+            data={wheelData}
+            width={800}
+            height={1000}
+            enableMobileInteractions={enableMobileInteractions}
+          />
         </Box>
       </Box>
     </Box>

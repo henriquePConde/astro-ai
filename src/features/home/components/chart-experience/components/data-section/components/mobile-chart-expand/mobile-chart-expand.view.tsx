@@ -52,7 +52,7 @@ export function MobileChartExpandView({
               <Typography component="div" sx={styles.hintTitle()(theme)}>
                 {hintConfig.copy.title}
               </Typography>
-              {hintConfig.copy.descriptionLines.map((line) => (
+              {hintConfig.copy.mobileDescriptionLines.map((line) => (
                 <Typography key={line} component="div" sx={styles.hintLine()(theme)}>
                   {line}
                 </Typography>
@@ -69,6 +69,7 @@ export function MobileChartExpandView({
             isExpanded={false}
             isDragging={false}
             splitPosition={50}
+            enableMobileInteractions={true}
           />
         </Box>
       </Box>

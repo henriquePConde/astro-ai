@@ -7,6 +7,7 @@ export interface ChartSectionContainerProps {
   isExpanded: boolean;
   isDragging: boolean;
   splitPosition?: number;
+  enableMobileInteractions?: boolean;
 }
 
 export interface ChartSectionViewProps {
@@ -16,4 +17,5 @@ export interface ChartSectionViewProps {
   isExpanded: boolean;
   isDragging: boolean;
   splitPosition?: number;
+  enableMobileInteractions?: boolean;
 }

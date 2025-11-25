@@ -29,6 +29,7 @@ export function ChartSectionContainer(props: ChartSectionContainerProps) {
       isExpanded={props.isExpanded}
       isDragging={props.isDragging}
       splitPosition={props.splitPosition}
+      enableMobileInteractions={props.enableMobileInteractions}
     />
   );
 }
