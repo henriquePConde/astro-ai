@@ -18,6 +18,13 @@ export const styles = {
     // Allow the table to use more horizontal space while staying centered.
     maxWidth: 1400,
     mx: 'auto',
+    // On mobile, use full width with only a small right margin
+    [theme.breakpoints.down('sm')]: {
+      p: 2,
+      pr: 1,
+      maxWidth: 'none',
+      mx: 0,
+    },
   }),
   header: () => (theme: Theme) => ({
     mb: 3,
@@ -49,6 +56,13 @@ export const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: 1.5,
+    minWidth: 0,
+    flexWrap: 'nowrap',
+  }),
+  nameText: () => (theme: Theme) => ({
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   }),
   sortableHeader: () => (theme: Theme) => ({
     cursor: 'pointer',
@@ -71,14 +85,15 @@ export const styles = {
     width: COLUMN_WIDTHS[size],
   }),
   // Row of action buttons ("Go to chart" + "Delete") within the actions column.
-  actionsRow: () => (theme: Theme) => ({
+  actionsRow: (isMobile: boolean) => (theme: Theme) => ({
     display: 'flex',
-    gap: theme.spacing(1),
+    gap: isMobile ? theme.spacing(0.75) : theme.spacing(1),
+    flexWrap: 'nowrap',
   }),
   // Primary "Go to chart" button styling.
-  goToChartButton: () => (theme: Theme) => ({
+  goToChartButton: (isMobile: boolean) => (theme: Theme) => ({
     whiteSpace: 'nowrap',
-    minWidth: 130,
+    minWidth: isMobile ? 80 : 130,
   }),
   // Delete dialog - cancel button styling.
   deleteDialogCancelButton: () => (theme: Theme) => ({

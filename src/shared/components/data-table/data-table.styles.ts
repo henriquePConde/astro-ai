@@ -1,10 +1,12 @@
 import type { Theme } from '@mui/material/styles';
 
-const COLUMN_WIDTHS: Record<'sm' | 'md' | 'lg' | 'xl', string> = {
+const COLUMN_WIDTHS: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl', string> = {
+  xs: '8%',
   sm: '10%',
   md: '20%',
   lg: '35%',
   xl: '45%',
+  xxl: '92%',
 };
 
 export const dataTableStyles = {

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export type DataTableSortOrder = 'asc' | 'desc';
 
-export type DataTableColumnWidth = 'sm' | 'md' | 'lg' | 'xl';
+export type DataTableColumnWidth = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
 export interface DataTableColumn<TData> {
   id: string;
