@@ -11,32 +11,57 @@ const COLUMN_WIDTHS: Record<'sm' | 'md' | 'lg' | 'xl', string> = {
 
 export const styles = {
   root: () => (theme: Theme) => ({
-    p: 3,
-    // Leave space for the global app header so the search bar isn't hidden underneath it.
-    // Header height is ~89px (same as chart experience layout).
+    // Take full height minus app header
+    height: 'calc(100vh - 89px)',
     mt: '89px',
+    display: 'flex',
+    flexDirection: 'column',
     // Allow the table to use more horizontal space while staying centered.
     maxWidth: 1400,
     mx: 'auto',
+    px: 3,
     // On mobile, use full width with only a small right margin
     [theme.breakpoints.down('sm')]: {
-      p: 2,
+      px: 2,
       pr: 1,
       maxWidth: 'none',
       mx: 0,
     },
   }),
   header: () => (theme: Theme) => ({
-    mb: 3,
+    py: 3,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 2,
+    flexShrink: 0, // Prevent header from shrinking
+    borderBottom: `1px solid ${theme.palette.divider}`,
   }),
   searchBox: () => (theme: Theme) => ({
     minWidth: 300,
     maxWidth: 400,
+  }),
+  scrollableContent: () => (theme: Theme) => ({
+    flex: 1,
+    overflowY: 'auto',
+    px: 0,
+    pb: 3,
+    // Custom scrollbar styling to match the app theme
+    '&::-webkit-scrollbar': {
+      width: 6,
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'rgba(255, 255, 255, 0.02)',
+      borderRadius: 4,
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: 'rgba(138, 43, 226, 0.35)',
+      borderRadius: 4,
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: 'rgba(138, 43, 226, 0.5)',
+    },
   }),
   tableContainer: () => (theme: Theme) => ({
     mt: 2,

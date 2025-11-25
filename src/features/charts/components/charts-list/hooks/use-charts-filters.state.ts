@@ -10,7 +10,7 @@ import type {
  * UI state hook for charts list filters.
  * Component-level hook for local UI state only (no I/O).
  */
-export function useChartsFilters(initialPageSize: number = 20): UseChartsFiltersResult {
+export function useChartsFilters(initialPageSize: number = 5): UseChartsFiltersResult {
   const [filters, setFilters] = useState<ChartsFilters>({
     page: 1,
     pageSize: initialPageSize,

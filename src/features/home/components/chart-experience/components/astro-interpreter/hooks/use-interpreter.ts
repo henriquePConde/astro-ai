@@ -19,7 +19,7 @@ export function useInterpreter(
 ) {
   const { messages, isLoading, addMessage, setMessages, setIsLoading } =
     useAstroChat(initialMessages);
-  const { aiInput: input, setAIInput } = useAIInput();
+  const { aiInput: input, setAIInput, isHighlighted } = useAIInput();
   const interpretMutation = useInterpretChartMutation();
 
   const handleSubmit = useCallback(
@@ -111,5 +111,6 @@ export function useInterpreter(
     isLoading: isLoading || interpretMutation.isPending,
     messages,
     handleSubmit,
+    isInputHighlighted: isHighlighted,
   };
 }

@@ -92,7 +92,7 @@ export function MobileChartSummaryView({
     if (tabsContext) {
       tabsContext.setActiveTab(DATA_SECTION_TABS.AI);
     }
-    setAIInput('How does my sun, moon and ascendant playout together in my birth chart');
+    setAIInput('How does my sun, moon and ascendant playout together in my birth chart', true);
   };
 
   const hintConfig = CHART_INTERACTIONS_HINT_CONFIG;

@@ -75,7 +75,12 @@ export function PDFPreviewView({
           className={offscreenChartStyles.className}
           style={offscreenChartStyles.style}
         >
-          <AstroWheelComponent data={chartData} width={800} height={800} initialScale={1.0} />
+          <AstroWheelComponent
+            data={chartData}
+            width={config.dimensions.chart.astroWheel.width}
+            height={config.dimensions.chart.astroWheel.height}
+            initialScale={config.dimensions.chart.astroWheel.scale}
+          />
         </div>
       )}
 
@@ -93,8 +98,8 @@ export function PDFPreviewView({
                     src={chartImgUrl}
                     alt={config.copy.chart.altText}
                     style={chartPageChartImage.style}
-                    width={800}
-                    height={800}
+                    width={config.dimensions.chart.astroWheel.width}
+                    height={config.dimensions.chart.astroWheel.height}
                     unoptimized
                   />
                 ) : (

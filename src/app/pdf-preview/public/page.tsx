@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { usePdfPreviewPage } from './hooks/usePdfPreviewPage';
 import { PDFPreview } from '@/shared/components/pdf-preview';
@@ -9,6 +9,24 @@ import { styles } from './page.styles';
 function PublicPDFPreviewContent() {
   const theme = useTheme();
   const { reportSections, chartData, error, isLoading } = usePdfPreviewPage();
+
+  // Add PDF preview classes to allow natural overflow for PDF rendering
+  useEffect(() => {
+    document.documentElement.classList.add('pdf-preview-page');
+    document.body.classList.add('pdf-preview-body');
+    const nextElement = document.getElementById('__next');
+    if (nextElement) {
+      nextElement.classList.add('pdf-preview-next');
+    }
+
+    return () => {
+      document.documentElement.classList.remove('pdf-preview-page');
+      document.body.classList.remove('pdf-preview-body');
+      if (nextElement) {
+        nextElement.classList.remove('pdf-preview-next');
+      }
+    };
+  }, []);
 
   if (isLoading) {
     return (

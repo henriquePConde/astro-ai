@@ -32,8 +32,8 @@ export function BigThreeBadgeContainer({ chartData }: BigThreeBadgeContainerProp
     if (tabsContext) {
       tabsContext.setActiveTab(DATA_SECTION_TABS.AI);
     }
-    // Set the input message
-    setAIInput('How does my sun, moon and ascendant playout together in my birth chart');
+    // Set the input message with highlight animation
+    setAIInput('How does my sun, moon and ascendant playout together in my birth chart', true);
   }, [setAIInput, tabsContext]);
 
   if (!chartData) return null;

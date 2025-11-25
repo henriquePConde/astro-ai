@@ -21,4 +21,5 @@ export interface AstroInterpreterViewProps {
   suggestionsTitle: string;
   suggestionsSubtitle?: string;
   tooltipLimitReached: (timeRemaining: string) => string;
+  isInputHighlighted?: boolean;
 }

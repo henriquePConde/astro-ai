@@ -5,7 +5,13 @@ import { Box, Button, TextField, useTheme } from '@mui/material';
 import { styles } from './input-form.styles';
 import type { InputFormViewProps } from './input-form.types';
 
-export function InputFormView({ input, onChange, onSubmit, disabled }: InputFormViewProps) {
+export function InputFormView({
+  input,
+  onChange,
+  onSubmit,
+  disabled,
+  isHighlighted = false,
+}: InputFormViewProps) {
   const theme = useTheme();
 
   return (
@@ -22,11 +28,11 @@ export function InputFormView({ input, onChange, onSubmit, disabled }: InputForm
           disabled={disabled}
           slotProps={{
             input: {
-              sx: styles.textFieldInput()(theme),
+              sx: styles.textFieldInput(isHighlighted)(theme),
             },
           }}
           variant="outlined"
-          sx={styles.textField()(theme)}
+          sx={styles.textField(isHighlighted)(theme)}
         />
         <Button
           type="submit"

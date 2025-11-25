@@ -44,8 +44,8 @@ export function MobileChartExpandContainer({
         tabsContext.setActiveTab(DATA_SECTION_TABS.AI);
       }
 
-      // Set the AI input message
-      setAIInput(message);
+      // Set the AI input message with highlight animation
+      setAIInput(message, true);
     },
     [onClose, tabsContext, setAIInput],
   );

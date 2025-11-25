@@ -268,7 +268,7 @@ const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
         const signText = planet.signLabel || 'unknown sign';
         const houseText = planet.house ? ` in the ${planet.house} house` : '';
         const message = `Tell me about the meaning of ${planet.name} in ${signText}${houseText} in my chart`;
-        setAIInput(message);
+        setAIInput(message, true);
       },
 
       onHouseClick: (house, evt) => {
@@ -276,7 +276,7 @@ const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
         // Switch to AI Interpreter tab if not already on it
         switchToAITabIfNeeded();
         const message = `Tell me about the meaning of the ${house.number} house in my chart`;
-        setAIInput(message);
+        setAIInput(message, true);
       },
 
       onSignClick: (index, evt) => {
@@ -329,8 +329,8 @@ const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
           (window as any).__lastSignEnhancedMessage = enhancedMessage;
         }
 
-        // Set the simple message in the input (what user sees)
-        setAIInput(userMessage);
+        // Set the simple message in the input (what user sees) with highlight
+        setAIInput(userMessage, true);
       },
 
       onAspectClick: (aspect, evt) => {
@@ -340,7 +340,7 @@ const InnerInteractionsProvider: React.FC<ChartInteractionsProviderProps> = ({
         const planet1 = aspect.p1 || 'planet 1';
         const planet2 = aspect.p2 || 'planet 2';
         const message = `Tell me about the meaning of the ${aspect.type} between ${planet1} and ${planet2} in my chart`;
-        setAIInput(message);
+        setAIInput(message, true);
       },
     }),
     [

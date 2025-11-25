@@ -29,7 +29,7 @@ export function AstroInterpreterContainer({
     [chartData],
   );
 
-  const { input, setInput, isLoading, messages, handleSubmit } = useInterpreter(
+  const { input, setInput, isLoading, messages, handleSubmit, isInputHighlighted } = useInterpreter(
     wheelData,
     initialMessages,
     chartId,
@@ -55,6 +55,7 @@ export function AstroInterpreterContainer({
       suggestionsTitle={ASTRO_INTERPRETER_CONFIG.copy.suggestions.title}
       suggestionsSubtitle={ASTRO_INTERPRETER_CONFIG.copy.suggestions.subtitle}
       tooltipLimitReached={ASTRO_INTERPRETER_CONFIG.copy.tooltipLimitReached}
+      isInputHighlighted={isInputHighlighted}
     />
   );
 }

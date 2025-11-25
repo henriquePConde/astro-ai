@@ -160,6 +160,22 @@ export const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        // Prevent page-level scrolling - only allow scrolling in designated containers
+        // But exclude PDF preview pages which need natural overflow for rendering
+        'html:not(.pdf-preview-page)': {
+          overflow: 'hidden',
+          height: '100%',
+        },
+        'body:not(.pdf-preview-body)': {
+          overflow: 'hidden',
+          height: '100%',
+          margin: 0,
+          padding: 0,
+        },
+        '#__next:not(.pdf-preview-next)': {
+          height: '100%',
+          overflow: 'hidden',
+        },
         '*, *::before, *::after': {
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(138, 43, 226, 0.35) rgba(255, 255, 255, 0.02)',

@@ -48,6 +48,11 @@ export const PDF_PREVIEW_CONFIG = {
         width: 800,
         height: 800,
       },
+      astroWheel: {
+        width: 570,
+        height: 570,
+        scale: 0.63,
+      },
     },
   },
   styles: {

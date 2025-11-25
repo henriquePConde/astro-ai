@@ -24,6 +24,7 @@ export function AstroInterpreterView({
   suggestionsTitle,
   suggestionsSubtitle,
   tooltipLimitReached,
+  isInputHighlighted = false,
 }: AstroInterpreterViewProps) {
   const isMessageLimitReached = usage ? usage.messages.used >= usage.messages.limit : false;
   const timeRemaining = useTimeUntilReset(usage?.messages.firstGenerationAt);
@@ -117,6 +118,7 @@ export function AstroInterpreterView({
         onChange={onInputChange}
         onSubmit={onSubmit}
         disabled={isLoading || isMessageLimitReached}
+        isHighlighted={isInputHighlighted}
       />
     </Box>
   );

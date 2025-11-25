@@ -3,4 +3,5 @@ export interface InputFormViewProps {
   onChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   disabled: boolean;
+  isHighlighted?: boolean;
 }

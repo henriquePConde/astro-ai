@@ -74,6 +74,7 @@ export function ChartsListView({
 
   return (
     <Box sx={styles.root()}>
+      {/* Fixed header with title and search */}
       <Box sx={styles.header()}>
         <Typography variant="h4">{config.copy.title}</Typography>
         <TextField
@@ -85,36 +86,39 @@ export function ChartsListView({
         />
       </Box>
 
-      {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
-      ) : charts.length === 0 ? (
-        <Box sx={styles.emptyState()}>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            {config.copy.empty.title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {config.copy.empty.description}
-          </Typography>
-        </Box>
-      ) : (
-        <>
-          <DataTableView
-            rows={rows}
-            columns={columns}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-            onSortChange={handleTableSortChange}
-            getRowId={(chart) => chart.id as string}
-            pagination={{
-              page: tablePagination.page,
-              totalPages: tablePagination.totalPages,
-              onPageChange: tablePagination.onPageChange,
-            }}
-          />
-        </>
-      )}
+      {/* Scrollable content area */}
+      <Box sx={styles.scrollableContent()}>
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress />
+          </Box>
+        ) : charts.length === 0 ? (
+          <Box sx={styles.emptyState()}>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {config.copy.empty.title}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {config.copy.empty.description}
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <DataTableView
+              rows={rows}
+              columns={columns}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={handleTableSortChange}
+              getRowId={(chart) => chart.id as string}
+              pagination={{
+                page: tablePagination.page,
+                totalPages: tablePagination.totalPages,
+                onPageChange: tablePagination.onPageChange,
+              }}
+            />
+          </>
+        )}
+      </Box>
 
       <Dialog
         open={deleteDialogOpen}
