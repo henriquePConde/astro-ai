@@ -61,12 +61,14 @@ model ReportJob {
 }
 
 model Chart {
-  id        String             @id @default(uuid()) @db.Uuid
-  userId    String             @map("user_id") @db.Uuid
-  birthData Json               @map("birth_data")
-  createdAt DateTime           @default(now()) @map("created_at")
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages  InterpretMessage[]
+  id               String             @id @default(uuid()) @db.Uuid
+  userId           String             @map("user_id") @db.Uuid
+  birthData        Json               @map("birth_data")
+  calculatedData   Json?              @map("calculated_data") // Cached chart calculation result
+  calculatedAt     DateTime?          @map("calculated_at")   // When the calculation was cached
+  createdAt        DateTime           @default(now()) @map("created_at")
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages         InterpretMessage[]
 
   @@index([userId])
   @@index([createdAt])

@@ -50,16 +50,50 @@ export async function getChartById(id: string, userId: string) {
   // Get messages for this chart
   const messages = await repo.findMessagesByChartId(id, userId);
 
-  // Calculate chart data
+  // Calculate chart data with caching and timeout protection
   let chartData = undefined;
-  try {
-    const calculated = await calculateChart(chart.birthData as any);
-    // Convert full calculation result into the same "simple" chart data
-    // shape that the /api/calculate endpoint returns for the home page.
-    chartData = toSimpleChartData(calculated);
-  } catch (error) {
-    // If calculation fails, continue without chart data
-    console.error('Failed to calculate chart data:', error);
+
+  // Check if we have valid cached data
+  if (repo.isCacheValid(chart, 60)) {
+    // Cache for 60 minutes
+    console.log('Using cached chart data for chart:', id);
+    chartData = chart.calculatedData;
+  } else {
+    // Need to calculate fresh data
+    try {
+      console.log('Calculating fresh chart data for chart:', id);
+
+      // Add timeout wrapper to prevent Vercel timeout
+      const calculationPromise = calculateChart(chart.birthData as any);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Chart calculation timeout')), 7000); // 7 second timeout
+      });
+
+      const calculated = await Promise.race([calculationPromise, timeoutPromise]);
+      // Convert full calculation result into the same "simple" chart data
+      // shape that the /api/calculate endpoint returns for the home page.
+      chartData = toSimpleChartData(calculated as any);
+
+      // Cache the calculated data for future requests
+      try {
+        await repo.updateCalculatedData(id, userId, chartData);
+        console.log('Cached chart data for future requests');
+      } catch (cacheError) {
+        console.warn('Failed to cache chart data:', cacheError);
+        // Continue even if caching fails
+      }
+    } catch (error) {
+      // If calculation fails, continue without chart data
+      console.error('Failed to calculate chart data:', error);
+
+      // If we have old cached data, use it as fallback
+      if (chart.calculatedData) {
+        console.log('Using stale cached data as fallback');
+        chartData = chart.calculatedData;
+      }
+      // For timeout errors, we'll still return the chart without calculated data
+      // The frontend can handle missing chart data gracefully
+    }
   }
 
   return chartDetailDto.parse({

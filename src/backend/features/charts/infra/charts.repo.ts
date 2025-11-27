@@ -132,5 +132,29 @@ export function makeChartsRepo() {
         },
       });
     },
+
+    async updateCalculatedData(id: string, userId: string, calculatedData: any) {
+      await prisma.chart.updateMany({
+        where: {
+          id,
+          userId,
+        },
+        data: {
+          calculatedData,
+          calculatedAt: new Date(),
+        },
+      });
+    },
+
+    isCacheValid(chart: any, maxAgeMinutes: number = 60): boolean {
+      if (!chart.calculatedData || !chart.calculatedAt) {
+        return false;
+      }
+
+      const cacheAge = Date.now() - new Date(chart.calculatedAt).getTime();
+      const maxAge = maxAgeMinutes * 60 * 1000; // Convert to milliseconds
+
+      return cacheAge < maxAge;
+    },
   };
 }
