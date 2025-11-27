@@ -49,9 +49,9 @@ export const PDF_PREVIEW_CONFIG = {
         height: 800,
       },
       astroWheel: {
-        width: 570,
-        height: 570,
-        scale: 0.63,
+        width: 600,
+        height: 600,
+        scale: 0.65,
       },
     },
   },
@@ -86,10 +86,9 @@ export const PDF_PREVIEW_CONFIG = {
       imageType: 'image/png',
     },
   },
-  timing: {
-    chartConversionDelay: 5000,
-    svgRetryDelay: 200,
-    maxRetries: 10,
+  ui: {
+    loadingSpinnerSize: 24,
+    showDebugInfo: false,
   },
   page: {
     size: 'A4',

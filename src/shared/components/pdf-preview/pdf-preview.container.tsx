@@ -21,8 +21,8 @@ const MarkdownRenderer = dynamic(
 export function PDFPreviewContainer({ reportData = {}, chartData }: PDFPreviewContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const currentDate = useCurrentDate();
-  const { chartImgUrl, svgContainerRef } = useSvgToPng(chartData);
-  const isReady = usePdfReady(reportData, chartData, chartImgUrl);
+  const { chartImgUrl, svgContainerRef, isGenerating, error } = useSvgToPng(chartData);
+  const isReady = usePdfReady(reportData, chartData, chartImgUrl, isGenerating);
   usePdfDomAttributes(isReady);
   const { sectionEntries, allSectionKeys, totalPages } = usePdfSections(reportData);
 

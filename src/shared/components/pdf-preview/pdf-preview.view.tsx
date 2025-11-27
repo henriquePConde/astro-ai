@@ -101,11 +101,16 @@ export function PDFPreviewView({
                     width={config.dimensions.chart.astroWheel.width}
                     height={config.dimensions.chart.astroWheel.height}
                     unoptimized
+                    priority
+                    onLoad={() => console.log('Chart image loaded in PDF preview')}
+                    onError={(e) => console.error('Chart image failed to load:', e)}
                   />
-                ) : (
+                ) : chartData ? (
                   <span className={chartPageGeneratingText.className}>
                     {config.copy.chart.generatingText}
                   </span>
+                ) : (
+                  <span className={chartPageGeneratingText.className}>No chart data available</span>
                 )}
               </div>
               <div className={chartPageSubtitle.className} style={chartPageSubtitle.style}>

@@ -189,7 +189,34 @@ export async function generatePdfFromReportId(
 
       await page.emulateMediaType('print');
 
-      // Wait for chart PNG image to be ready with reduced timeout
+      // Enhanced chart image readiness check
+      console.log('Waiting for chart images to be ready...');
+
+      // First, wait for fonts to load
+      try {
+        await page.evaluate(() => {
+          return document.fonts.ready;
+        });
+        console.log('Fonts loaded');
+      } catch (error) {
+        console.warn('Font loading check failed:', error);
+      }
+
+      // Wait for PDF ready state
+      try {
+        await page.waitForFunction(
+          () => {
+            const container = document.querySelector('.pdf-preview-container');
+            return container && container.getAttribute('data-pdf-ready') === 'true';
+          },
+          { timeout: 25000 },
+        );
+        console.log('PDF container marked as ready');
+      } catch (error) {
+        console.warn('PDF ready state timeout:', error);
+      }
+
+      // Wait for chart PNG image to be ready with enhanced checks
       try {
         await page.waitForFunction(
           () => {
@@ -208,18 +235,38 @@ export async function generatePdfFromReportId(
                 'img[alt="Astro Chart"]',
               ) as HTMLImageElement | null;
               if (chartImg) {
-                return chartImg.complete && chartImg.naturalWidth > 0;
+                const isLoaded =
+                  chartImg.complete && chartImg.naturalWidth > 0 && chartImg.naturalHeight > 0;
+                if (isLoaded) {
+                  // Verify the image has actual content (not just a placeholder)
+                  const canvas = document.createElement('canvas');
+                  const ctx = canvas.getContext('2d');
+                  if (ctx) {
+                    canvas.width = chartImg.naturalWidth;
+                    canvas.height = chartImg.naturalHeight;
+                    ctx.drawImage(chartImg, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const hasContent = Array.from(imageData.data).some(
+                      (pixel, index) => index % 4 !== 3 && pixel !== 0, // Check for non-transparent, non-black pixels
+                    );
+                    return hasContent;
+                  }
+                }
+                return isLoaded;
               }
               return false;
             }
             return true;
           },
-          { timeout: 10000 }, // Reduced from 30s to 10s
+          { timeout: 20000 },
         );
-        console.log('Chart image ready');
+        console.log('Chart image ready and verified');
       } catch (error) {
         console.log('Chart image generation timeout - proceeding anyway', error);
       }
+
+      // Additional stabilization delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Wait for all images with reduced timeout
       try {
