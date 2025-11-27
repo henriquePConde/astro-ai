@@ -4,8 +4,9 @@
  */
 
 import { prisma } from '@/backend/core/db/prisma';
+import { Prisma } from '@prisma/client';
 import { calculateChart } from '@/backend/features/calculate';
-import { toSimpleChartData } from '@/backend/features/charts/infra/chart-data-transformer';
+import { toSimpleChartData } from '@/backend/features/reports/infra/report-data-transform.service';
 
 interface CacheWarmingOptions {
   batchSize?: number;
@@ -28,8 +29,8 @@ export async function warmChartCache(options: CacheWarmingOptions = {}) {
     const chartsToProcess = await prisma.chart.findMany({
       where: {
         OR: [
-          { calculatedData: null },
-          { calculatedAt: null },
+          { calculatedData: { equals: Prisma.DbNull } },
+          { calculatedAt: { equals: null } },
           { calculatedAt: { lt: staleThreshold } },
         ],
       },
@@ -113,7 +114,7 @@ export async function clearStaleCache(maxAgeDays: number = 7) {
       },
     },
     data: {
-      calculatedData: null,
+      calculatedData: Prisma.DbNull,
       calculatedAt: null,
     },
   });
