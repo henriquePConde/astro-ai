@@ -22,6 +22,13 @@ export function MobileChartSummaryContainer({
   const { openSections, toggleSection, birthMetaColors, bigThreeColors, hintLineColor } =
     useMobileChartSummaryState();
 
+  const handleAskAI = useCallback(() => {
+    if (tabsContext) {
+      tabsContext.setActiveTab(DATA_SECTION_TABS.AI);
+    }
+    setAIInput('How does my sun, moon and ascendant playout together in my birth chart', true);
+  }, [tabsContext, setAIInput]);
+
   if (!chartData || !birthData) return null;
 
   const { name, city, nation, year, month, day, hour, minute } = birthData;
@@ -47,13 +54,6 @@ export function MobileChartSummaryContainer({
   const ascendantLongitude = chartData.houses.firstHouse;
   const ascendantSignIndex = Math.floor(ascendantLongitude / 30) % 12;
   const ascendantSign = ZODIAC_SIGNS[ascendantSignIndex];
-
-  const handleAskAI = useCallback(() => {
-    if (tabsContext) {
-      tabsContext.setActiveTab(DATA_SECTION_TABS.AI);
-    }
-    setAIInput('How does my sun, moon and ascendant playout together in my birth chart', true);
-  }, [tabsContext, setAIInput]);
 
   return (
     <MobileChartSummaryView

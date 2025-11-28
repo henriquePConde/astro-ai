@@ -24,11 +24,19 @@ export function useMobileChartSummaryState() {
 
   // Generate random planet colors for each bullet point
   const birthMetaColors = useMemo(
-    () => [getRandomPlanetColor(), getRandomPlanetColor(), getRandomPlanetColor()],
+    (): [string, string, string] => [
+      getRandomPlanetColor(),
+      getRandomPlanetColor(),
+      getRandomPlanetColor(),
+    ],
     [],
   );
   const bigThreeColors = useMemo(
-    () => [getRandomPlanetColor(), getRandomPlanetColor(), getRandomPlanetColor()],
+    (): [string, string, string] => [
+      getRandomPlanetColor(),
+      getRandomPlanetColor(),
+      getRandomPlanetColor(),
+    ],
     [],
   );
   const hintLineColor = useMemo(() => getRandomPlanetColor(), []);
