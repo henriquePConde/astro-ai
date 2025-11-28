@@ -1,12 +1,10 @@
 'use client';
 
-import { Box, Button, Typography, useTheme, IconButton } from '@mui/material';
+import { Box, Typography, useTheme, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { MobileChartExpandViewProps } from './mobile-chart-expand.types';
 import { styles } from './mobile-chart-expand.styles';
-import { CHART_INTERACTIONS_HINT_CONFIG } from '../../../chart-interactions-hint/chart-interactions-hint.config';
 import { ChartSectionContainer } from '../../../chart-section/chart-section.container';
 import { AccordionSection } from '@/shared/components/accordion-section/accordion-section.view';
 
@@ -16,13 +14,14 @@ export function MobileChartExpandView({
   chartData,
   birthData,
   config,
+  hintConfig,
+  interactionsOpen,
+  onToggleInteractions,
+  chartKey,
 }: MobileChartExpandViewProps) {
   const theme = useTheme();
-  const [interactionsOpen, setInteractionsOpen] = useState(true);
 
   if (!isExpanded || typeof window === 'undefined') return null;
-
-  const hintConfig = CHART_INTERACTIONS_HINT_CONFIG;
 
   const overlayContent = (
     <Box sx={styles.overlay()(theme)}>
@@ -41,7 +40,7 @@ export function MobileChartExpandView({
           <Box
             component="button"
             type="button"
-            onClick={() => setInteractionsOpen(!interactionsOpen)}
+            onClick={onToggleInteractions}
             sx={styles.accordionHeader()(theme)}
           >
             <span>{config.copy.chartInteractionsTitle}</span>
@@ -64,6 +63,7 @@ export function MobileChartExpandView({
         {/* Chart container */}
         <Box sx={styles.chartContainer()(theme)}>
           <ChartSectionContainer
+            key={`mobile-expand-chart-${chartKey}`}
             chartData={chartData}
             birthData={birthData}
             isExpanded={false}

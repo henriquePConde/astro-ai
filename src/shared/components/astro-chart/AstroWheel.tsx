@@ -58,6 +58,9 @@ const AstroWheel = ({
       ? mobileInteractions
       : null;
 
+  // Get modal state to force zoom reinitialization when modal closes
+  const isModalOpen = mobileInteractions?.isModalOpen ?? false;
+
   // Determine if zoom/pan should be enabled
   // Default behavior: enabled on desktop, disabled on mobile unless explicitly enabled
   const shouldEnableZoomPan =
@@ -811,24 +814,29 @@ const AstroWheel = ({
     // Only set up zoom once the chart (and its zoom group) has been rendered
     if (!svgRef.current || !data) return;
 
-    const svg = d3.select(svgRef.current);
+    // Capture the current ref value for use in cleanup
+    const svgElement = svgRef.current;
+    const svg = d3.select(svgElement);
     const g = svg.select<SVGGElement>('.zoom-group');
     if (g.empty()) return;
+
+    // Always remove any existing zoom behavior first to ensure clean state
+    svg.on('.zoom', null);
+    svg.on('dblclick.zoom', null);
 
     // Allow zooming out at least as far as the current effectiveInitialScale,
     // and a bit further (down to ~0.3) for flexibility.
     const minScale = Math.min(0.3, effectiveInitialScale);
 
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      // Zoom / pan controlled by shouldEnableZoomPan flag
-      .filter(() => shouldEnableZoomPan)
-      .scaleExtent([minScale, 5])
-      .on('zoom', (event: any) => {
-        g.attr('transform', event.transform);
-      });
-
     if (shouldEnableZoomPan) {
+      const zoom = d3
+        .zoom<SVGSVGElement, unknown>()
+        .scaleExtent([minScale, 5])
+        .on('zoom', (event: any) => {
+          g.attr('transform', event.transform);
+        });
+
+      // Attach zoom behavior to SVG
       svg.call(zoom);
 
       const currentTransformAttr = g.attr('transform');
@@ -850,11 +858,17 @@ const AstroWheel = ({
       svg.on('dblclick.zoom', () => {
         svg.transition().duration(750).call(zoom.transform, defaultTransform);
       });
-    } else {
-      svg.on('.zoom', null);
-      svg.on('dblclick.zoom', null);
     }
-  }, [data, shouldEnableZoomPan, effectiveInitialScale]);
+
+    // Cleanup function to ensure zoom is properly removed when component unmounts or shouldEnableZoomPan changes
+    return () => {
+      if (svgElement) {
+        const cleanupSvg = d3.select(svgElement);
+        cleanupSvg.on('.zoom', null);
+        cleanupSvg.on('dblclick.zoom', null);
+      }
+    };
+  }, [data, shouldEnableZoomPan, effectiveInitialScale, isModalOpen]);
 
   useEffect(() => {
     if (!svgRef.current) return;
