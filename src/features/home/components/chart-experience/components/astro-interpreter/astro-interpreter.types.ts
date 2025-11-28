@@ -1,5 +1,6 @@
 import type { ChartData as HomeChartData } from '@/features/home/types/chart.types';
 import type { DailyUsage } from '@/features/reports/services/reports.service';
+import type { DataSectionTab } from '@/features/home/components/chart-experience/components/data-section/data-section.types';
 
 type AstroChatMessage = { role: 'user' | 'assistant'; content: string };
 
@@ -22,4 +23,5 @@ export interface AstroInterpreterViewProps {
   suggestionsSubtitle?: string;
   tooltipLimitReached: (timeRemaining: string) => string;
   isInputHighlighted?: boolean;
+  activeTab?: DataSectionTab;
 }

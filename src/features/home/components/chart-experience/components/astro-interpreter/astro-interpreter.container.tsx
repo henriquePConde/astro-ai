@@ -7,6 +7,7 @@ import { useInterpreter } from './hooks/use-interpreter';
 import { useDailyUsage } from '@/features/reports/services/reports.queries';
 import type { AstroInterpreterContainerProps } from './astro-interpreter.types';
 import { ASTRO_INTERPRETER_CONFIG } from './astro-interpreter.config';
+import { useDataSectionTabsContext } from '../data-section/context/data-section-tabs.context';
 
 export function AstroInterpreterContainer({
   chartData,
@@ -41,6 +42,8 @@ export function AstroInterpreterContainer({
     [setInput],
   );
   const { data: usage } = useDailyUsage();
+  const tabsContext = useDataSectionTabsContext();
+  const activeTab = tabsContext?.activeTab;
 
   return (
     <AstroInterpreterView
@@ -56,6 +59,7 @@ export function AstroInterpreterContainer({
       suggestionsSubtitle={ASTRO_INTERPRETER_CONFIG.copy.suggestions.subtitle}
       tooltipLimitReached={ASTRO_INTERPRETER_CONFIG.copy.tooltipLimitReached}
       isInputHighlighted={isInputHighlighted}
+      activeTab={activeTab}
     />
   );
 }

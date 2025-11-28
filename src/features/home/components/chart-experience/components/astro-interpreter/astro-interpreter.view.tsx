@@ -25,6 +25,7 @@ export function AstroInterpreterView({
   suggestionsSubtitle,
   tooltipLimitReached,
   isInputHighlighted = false,
+  activeTab,
 }: AstroInterpreterViewProps) {
   const isMessageLimitReached = usage ? usage.messages.used >= usage.messages.limit : false;
   const timeRemaining = useTimeUntilReset(usage?.messages.firstGenerationAt);
@@ -97,7 +98,7 @@ export function AstroInterpreterView({
           )}
         </Box>
       )}
-      <MessageList messages={messages} isLoading={isLoading} />
+      <MessageList messages={messages} isLoading={isLoading} activeTab={activeTab} />
       {showSuggestionsPanel && (
         <SuggestedQuestions
           config={{
