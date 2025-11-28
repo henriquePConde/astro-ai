@@ -7,7 +7,7 @@ import { BirthChartReportContainer } from './components/birth-chart-report/birth
 import { TabsSectionContainer } from './components/tabs-section/tabs-section.container';
 import { DATA_SECTION_TABS } from './data-section.constants';
 import { ChartSectionContainer } from '../chart-section/chart-section.container';
-import { MobileChartSummaryView } from './components/mobile-chart-summary/mobile-chart-summary.view';
+import { MobileChartSummaryContainer } from './components/mobile-chart-summary';
 import { MobileChartExpandContainer } from './components/mobile-chart-expand';
 import type { DataSectionViewProps } from './data-section.types';
 
@@ -86,7 +86,7 @@ export function DataSectionView({
             sx={styles.tabPanel(activeTab === DATA_SECTION_TABS.CHART)(theme)}
           >
             {birthData && (
-              <MobileChartSummaryView
+              <MobileChartSummaryContainer
                 chartData={chartData}
                 birthData={birthData}
                 onExpandChart={onExpandChart}

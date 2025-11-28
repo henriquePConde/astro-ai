@@ -14,6 +14,21 @@ export const planetColors = Object.freeze({
 export type PlanetColorKey = keyof typeof planetColors;
 
 /**
+ * Returns an array of all unique planet colors.
+ */
+export function getAllPlanetColors(): string[] {
+  return Array.from(new Set(Object.values(planetColors)));
+}
+
+/**
+ * Returns a random planet color from the shared palette.
+ */
+export function getRandomPlanetColor(): string {
+  const colors = getAllPlanetColors();
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+/**
  * Returns the hex color for a given planet name using the shared palette.
  * Accepts names like "sun" or "Sun"; falls back to sun's color if unknown.
  */

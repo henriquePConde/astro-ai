@@ -12,4 +12,5 @@ export interface MobileChartExpandViewProps {
   interactionsOpen: boolean;
   onToggleInteractions: () => void;
   chartKey: number;
+  hintLineColors: string[];
 }

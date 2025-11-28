@@ -18,6 +18,7 @@ export function MobileChartExpandView({
   interactionsOpen,
   onToggleInteractions,
   chartKey,
+  hintLineColors,
 }: MobileChartExpandViewProps) {
   const theme = useTheme();
 
@@ -51,8 +52,12 @@ export function MobileChartExpandView({
               <Typography component="div" sx={styles.hintTitle()(theme)}>
                 {hintConfig.copy.title}
               </Typography>
-              {hintConfig.copy.mobileDescriptionLines.map((line) => (
-                <Typography key={line} component="div" sx={styles.hintLine()(theme)}>
+              {hintConfig.copy.mobileDescriptionLines.map((line, index) => (
+                <Typography
+                  key={line}
+                  component="div"
+                  sx={styles.hintLine(hintLineColors[index])(theme)}
+                >
                   {line}
                 </Typography>
               ))}
