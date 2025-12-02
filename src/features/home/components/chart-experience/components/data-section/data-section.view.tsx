@@ -32,6 +32,7 @@ export function DataSectionView({
   isChartExpanded,
   onExpandChart,
   onCloseChart,
+  contentScrollRef,
 }: DataSectionViewProps) {
   const theme = useTheme();
   const isDesktopLayout = useMediaQuery(theme.breakpoints.up('lg'));
@@ -41,7 +42,7 @@ export function DataSectionView({
     <Box sx={styles.container(isExpanded, isDragging, splitPosition)(theme)}>
       <TabsSectionContainer activeTab={activeTab} onTabChange={onTabChange} />
 
-      <Box sx={styles.content()(theme)}>
+      <Box ref={contentScrollRef} sx={styles.content()(theme)}>
         <Box
           role="tabpanel"
           aria-hidden={activeTab !== DATA_SECTION_TABS.AI}

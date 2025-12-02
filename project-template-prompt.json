@@ -1,0 +1,483 @@
+{
+  "projectName": "{{PROJECT_NAME}}",
+  "description": "Full-stack Next.js application with modular monolith backend architecture, Supabase authentication, and Prisma ORM",
+  "version": "1.0.0",
+  "architecture": {
+    "type": "modular-monolith",
+    "frontend": "feature-driven",
+    "backend": "feature-driven",
+    "separation": "strict-container-presenter"
+  },
+  "techStack": {
+    "runtime": "Node.js >= 20",
+    "framework": {
+      "name": "Next.js",
+      "version": "^15.1.6",
+      "router": "App Router",
+      "features": ["Server Components", "Route Handlers", "Server Actions (optional)"]
+    },
+    "ui": {
+      "library": "Material UI (MUI)",
+      "version": "^7.3.4",
+      "styling": "sx prop with style functions",
+      "theme": "centralized in shared/config/mui-theme.ts"
+    },
+    "stateManagement": {
+      "serverState": "TanStack React Query",
+      "version": "^5.59.0",
+      "formState": "React Hook Form",
+      "version": "^7.66.0"
+    },
+    "validation": {
+      "library": "Zod",
+      "version": "^3.24.2",
+      "usage": ["DTOs", "Form schemas", "Environment validation"]
+    },
+    "database": {
+      "provider": "Supabase (PostgreSQL)",
+      "orm": "Prisma",
+      "version": "^5.19.1",
+      "auth": "Supabase Auth",
+      "security": "Row Level Security (RLS)"
+    },
+    "httpClient": {
+      "library": "Axios",
+      "version": "^1.6.7",
+      "interceptors": ["Auth token injection", "Error normalization"]
+    }
+  },
+  "projectStructure": {
+    "root": {
+      "src/": "Source code",
+      "prisma/": "Prisma schema and migrations",
+      "supabase/": "Supabase migrations and config",
+      "public/": "Static assets",
+      "tests/": "Test files",
+      "documentation/": "Architecture and guides",
+      ".github/workflows/": "CI/CD pipelines"
+    },
+    "src": {
+      "app/": {
+        "description": "Next.js App Router routes and API endpoints",
+        "structure": [
+          "app/(protected)/** - Protected routes",
+          "app/api/** - Route Handlers (controllers)",
+          "app/auth/** - Auth pages (login, signup, callback)",
+          "app/layout.tsx - Root layout",
+          "app/page.tsx - Home page",
+          "middleware.ts - Auth middleware (at root level)"
+        ]
+      },
+      "backend/": {
+        "description": "Backend business logic (modular monolith)",
+        "features/": {
+          "description": "Feature modules (one per domain)",
+          "structure": {
+            "{{feature}}/": {
+              "http/": "Zod DTOs (request/response schemas)",
+              "application/": "Use-cases (business logic, public API)",
+              "domain/": "Pure domain types & invariants",
+              "infra/": "Repositories (data access), mappers (optional)",
+              "index.ts": "Barrel export (use-cases only)"
+            }
+          },
+          "rules": [
+            "Import only from another module's index.ts",
+            "No cross-module imports from infra/ or http/",
+            "One table/view has exactly one owning module"
+          ]
+        },
+        "core/": {
+          "config/": "Environment validation (env.ts)",
+          "db/": [
+            "supabase-server.ts - Server-side Supabase client (RSC-safe)",
+            "supabase-server-mutable.ts - Server-side Supabase client (Route Handlers/Server Actions)",
+            "prisma.ts - Prisma client singleton"
+          ],
+          "auth/": ["get-session.ts - Read session on server", "require-auth.ts - Guards/helpers"],
+          "errors/": "Normalized HTTP errors (http-errors.ts)",
+          "events/": "In-process domain events (bus.ts) - optional"
+        },
+        "jobs/": {
+          "cron/": "Scheduled jobs",
+          "workers/": "Long-running tasks / Edge helpers"
+        },
+        "webhooks/": "Webhook handlers (e.g., stripe/route.ts)"
+      },
+      "features/": {
+        "description": "Frontend feature modules",
+        "structure": {
+          "{{feature}}/": {
+            "components/": {
+              "{{component}}/": {
+                "{{component}}.container.tsx": "Orchestration, data fetching, event wiring",
+                "{{component}}.view.tsx": "Pure UI, deterministic, no side effects",
+                "{{component}}.styles.ts": "Style functions consumed via sx",
+                "{{component}}.schema.ts": "Zod schemas for forms/validation",
+                "{{component}}.types.ts": "TypeScript types (prefer z.infer)",
+                "{{component}}.config.ts": "Static UI configuration (copy, constants, flags)",
+                "hooks/": "UI/derived state hooks only (use-*.state.ts, no I/O)"
+              }
+            },
+            "services/": {
+              "{{feature}}.service.ts": "HTTP calls and pure service functions (no React)",
+              "{{feature}}.queries.ts": "React Query query hooks (useQuery)",
+              "{{feature}}.mutations.ts": "React Query mutation hooks (useMutation)",
+              "{{feature}}.keys.ts": "React Query key factories",
+              "{{feature}}.mappers.ts": "DTO ↔ Domain translators (optional)"
+            },
+            "index.ts": "Public API of the feature (minimal exports)"
+          }
+        },
+        "rules": [
+          "Container imports config, passes as props to View",
+          "View receives all data, callbacks, and config via props",
+          "Component hooks: only UI/state hooks (use-*.state.ts) in component hooks/ folders",
+          "Service hooks: query/mutation hooks in services/ folder"
+        ]
+      },
+      "shared/": {
+        "components/": "Truly generic components only",
+        "hooks/": "Shared hooks used across multiple features",
+        "services/": {
+          "http/": {
+            "client.ts": "Axios instance + interceptors",
+            "error.ts": "Error normalization utilities"
+          },
+          "supabase-browser.ts": "Browser Supabase client factory"
+        },
+        "config/": {
+          "query-client.ts": "QueryClient factory & provider helpers",
+          "mui-theme.ts": "Theme, palette, typography, overrides"
+        },
+        "utils/": "Shared utility functions",
+        "types/": "Shared TypeScript types (e.g., api.types.ts)"
+      },
+      "styles/": "Global styles and theme overrides",
+      "types/": "Generated types (e.g., supabase.ts from Supabase CLI)"
+    }
+  },
+  "namingConventions": {
+    "backend": {
+      "schemas": "{{feature}}.schemas.ts",
+      "useCases": "{{feature}}.use-cases.ts",
+      "repositories": "{{feature}}.repo.ts",
+      "mappers": "{{feature}}.mappers.ts",
+      "entities": "{{feature}}.entities.ts",
+      "barrel": "index.ts (exports use-cases only)"
+    },
+    "frontend": {
+      "container": "{{context}}.container.tsx",
+      "view": "{{context}}.view.tsx",
+      "styles": "{{context}}.styles.ts",
+      "schema": "{{context}}.schema.ts",
+      "types": "{{context}}.types.ts",
+      "config": "{{context}}.config.ts",
+      "stateHooks": "use-*.state.ts (in component hooks/ folder)",
+      "serviceHooks": "*.queries.ts, *.mutations.ts (in services/ folder)"
+    }
+  },
+  "configurationFiles": {
+    "package.json": {
+      "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "postinstall": "prisma generate",
+        "typecheck": "prisma generate && tsc -noEmit",
+        "lint": "next lint",
+        "test": "vitest run --passWithNoTests",
+        "prisma:generate": "prisma generate",
+        "prisma:migrate": "prisma migrate dev",
+        "prisma:migrate:deploy": "bash -lc 'export $(grep -v \"^#\" .env.production | xargs); prisma migrate deploy'",
+        "prisma:studio": "prisma studio",
+        "gen:types": "dotenv -e .env -- npx supabase gen types typescript --db-url \"$DB_URL\" --schema public,auth,storage,graphql_public > src/types/supabase.ts"
+      },
+      "dependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
+        "@hookform/resolvers": "^5.2.2",
+        "@mui/icons-material": "^7.3.5",
+        "@mui/material": "^7.3.4",
+        "@prisma/client": "^5.19.1",
+        "@supabase/ssr": "^0.5.0",
+        "@supabase/supabase-js": "^2.47.10",
+        "@tanstack/react-query": "^5.59.0",
+        "axios": "^1.6.7",
+        "next": "15.1.6",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "react-hook-form": "^7.66.0",
+        "zod": "^3.24.2"
+      },
+      "devDependencies": {
+        "@types/node": "^20.11.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "eslint": "^9.20.1",
+        "eslint-config-next": "15.1.6",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.4.3",
+        "prettier": "^3.3.3",
+        "prisma": "^5.19.1",
+        "typescript": "^5.6.0",
+        "vitest": "^2.0.5"
+      }
+    },
+    "tsconfig.json": {
+      "compilerOptions": {
+        "target": "ES2020",
+        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "strict": true,
+        "baseUrl": ".",
+        "paths": {
+          "@/*": ["src/*"],
+          "@backend/*": ["src/backend/*"],
+          "@features/*": ["src/features/*"]
+        }
+      }
+    },
+    ".eslintrc.cjs": {
+      "extends": ["next/core-web-vitals"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@features/*/*/*", "@backend/features/*/*/*"],
+                "message": "Import from the feature barrel (index.ts) only."
+              },
+              {
+                "group": ["@features/*/infra/*", "@features/*/http/*"],
+                "message": "Do not import another module's infra/http."
+              }
+            ]
+          }
+        ],
+        "import/no-cycle": [
+          "error",
+          {
+            "ignoreExternal": true
+          }
+        ]
+      }
+    },
+    "next.config.ts": {
+      "eslint": {
+        "ignoreDuringBuilds": false
+      },
+      "typescript": {
+        "ignoreBuildErrors": false
+      },
+      "webpack": {
+        "resolve": {
+          "alias": {
+            "@": "path.resolve(__dirname, 'src')"
+          }
+        }
+      }
+    },
+    "prisma/schema.prisma": {
+      "generator": {
+        "provider": "prisma-client-js"
+      },
+      "datasource": {
+        "provider": "postgresql",
+        "url": "env(\"DATABASE_URL\")",
+        "directUrl": "env(\"DIRECT_URL\")"
+      }
+    }
+  },
+  "environmentVariables": {
+    "required": {
+      "NEXT_PUBLIC_SUPABASE_URL": "Supabase project URL",
+      "SUPABASE_ANON_KEY": "Supabase anonymous key",
+      "DATABASE_URL": "PostgreSQL connection string (for Prisma)",
+      "DIRECT_URL": "Direct PostgreSQL connection (optional, for migrations)"
+    },
+    "optional": {
+      "SUPABASE_SERVICE_ROLE_KEY": "Only for Edge Functions/cron (never in Route Handlers)",
+      "NEXT_PUBLIC_API_URL": "API base URL (defaults to relative)"
+    },
+    "validation": "Zod schema in backend/core/config/env.ts"
+  },
+  "authentication": {
+    "provider": "Supabase Auth",
+    "setup": {
+      "server": {
+        "supabaseServer()": "RSC-safe client (read-only cookies)",
+        "supabaseServerMutable()": "Route Handlers/Server Actions (writable cookies)",
+        "getSessionUser()": "Read session helper (supports Bearer token or cookies)"
+      },
+      "client": {
+        "supabaseBrowser()": "Browser client factory (singleton pattern)",
+        "authContext": "React context for auth state (optional)"
+      },
+      "middleware": {
+        "location": "src/middleware.ts (at root level)",
+        "purpose": "Protect routes, validate sessions, redirect to login"
+      },
+      "callback": {
+        "route": "app/api/auth/callback/route.ts",
+        "purpose": "Handle OAuth callbacks, exchange code for session"
+      }
+    },
+    "features": [
+      "Email/password",
+      "OAuth providers (Google, etc.)",
+      "OTP/Magic links",
+      "Session management (cookies + JWT)",
+      "Bearer token support for API clients"
+    ],
+    "authorization": {
+      "method": "Row Level Security (RLS) in Supabase",
+      "policies": "SQL policies scoped by auth.uid() or membership joins"
+    }
+  },
+  "database": {
+    "provider": "Supabase PostgreSQL",
+    "orm": "Prisma",
+    "workflow": {
+      "development": {
+        "local": "supabase start (local Supabase instance)",
+        "migrations": "prisma migrate dev (generates SQL)",
+        "types": "supabase gen types typescript (generates TypeScript types)"
+      },
+      "production": {
+        "migrations": "prisma migrate deploy (applies migrations)",
+        "connection": "DATABASE_URL points to cloud Supabase"
+      }
+    },
+    "migrations": {
+      "location": "supabase/migrations/",
+      "naming": "YYYYMMDD_HHMMSS_description.sql",
+      "strategy": "Backward-compatible (expand → deploy → contract)"
+    },
+    "security": {
+      "rls": "Enable RLS on all user/tenant tables",
+      "policies": "User-scoped or org-scoped policies",
+      "serviceRole": "Never use in Route Handlers, only Edge Functions/cron"
+    }
+  },
+  "developmentWorkflow": {
+    "localSetup": {
+      "1": "Install dependencies: npm install",
+      "2": "Start local Supabase: supabase start",
+      "3": "Copy .env.example to .env.local and fill in values",
+      "4": "Run migrations: prisma migrate dev",
+      "5": "Generate Prisma client: prisma generate",
+      "6": "Generate Supabase types: npm run gen:types",
+      "7": "Start dev server: npm run dev"
+    },
+    "featureDevelopment": {
+      "backend": {
+        "1": "Create feature folder: backend/features/{{feature}}/",
+        "2": "Define domain entities: domain/{{feature}}.entities.ts",
+        "3": "Create Zod schemas: http/{{feature}}.schemas.ts",
+        "4": "Implement repository: infra/{{feature}}.repo.ts",
+        "5": "Implement use-cases: application/{{feature}}.use-cases.ts",
+        "6": "Export from index.ts (use-cases only)",
+        "7": "Create Route Handler: app/api/{{feature}}/route.ts"
+      },
+      "frontend": {
+        "1": "Create feature folder: features/{{feature}}/",
+        "2": "Create service layer: services/{{feature}}.service.ts, *.queries.ts, *.mutations.ts, *.keys.ts",
+        "3": "Create component: components/{{component}}/",
+        "4": "Split Container/View: {{component}}.container.tsx, {{component}}.view.tsx",
+        "5": "Add styles: {{component}}.styles.ts",
+        "6": "Add config: {{component}}.config.ts (if needed)",
+        "7": "Create UI state hooks: hooks/use-*.state.ts",
+        "8": "Export from index.ts (minimal surface)"
+      }
+    }
+  },
+  "testing": {
+    "unit": {
+      "target": "Domain + use-cases (mock repos)",
+      "framework": "Vitest"
+    },
+    "integration": {
+      "target": "Repositories against local Supabase",
+      "framework": "Vitest + MSW (optional)"
+    },
+    "e2e": {
+      "target": "Route handlers via Playwright/Cypress",
+      "framework": "Playwright or Cypress"
+    },
+    "structure": {
+      "tests/unit/": "Unit tests",
+      "tests/integration/": "Integration tests",
+      "tests/e2e/": "End-to-end tests"
+    }
+  },
+  "ciCd": {
+    "provider": "GitHub Actions",
+    "workflow": {
+      "on": ["push", "pull_request"],
+      "steps": [
+        "Checkout code",
+        "Setup Node.js 20",
+        "Install dependencies (npm ci)",
+        "Type check (npm run typecheck)",
+        "Lint (npm run lint)",
+        "Test (npm test)",
+        "Build (npm run build)"
+      ]
+    },
+    "deployment": {
+      "platform": "Vercel",
+      "preview": "Auto-deploy on PRs",
+      "production": "Deploy on merge to main",
+      "database": "Run migrations before app deploy (manual or automated)"
+    }
+  },
+  "keyPrinciples": {
+    "separationOfConcerns": "HTTP boundary ≠ business logic ≠ data access",
+    "featureFirst": "Group by feature/domain, not by tech",
+    "contractsAtEdges": "Zod validates every inbound/outbound payload",
+    "securityByDefault": "RLS on all user/tenant tables; service-role only in Edge/cron",
+    "testableUnits": "Use-cases and domain are pure; repos isolated",
+    "progressiveComplexity": "Start with Supabase JS; adopt Drizzle, events, queues when needed",
+    "containerPresenter": "Container = orchestration, View = pure UI",
+    "configInContainer": "Config files imported in Container, passed as props to View",
+    "hooksByResponsibility": "UI state hooks in component hooks/, service hooks in services/"
+  },
+  "documentation": {
+    "architecture": {
+      "backend": "documentation/backend-architecture.md",
+      "frontend": "documentation/frontend-architecture.md",
+      "infrastructure": "documentation/infra-architecture.md"
+    },
+    "readme": "README.md with setup instructions"
+  },
+  "exampleFeature": {
+    "name": "users",
+    "backend": {
+      "domain/users.entities.ts": "export type User = { id: string; email: string; name: string | null; }",
+      "http/users.schemas.ts": "export const userDto = z.object({ id: z.string().uuid(), email: z.string().email(), name: z.string().nullable() })",
+      "infra/users.repo.ts": "export function makeUsersRepo() { return { async list() { ... }, async insert() { ... } } }",
+      "application/users.use-cases.ts": "export async function listUsers() { const repo = makeUsersRepo(); return userDto.parse(await repo.list()); }",
+      "index.ts": "export { listUsers } from './application/users.use-cases';"
+    },
+    "frontend": {
+      "services/users.service.ts": "export async function listUsers() { const res = await client.get('/api/users'); return z.array(userDto).parse(res.data); }",
+      "services/users.queries.ts": "export function useUsers() { return useQuery({ queryKey: usersKeys.list(), queryFn: listUsers }); }",
+      "services/users.keys.ts": "export const usersKeys = { all: ['users'], lists: () => [...usersKeys.all, 'list'] };",
+      "components/user-list/user-list.container.tsx": "export function UserListContainer() { const { data } = useUsers(); return <UserListView data={data} />; }",
+      "components/user-list/user-list.view.tsx": "export function UserListView({ data }: { data: User[] }) { return <List>{data.map(u => <ListItem>{u.name}</ListItem>)}</List>; }"
+    },
+    "api": {
+      "app/api/users/route.ts": "export async function GET() { const result = await listUsers(); return NextResponse.json(result); }"
+    }
+  },
+  "notes": {
+    "supabaseLocal": "Use 'supabase start' for local development with full Supabase stack",
+    "supabaseCloud": "Use cloud Supabase for production (separate projects for staging/prod recommended)",
+    "prismaVsSupabase": "Prisma for ORM/type-safety, Supabase JS for auth/RLS/storage/realtime",
+    "migrations": "Apply DB migrations before app deployment (backward-compatible strategy)",
+    "envValidation": "Always validate environment variables with Zod in backend/core/config/env.ts",
+    "errorHandling": "Normalize errors at HTTP layer, display friendly messages in UI",
+    "moduleBoundaries": "Enforce with ESLint rules - import only from feature index.ts"
+  }
+}

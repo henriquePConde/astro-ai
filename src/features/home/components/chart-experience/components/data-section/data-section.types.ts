@@ -1,3 +1,4 @@
+import type React from 'react';
 import type { BirthChartData } from '@/features/home/types/chart.types';
 import type { BirthChartReportSections } from '@/features/home/services/birth-chart-report.service';
 
@@ -42,4 +43,5 @@ export interface DataSectionViewProps {
   isChartExpanded: boolean;
   onExpandChart: () => void;
   onCloseChart: () => void;
+  contentScrollRef: React.RefObject<HTMLDivElement>;
 }
