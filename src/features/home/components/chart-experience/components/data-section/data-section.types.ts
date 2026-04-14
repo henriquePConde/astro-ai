@@ -43,5 +43,5 @@ export interface DataSectionViewProps {
   isChartExpanded: boolean;
   onExpandChart: () => void;
   onCloseChart: () => void;
-  contentScrollRef: React.RefObject<HTMLDivElement>;
+  contentScrollRef: React.RefObject<HTMLDivElement | null>;
 }

@@ -49,7 +49,7 @@ export const chartContextDto = z.object({
 });
 
 export const messageDto = z.object({
-  role: z.enum(['user', 'assistant', 'system']),
+  role: z.enum(['user', 'assistant']),
   content: z.string(),
 });
 
