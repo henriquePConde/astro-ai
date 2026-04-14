@@ -70,12 +70,6 @@ export async function* interpretChart(
 
   const systemMessage = createSystemMessage(context);
 
-  const formattedMessages: Message[] = [
-    { role: 'system', content: systemMessage },
-    ...chatHistory.slice(-10), // Keep last 10 messages for context
-    { role: 'user', content: message },
-  ];
-
   // Ensure API key is set
   if (!env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY is not configured');
@@ -83,12 +77,31 @@ export async function* interpretChart(
 
   process.env.OPENAI_API_KEY = env.OPENAI_API_KEY;
 
-  const { textStream } = streamText({
+  const conversationMessages: Message[] = [
+    ...chatHistory.slice(-10), // Keep last 10 messages for context
+    { role: 'user', content: message },
+  ];
+
+  console.log(
+    '[openai.service] calling streamText, messages:',
+    JSON.stringify(conversationMessages.map((m) => ({ role: m.role, length: m.content.length }))),
+  );
+
+  const result = streamText({
     model: openai('gpt-4o-mini'),
-    messages: formattedMessages,
+    system: systemMessage,
+    messages: conversationMessages,
   });
 
-  for await (const chunk of textStream) {
-    yield chunk;
+  for await (const part of result.fullStream) {
+    console.log('[openai.service] part type:', part.type);
+    if (part.type === 'text-delta') {
+      yield part.textDelta;
+    } else if (part.type === 'error') {
+      console.error('[openai.service] stream error part:', part.error);
+      throw part.error instanceof Error ? part.error : new Error(String(part.error));
+    } else if (part.type === 'finish') {
+      console.log('[openai.service] finish — reason:', part.finishReason, '| usage:', part.usage);
+    }
   }
 }

@@ -54,12 +54,13 @@ export function useInterpreter(
 
       try {
         let accumulated = '';
+        // baseHistory is for display only — current userMessage already appended via addMessage above
         const baseHistory = [...messages, userMessage];
 
         await interpretMutation.mutateAsync({
           message: messageToSend,
           context,
-          chatHistory: baseHistory,
+          chatHistory: messages, // send only prior messages; server appends current message itself
           chartId,
           onChunk: (chunk) => {
             accumulated += chunk;

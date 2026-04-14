@@ -67,7 +67,11 @@ export async function POST(req: NextRequest) {
           controller.close();
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          controller.error(new Error(errorMessage));
+          console.error('[interpret] stream error:', errorMessage, error);
+          // Write the error as a chunk so the client can surface it,
+          // then close normally (controller.error aborts silently on the client).
+          controller.enqueue(new TextEncoder().encode(`\n[ERROR]: ${errorMessage}`));
+          controller.close();
         }
       },
     });

@@ -50,7 +50,7 @@ export type ChartContext = {
 };
 
 export type Message = {
-  role: 'user' | 'assistant' | 'system';
+  role: 'user' | 'assistant';
   content: string;
 };
 

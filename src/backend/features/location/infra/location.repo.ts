@@ -2,9 +2,10 @@ import * as https from 'https';
 import { URL } from 'url';
 import type { LocationSearchResult } from '../domain/location.entities';
 
-const BASE_URL = 'https://nominatim.openstreetmap.org/search';
+const NOMINATIM_URL = process.env.NOMINATIM_URL;
+const PHOTON_URL = process.env.PHOTON_URL;
 const HEADERS = {
-  'User-Agent': 'Mozilla/5.0',
+  'User-Agent': process.env.LOCATION_USER_AGENT ?? 'astro-ai-fullstack/1.0',
 };
 
 // Country name to ISO code mapping
@@ -219,7 +220,7 @@ export function makeLocationRepo() {
             featuretype: 'country',
           });
 
-          const data = await makeHttpRequest(`${BASE_URL}?${searchParams}`);
+          const data = await makeHttpRequest(`${NOMINATIM_URL}?${searchParams}`);
 
           const apiResults = data
             .filter(
@@ -276,58 +277,53 @@ export function makeLocationRepo() {
       }
 
       try {
-        // Keep a small delay to respect Nominatim, but avoid adding a full second
-        await delay(300);
-
         const countryCode = countryName ? getCountryCode(countryName) : null;
 
-        let searchQuery = query.trim();
-        if (countryCode) {
-          searchQuery = `${searchQuery}, ${countryCode}`;
-        }
+        // Fetch more than needed so we have room to filter by country
+        const fetchLimit = countryCode ? limit * 3 : limit;
 
         const searchParams = new URLSearchParams({
-          q: searchQuery,
-          format: 'json',
-          addressdetails: '1',
-          limit: limit.toString(),
+          q: query.trim(),
+          limit: fetchLimit.toString(),
+          lang: 'en',
         });
 
-        if (countryCode) {
-          searchParams.set('countrycodes', countryCode.toLowerCase());
-        }
-
-        const fullUrl = `${BASE_URL}?${searchParams}`;
+        const fullUrl = `${PHOTON_URL}?${searchParams}`;
         const data = await makeHttpRequest(fullUrl);
 
-        const filteredResults = data.filter(
-          (item: any) => item.importance > 0.1 && item.place_rank <= 20,
-        );
+        if (!data?.features) return [];
 
-        return filteredResults
-          .map((item: any) => ({
-            name:
-              item.address?.municipality ||
-              item.address?.city ||
-              item.address?.town ||
-              item.address?.village ||
-              item.address?.hamlet ||
-              item.address?.suburb ||
-              item.address?.state ||
-              item.name ||
-              'Unknown',
-            displayName: item.display_name,
-            country: item.address?.country,
-            countryCode: item.address?.country_code?.toUpperCase(),
-            lat: parseFloat(item.lat || '0'),
-            lng: parseFloat(item.lon || '0'),
-            importance: item.importance,
-          }))
-          .filter((result: LocationSearchResult) => result.name && result.name !== 'Unknown')
-          .sort(
-            (a: LocationSearchResult, b: LocationSearchResult) =>
-              (b.importance || 0) - (a.importance || 0),
-          )
+        const CITY_TYPES = new Set([
+          'city',
+          'town',
+          'village',
+          'hamlet',
+          'suburb',
+          'borough',
+          'municipality',
+          'district',
+        ]);
+
+        return data.features
+          .filter((f: any) => {
+            const props = f.properties;
+            if (countryCode && props.countrycode?.toUpperCase() !== countryCode) return false;
+            return props.osm_key === 'place' && CITY_TYPES.has(props.osm_value);
+          })
+          .map((f: any) => {
+            const props = f.properties;
+            const [lng, lat] = f.geometry.coordinates;
+            return {
+              name: props.name || props.city || props.town || props.village || 'Unknown',
+              displayName: [props.name, props.state, props.country].filter(Boolean).join(', '),
+              country: props.country,
+              countryCode: props.countrycode?.toUpperCase(),
+              lat,
+              lng,
+              importance: f.properties.extent ? 1 : 0.5,
+            };
+          })
+          .filter((r: LocationSearchResult) => r.name && r.name !== 'Unknown')
           .slice(0, limit);
       } catch (error) {
         console.error('Error searching cities:', error);
