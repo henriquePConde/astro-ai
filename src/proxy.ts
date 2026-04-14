@@ -1,14 +1,14 @@
-// middleware.ts
+// proxy.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 /**
- * Auth-enforcing middleware for protected routes.
+ * Auth-enforcing proxy for protected routes.
  * - For API routes: returns 401 if no session
  * - For app routes: redirects to /login?next=... if no session
  * - Public routes: /api/health, /api/auth/sync, /api/auth/signout, /api/auth/signup, /api/auth/check-user, /api/auth/callback, /api/auth/ensure-user, /api/reports/[id], /api/pdf/validate-token
  */
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Skip public endpoints
@@ -109,7 +109,7 @@ export async function middleware(req: NextRequest) {
   } catch (error) {
     // If Supabase throws, treat it as an invalid/expired session
     // and clear any sb-* cookies so the user doesn't get stuck.
-    console.error('[middleware] Supabase getSession error, clearing sb-* cookies', error);
+    console.error('[proxy] Supabase getSession error, clearing sb-* cookies', error);
 
     const hasAccess = !!req.cookies.get('sb-access-token')?.value;
     const hasRefresh = !!req.cookies.get('sb-refresh-token')?.value;
@@ -146,7 +146,7 @@ export async function middleware(req: NextRequest) {
 /**
  * IMPORTANT:
  * - Ensure this file sits at project root (same level as `app/`), not under `src/`.
- * - Restart dev server after creating/updating middleware.
+ * - Restart dev server after creating/updating proxy.
  */
 export const config = {
   matcher: [
