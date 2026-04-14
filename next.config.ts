@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // Explicitly include the swisseph-v2 native binary in Vercel's file trace so
+  // the .node addon is packaged into the serverless function bundle.
+  outputFileTracingIncludes: {
+    '/api/calculate': ['./node_modules/swisseph-v2/**/*'],
+  },
 };
 
 export default nextConfig;
