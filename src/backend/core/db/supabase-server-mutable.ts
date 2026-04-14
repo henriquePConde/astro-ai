@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import type { Database } from '@/types/supabase';
 import { env } from '@/backend/core/config/env';
 
@@ -13,7 +13,7 @@ export async function supabaseServerMutable() {
       getAll() {
         return cookieStore.getAll().map(({ name, value }) => ({ name, value }));
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
         cookiesToSet.forEach(({ name, value, options }) => {
           cookieStore.set(name, value, options);
         });

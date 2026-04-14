@@ -1,6 +1,6 @@
 // proxy.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 /**
  * Auth-enforcing proxy for protected routes.
@@ -84,7 +84,7 @@ export async function proxy(req: NextRequest) {
       getAll() {
         return req.cookies.getAll().map(({ name, value }) => ({ name, value }));
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
         cookiesToSet.forEach(({ name, value, options }) => {
           res.cookies.set(name, value, options);
         });
